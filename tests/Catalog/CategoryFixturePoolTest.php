@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Catalog;
@@ -16,14 +17,8 @@ use PHPUnit\Framework\TestCase;
  */
 class CategoryFixturePoolTest extends TestCase
 {
-    /**
-     * @var CategoryFixturePool
-     */
-    private $categoryFixtures;
-    /**
-     * @var CategoryRepositoryInterface
-     */
-    private $categoryRepository;
+    private CategoryFixturePool $categoryFixtures;
+    private CategoryRepositoryInterface $categoryRepository;
 
     protected function setUp(): void
     {
@@ -31,7 +26,7 @@ class CategoryFixturePoolTest extends TestCase
         $this->categoryRepository = Bootstrap::getObjectManager()->create(CategoryRepositoryInterface::class);
     }
 
-    public function testLastCategoryFixtureReturnedByDefault()
+    public function testLastCategoryFixtureReturnedByDefault(): void
     {
         $firstCategory = $this->createCategory();
         $lastCategory = $this->createCategory();
@@ -41,13 +36,13 @@ class CategoryFixturePoolTest extends TestCase
         $this->assertEquals($lastCategory->getId(), $categoryFixture->getId());
     }
 
-    public function testExceptionThrownWhenAccessingEmptyCategoryPool()
+    public function testExceptionThrownWhenAccessingEmptyCategoryPool(): void
     {
         $this->expectException(\OutOfBoundsException::class);
         $this->categoryFixtures->get();
     }
 
-    public function testCategoryFixtureReturnedByKey()
+    public function testCategoryFixtureReturnedByKey(): void
     {
         $firstCategory = $this->createCategory();
         $lastCategory = $this->createCategory();
@@ -57,7 +52,7 @@ class CategoryFixturePoolTest extends TestCase
         $this->assertEquals($firstCategory->getId(), $categoryFixture->getId());
     }
 
-    public function testCategoryFixtureReturnedByNumericKey()
+    public function testCategoryFixtureReturnedByNumericKey(): void
     {
         $firstCategory = $this->createCategory();
         $lastCategory = $this->createCategory();
@@ -67,7 +62,7 @@ class CategoryFixturePoolTest extends TestCase
         $this->assertEquals($firstCategory->getId(), $categoryFixture->getId());
     }
 
-    public function testExceptionThrownWhenAccessingNonexistingKey()
+    public function testExceptionThrownWhenAccessingNonexistingKey(): void
     {
         $category = $this->createCategory();
         $this->categoryFixtures->add($category, 'foo');
@@ -75,7 +70,10 @@ class CategoryFixturePoolTest extends TestCase
         $this->categoryFixtures->get('bar');
     }
 
-    public function testRollbackRemovesCategorysFromPool()
+    /**
+     * @throws \Exception
+     */
+    public function testRollbackRemovesCategorysFromPool(): void
     {
         $category = $this->createCategoryInDb();
         $this->categoryFixtures->add($category);
@@ -84,7 +82,10 @@ class CategoryFixturePoolTest extends TestCase
         $this->categoryFixtures->get();
     }
 
-    public function testRollbackWorksWithKeys()
+    /**
+     * @throws \Exception
+     */
+    public function testRollbackWorksWithKeys(): void
     {
         $category = $this->createCategoryInDb();
         $this->categoryFixtures->add($category, 'key');
@@ -93,7 +94,10 @@ class CategoryFixturePoolTest extends TestCase
         $this->categoryFixtures->get();
     }
 
-    public function testRollbackDeletesCategorysFromDb()
+    /**
+     * @throws \Exception
+     */
+    public function testRollbackDeletesCategorysFromDb(): void
     {
         $category = $this->createCategoryInDb();
         $this->categoryFixtures->add($category);
@@ -104,26 +108,23 @@ class CategoryFixturePoolTest extends TestCase
 
     /**
      * Creates dummy category object
-     *
-     * @return \Magento\Catalog\Model\Category
-     * @throws \Exception
      */
-    private function createCategory(): \Magento\Catalog\Model\Category
+    private function createCategory(): Category
     {
         static $nextId = 1;
         /** @var Category $category */
         $category = Bootstrap::getObjectManager()->create(Category::class);
         $category->setId($nextId++);
+
         return $category;
     }
 
     /**
      * Creates category using builder
      *
-     * @return \Magento\Catalog\Model\Category
      * @throws \Exception
      */
-    private function createCategoryInDb(): \Magento\Catalog\Model\Category
+    private function createCategoryInDb(): Category
     {
         return CategoryBuilder::topLevelCategory()->build();
     }

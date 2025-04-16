@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TddWizard\Fixtures\Customer;
 
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -16,20 +18,12 @@ use PHPUnit\Framework\TestCase;
  */
 class CustomerBuilderTest extends TestCase
 {
-    /**
-     * @var ObjectManagerInterface
-     */
-    private $objectManager;
-
+    private ObjectManagerInterface $objectManager;
+    private CustomerRepositoryInterface $customerRepository;
     /**
      * @var CustomerFixture[]
      */
-    private $customers = [];
-
-    /**
-     * @var CustomerRepositoryInterface
-     */
-    private $customerRepository;
+    private array $customers = [];
 
     protected function setUp(): void
     {
@@ -40,7 +34,7 @@ class CustomerBuilderTest extends TestCase
 
     protected function tearDown(): void
     {
-        if (! empty($this->customers)) {
+        if (!empty($this->customers)) {
             foreach ($this->customers as $customer) {
                 CustomerFixtureRollback::create()->execute($customer);
             }
@@ -91,7 +85,7 @@ class CustomerBuilderTest extends TestCase
     {
         /** @var StoreManagerInterface $storeManager */
         $storeManager = $this->objectManager->get(StoreManagerInterface::class);
-        $secondStoreId = $storeManager->getStore('fixture_second_store')->getId();
+        $secondStoreId = (int)$storeManager->getStore('fixture_second_store')->getId();
         $customerFixture = new CustomerFixture(
             CustomerBuilder::aCustomer()
                 ->withEmail('example@example.com')
@@ -106,7 +100,7 @@ class CustomerBuilderTest extends TestCase
                 ->build()
         );
         $this->customers[] = $customerFixture;
-        $customer = $this->customerRepository->getById($customerFixture->getId());
+        $customer = $this->customerRepository->getById((int)$customerFixture->getId());
         $this->assertEquals('example@example.com', $customer->getEmail());
         $this->assertEquals(2, $customer->getGroupId());
         $this->assertEquals($secondStoreId, $customer->getStoreId());

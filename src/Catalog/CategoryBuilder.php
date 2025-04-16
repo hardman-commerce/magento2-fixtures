@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Catalog;
@@ -13,42 +14,17 @@ use Magento\TestFramework\Helper\Bootstrap;
 
 class CategoryBuilder
 {
-    /**
-     * @var CategoryRepositoryInterface
-     */
-    private $categoryRepository;
-
-    /**
-     * @var CategoryResource
-     */
-    private $categoryResource;
-
-    /**
-     * @var CategoryLinkRepositoryInterface
-     */
-    private $categoryLinkRepository;
-
-    /**
-     * @var CategoryProductLinkInterfaceFactory
-     */
-    private $productLinkFactory;
-
-    /**
-     * @var Category
-     */
-    private $category;
-
+    private CategoryRepositoryInterface $categoryRepository;
+    private CategoryResource $categoryResource;
+    private CategoryLinkRepositoryInterface $categoryLinkRepository;
+    private CategoryProductLinkInterfaceFactory $productLinkFactory;
+    private Category $category;
     /**
      * @var string[]
      */
-    private $skus;
+    private array $skus;
 
     /**
-     * @param CategoryRepositoryInterface $categoryRepository
-     * @param CategoryResource $categoryResource
-     * @param CategoryLinkRepositoryInterface $categoryLinkRepository
-     * @param CategoryProductLinkInterfaceFactory $productLinkFactory
-     * @param Category $category
      * @param string[] $skus
      */
     public function __construct(
@@ -115,12 +91,14 @@ class CategoryBuilder
      * Assigns products by sku. The keys of the array will be used for the sort position
      *
      * @param string[] $skus
+     *
      * @return CategoryBuilder
      */
     public function withProducts(array $skus): CategoryBuilder
     {
         $builder = clone $this;
         $builder->skus = $skus;
+
         return $builder;
     }
 
@@ -128,6 +106,7 @@ class CategoryBuilder
     {
         $builder = clone $this;
         $builder->category->setCustomAttribute('description', $description);
+
         return $builder;
     }
 
@@ -135,6 +114,7 @@ class CategoryBuilder
     {
         $builder = clone $this;
         $builder->category->setName($name);
+
         return $builder;
     }
 
@@ -142,6 +122,7 @@ class CategoryBuilder
     {
         $builder = clone $this;
         $builder->category->setData('url_key', $urlKey);
+
         return $builder;
     }
 
@@ -149,6 +130,7 @@ class CategoryBuilder
     {
         $builder = clone $this;
         $builder->category->setIsActive($isActive);
+
         return $builder;
     }
 
@@ -182,6 +164,7 @@ class CategoryBuilder
             $productLink->setCategoryId($builder->category->getId());
             $builder->categoryLinkRepository->save($productLink);
         }
+
         return $builder->category;
     }
 }

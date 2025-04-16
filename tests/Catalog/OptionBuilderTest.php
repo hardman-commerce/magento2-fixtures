@@ -1,11 +1,9 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Catalog;
 
-use TddWizard\Fixtures\Catalog\OptionBuilder;
-use TddWizard\Fixtures\Catalog\OptionFixture;
-use TddWizard\Fixtures\Catalog\OptionFixtureRollback;
 use Magento\Catalog\Model\Product;
 use Magento\Eav\Api\AttributeOptionManagementInterface;
 use Magento\Eav\Model\Entity\Attribute\OptionFactory;
@@ -19,16 +17,10 @@ use PHPUnit\Framework\TestCase;
  */
 class OptionBuilderTest extends TestCase
 {
-    private $options = [];
-
-    /** @var AttributeOptionManagementoptionManagemente */
-    private $optionManagement;
-
-    /** @var OptionResource */
-    private $optionResourceModel;
-
-    /** @var OptionFactory */
-    private $optionFactory;
+    private array $options = [];
+    private AttributeOptionManagementInterface $optionManagement;
+    private OptionResource $optionResourceModel;
+    private OptionFactory $optionFactory;
 
     protected function setUp(): void
     {

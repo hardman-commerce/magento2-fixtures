@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Catalog;
@@ -8,44 +9,23 @@ use Magento\Catalog\Model\Product;
 use Magento\Eav\Api\AttributeOptionManagementInterface;
 use Magento\Eav\Api\Data\AttributeOptionLabelInterface;
 use Magento\Eav\Model\Entity\Attribute\Option as AttributeOption;
+use Magento\Eav\Model\Entity\Attribute\Source\TableFactory;
+use Magento\Framework\Exception\InputException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Exception\StateException;
 use Magento\TestFramework\Helper\Bootstrap;
 
 /**
  * Create a source-model option for an attribute.
- *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class OptionBuilder
 {
+    private AttributeOptionManagementInterface $optionManagement;
+    private AttributeOption $option;
+    private AttributeOptionLabelInterface $optionLabel;
+    private string $attributeCode;
 
-    /**
-     * @var AttributeOptionManagementInterface
-     */
-    private $optionManagement;
-
-    /**
-     * @var AttributeOption
-     */
-    private $option;
-
-    /**
-     * @var AttributeOptionLabelInterface
-     */
-    private $optionLabel;
-
-    /**
-     * @var string
-     */
-    private $attributeCode;
-
-    /**
-     * OptionBuilder constructor.
-     *
-     * @param AttributeOptionManagementInterface $optionManagement
-     * @param AttributeOption $option
-     * @param AttributeOptionLabelInterface $optionLabel
-     * @param string $attributeCode
-     */
     public function __construct(
         AttributeOptionManagementInterface $optionManagement,
         AttributeOption $option,
@@ -58,9 +38,6 @@ class OptionBuilder
         $this->attributeCode = $attributeCode;
     }
 
-    /**
-     * Clone the builder.
-     */
     public function __clone()
     {
         $this->option = clone $this->option;
@@ -69,10 +46,8 @@ class OptionBuilder
     /**
      * Create an option.
      *
-     * @param string $attributeCode
-     * @return OptionBuilder
-     * @throws \Magento\Framework\Exception\InputException
-     * @throws \Magento\Framework\Exception\StateException
+     * @throws InputException
+     * @throws StateException
      */
     public static function anOptionFor(string $attributeCode): OptionBuilder
     {
@@ -102,12 +77,6 @@ class OptionBuilder
         );
     }
 
-    /**
-     * Set label.
-     *
-     * @param string $label
-     * @return OptionBuilder
-     */
     public function withLabel(string $label): OptionBuilder
     {
         $builder = clone $this;
@@ -118,12 +87,6 @@ class OptionBuilder
         return $builder;
     }
 
-    /**
-     * Set sort order.
-     *
-     * @param int $sortOrder
-     * @return OptionBuilder
-     */
     public function withSortOrder(int $sortOrder): OptionBuilder
     {
         $builder = clone $this;
@@ -132,12 +95,6 @@ class OptionBuilder
         return $builder;
     }
 
-    /**
-     * Set default.
-     *
-     * @param bool $isDefault
-     * @return OptionBuilder
-     */
     public function withIsDefault(bool $isDefault): OptionBuilder
     {
         $builder = clone $this;
@@ -146,12 +103,6 @@ class OptionBuilder
         return $builder;
     }
 
-    /**
-     * Set store ID.
-     *
-     * @param int $storeId
-     * @return OptionBuilder
-     */
     public function withStoreId(int $storeId): OptionBuilder
     {
         $builder = clone $this;
@@ -163,9 +114,8 @@ class OptionBuilder
     /**
      * Build the option and apply it to the attribute.
      *
-     * @return AttributeOption
-     * @throws \Magento\Framework\Exception\InputException
-     * @throws \Magento\Framework\Exception\StateException
+     * @throws InputException
+     * @throws StateException
      */
     public function build(): AttributeOption
     {
@@ -173,7 +123,7 @@ class OptionBuilder
 
         // add the option
         $this->optionManagement->add(
-            \Magento\Catalog\Model\Product::ENTITY,
+            Product::ENTITY,
             $builder->attributeCode,
             $builder->option
         );
@@ -185,9 +135,7 @@ class OptionBuilder
     }
 
     /**
-     * Get the option ID.
-     *
-     * @return int
+     * @throws NoSuchEntityException
      */
     private function getOptionId(): int
     {
@@ -199,7 +147,7 @@ class OptionBuilder
 
         // We have to generate a new sourceModel instance each time through to prevent it from
         // referencing its _options cache. No other way to get it to pick up newly-added values.
-        $tableFactory = $objectManager->get(\Magento\Eav\Model\Entity\Attribute\Source\TableFactory::class);
+        $tableFactory = $objectManager->get(TableFactory::class);
         $sourceModel = $tableFactory->create();
         $sourceModel->setAttribute($attribute);
         foreach ($sourceModel->getAllOptions() as $option) {

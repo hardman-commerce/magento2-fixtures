@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TddWizard\Fixtures\Sales;
 
 use Magento\Framework\Exception\LocalizedException;
@@ -18,15 +20,8 @@ use TddWizard\Fixtures\Checkout\CartBuilder;
  */
 class ShipmentBuilderTest extends TestCase
 {
-    /**
-     * @var OrderFixture
-     */
-    private $orderFixture;
-
-    /**
-     * @var ShipmentRepositoryInterface
-     */
-    private $shipmentRepository;
+    private OrderFixture $orderFixture;
+    private ShipmentRepositoryInterface $shipmentRepository;
 
     protected function setUp(): void
     {
@@ -48,11 +43,9 @@ class ShipmentBuilderTest extends TestCase
     /**
      * Create a shipment for all the order's items.
      *
-     * @test
-     *
      * @throws \Exception
      */
-    public function createShipment()
+    public function testCreateShipment(): void
     {
         $order = OrderBuilder::anOrder()->build();
         $this->orderFixture = new OrderFixture($order);
@@ -68,11 +61,9 @@ class ShipmentBuilderTest extends TestCase
     /**
      * Create a shipment for all the order's items with tracks and shipping label.
      *
-     * @test
-     *
      * @throws \Exception
      */
-    public function createShipmentWithTracks()
+    public function testCreateShipmentWithTracks(): void
     {
         $order = OrderBuilder::anOrder()->build();
         $this->orderFixture = new OrderFixture($order);
@@ -93,10 +84,9 @@ class ShipmentBuilderTest extends TestCase
     /**
      * Create a shipment for some of the order's items.
      *
-     * @test
      * @throws \Exception
      */
-    public function createPartialShipments()
+    public function testCreatePartialShipments(): void
     {
         $order = OrderBuilder::anOrder()->withProducts(
             ProductBuilder::aSimpleProduct()->withSku('foo'),
@@ -111,7 +101,7 @@ class ShipmentBuilderTest extends TestCase
         $orderItemIds = [];
         /** @var OrderItemInterface $orderItem */
         foreach ($order->getAllVisibleItems() as $orderItem) {
-            $orderItemIds[$orderItem->getSku()] = $orderItem->getItemId();
+            $orderItemIds[$orderItem->getSku()] = (int)$orderItem->getItemId();
         }
 
         $shipmentFixture = new ShipmentFixture(

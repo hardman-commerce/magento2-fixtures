@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Sales;
@@ -8,11 +9,10 @@ use function array_values as values;
 
 class OrderFixturePool
 {
-
     /**
      * @var OrderFixture[]
      */
-    private $orderFixtures = [];
+    private array $orderFixtures = [];
 
     public function add(Order $order, string $key = null): void
     {
@@ -25,11 +25,8 @@ class OrderFixturePool
 
     /**
      * Returns order fixture by key, or last added if key not specified
-     *
-     * @param string|null $key
-     * @return OrderFixture
      */
-    public function get(string $key = null): OrderFixture
+    public function get(?string $key = null): OrderFixture
     {
         if ($key === null) {
             $key = \array_key_last($this->orderFixtures);

@@ -1,9 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Sales;
 
 use Magento\Sales\Api\Data\InvoiceInterface;
+use Magento\Sales\Api\Data\InvoiceItemCreationInterface;
 use Magento\Sales\Api\Data\InvoiceItemCreationInterfaceFactory;
 use Magento\Sales\Api\InvoiceOrderInterface;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
@@ -15,30 +17,14 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class InvoiceBuilder
 {
-    /**
-     * @var InvoiceItemCreationInterfaceFactory
-     */
-    private $itemFactory;
-
-    /**
-     * @var InvoiceOrderInterface
-     */
-    private $invoiceOrder;
-
-    /**
-     * @var InvoiceRepositoryInterface
-     */
-    private $invoiceRepository;
-
-    /**
-     * @var Order
-     */
-    private $order;
-
+    private InvoiceItemCreationInterfaceFactory $itemFactory;
+    private InvoiceOrderInterface $invoiceOrder;
+    private InvoiceRepositoryInterface $invoiceRepository;
+    private Order $order;
     /**
      * @var int[]
      */
-    private $orderItems;
+    private array $orderItems;
 
     final public function __construct(
         InvoiceItemCreationInterfaceFactory $itemFactory,
@@ -86,7 +72,7 @@ class InvoiceBuilder
     }
 
     /**
-     * @return \Magento\Sales\Api\Data\InvoiceItemCreationInterface[]
+     * @return InvoiceItemCreationInterface[]
      */
     private function buildInvoiceItems(): array
     {
@@ -98,6 +84,7 @@ class InvoiceBuilder
             $invoiceItem->setQty($qty);
             $invoiceItems[] = $invoiceItem;
         }
+
         return $invoiceItems;
     }
 }

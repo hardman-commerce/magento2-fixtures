@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Catalog;
@@ -8,11 +9,10 @@ use function array_values as values;
 
 class CategoryFixturePool
 {
-
     /**
      * @var CategoryFixture[]
      */
-    private $categoryFixtures = [];
+    private array $categoryFixtures = [];
 
     public function add(CategoryInterface $category, string $key = null): void
     {
@@ -25,11 +25,8 @@ class CategoryFixturePool
 
     /**
      * Returns category fixture by key, or last added if key not specified
-     *
-     * @param int|string|null $key
-     * @return CategoryFixture
      */
-    public function get($key = null): CategoryFixture
+    public function get(int|string|null $key = null): CategoryFixture
     {
         if ($key === null) {
             $key = \array_key_last($this->categoryFixtures);
@@ -37,6 +34,7 @@ class CategoryFixturePool
         if ($key === null || !array_key_exists($key, $this->categoryFixtures)) {
             throw new \OutOfBoundsException('No matching category found in fixture pool');
         }
+
         return $this->categoryFixtures[$key];
     }
 

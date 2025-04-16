@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Theme;
@@ -8,7 +9,7 @@ use Magento\TestFramework\Helper\Bootstrap;
 use Magento\Theme\Model\Theme\Registration;
 
 /**
- * A fixture to test theme features, e.g. with with test themes in `@magentoComponentsDir`
+ * A fixture to test theme features, e.g. with test themes in `@magentoComponentsDir`
  */
 class ThemeFixture
 {

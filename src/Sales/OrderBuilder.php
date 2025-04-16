@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Sales;
@@ -16,34 +17,15 @@ use TddWizard\Fixtures\Customer\CustomerFixture;
  */
 class OrderBuilder
 {
-    /**
-     * @var CartBuilder
-     */
-    private $cartBuilder;
-
-    /**
-     * @var ProductBuilder[]
-     */
-    private $productBuilders;
-
-    /**
-     * @var CustomerBuilder
-     */
-    private $customerBuilder;
-
-    /**
-     * @var string
-     */
-    private $shippingMethod;
+    private CartBuilder $cartBuilder;
+    private CustomerBuilder $customerBuilder;
+    private ?string $shippingMethod = null;
+    private array $productBuilders;
+    private ?string $paymentMethod = null;
 
     final public function __construct()
     {
     }
-
-    /**
-     * @var string
-     */
-    private $paymentMethod;
 
     public static function anOrder(): OrderBuilder
     {
@@ -91,7 +73,6 @@ class OrderBuilder
     }
 
     /**
-     * @return Order
      * @throws \Exception
      */
     public function build(): Order

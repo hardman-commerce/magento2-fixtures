@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Sales;
@@ -7,10 +8,7 @@ use Magento\Sales\Api\Data\InvoiceInterface;
 
 class InvoiceFixture
 {
-    /**
-     * @var InvoiceInterface
-     */
-    private $invoice;
+    private InvoiceInterface $invoice;
 
     public function __construct(InvoiceInterface $shipment)
     {
@@ -24,6 +22,6 @@ class InvoiceFixture
 
     public function getId(): int
     {
-        return (int) $this->invoice->getEntityId();
+        return (int)$this->invoice->getEntityId();
     }
 }

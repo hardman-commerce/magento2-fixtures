@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Sales;
@@ -7,10 +8,7 @@ use Magento\Sales\Model\Order;
 
 class OrderFixture
 {
-    /**
-     * @var Order
-     */
-    private $order;
+    private Order $order;
 
     public function __construct(Order $order)
     {
@@ -24,17 +22,17 @@ class OrderFixture
 
     public function getId(): int
     {
-        return (int) $this->order->getEntityId();
+        return (int)$this->order->getEntityId();
     }
 
     public function getCustomerId(): int
     {
-        return (int) $this->order->getCustomerId();
+        return (int)$this->order->getCustomerId();
     }
 
     public function getCustomerEmail(): string
     {
-        return (string) $this->order->getCustomerEmail();
+        return (string)$this->order->getCustomerEmail();
     }
 
     /**
@@ -58,6 +56,7 @@ class OrderFixture
         if ($payment === null) {
             throw new \RuntimeException('Order does not have any payment information');
         }
+
         return (string)$payment->getMethod();
     }
 

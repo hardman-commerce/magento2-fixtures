@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Checkout;
@@ -14,50 +15,15 @@ use Magento\TestFramework\Helper\Bootstrap;
 
 class CustomerCheckout
 {
-    /**
-     * @var AddressRepositoryInterface
-     */
-    private $addressRepository;
-
-    /**
-     * @var CartRepositoryInterface
-     */
-    private $quoteRepository;
-
-    /**
-     * @var QuoteManagement
-     */
-    private $quoteManagement;
-
-    /**
-     * @var PaymentConfig
-     */
-    private $paymentConfig;
-
-    /**
-     * @var Cart
-     */
-    private $cart;
-
-    /**
-     * @var int|null
-     */
-    private $shippingAddressId;
-
-    /**
-     * @var int|null
-     */
-    private $billingAddressId;
-
-    /**
-     * @var string|null
-     */
-    private $shippingMethodCode;
-
-    /**
-     * @var string|null
-     */
-    private $paymentMethodCode;
+    private AddressRepositoryInterface $addressRepository;
+    private CartRepositoryInterface $quoteRepository;
+    private QuoteManagement $quoteManagement;
+    private PaymentConfig $paymentConfig;
+    private Cart $cart;
+    private ?int $shippingAddressId;
+    private ?int $billingAddressId;
+    private ?string $shippingMethodCode;
+    private ?string $paymentMethodCode;
 
     final public function __construct(
         AddressRepositoryInterface $addressRepository,
@@ -70,7 +36,6 @@ class CustomerCheckout
         string $shippingMethodCode = null,
         string $paymentMethodCode = null
     ) {
-
         $this->addressRepository = $addressRepository;
         $this->quoteRepository = $quoteRepository;
         $this->quoteManagement = $quoteManagement;
@@ -85,6 +50,7 @@ class CustomerCheckout
     public static function fromCart(Cart $cart): CustomerCheckout
     {
         $objectManager = Bootstrap::getObjectManager();
+
         return new static(
             $objectManager->create(AddressRepositoryInterface::class),
             $objectManager->create(CartRepositoryInterface::class),
@@ -98,6 +64,7 @@ class CustomerCheckout
     {
         $checkout = clone $this;
         $checkout->billingAddressId = $addressId;
+
         return $checkout;
     }
 
@@ -105,6 +72,7 @@ class CustomerCheckout
     {
         $checkout = clone $this;
         $checkout->shippingAddressId = $addressId;
+
         return $checkout;
     }
 
@@ -112,6 +80,7 @@ class CustomerCheckout
     {
         $checkout = clone $this;
         $checkout->shippingMethodCode = $code;
+
         return $checkout;
     }
 
@@ -119,38 +88,39 @@ class CustomerCheckout
     {
         $checkout = clone $this;
         $checkout->paymentMethodCode = $code;
+
         return $checkout;
     }
 
     /**
-     * @return int Customer shipping address as configured or try default shipping address
+     * Customer shipping address as configured or try default shipping address
      */
     private function getCustomerShippingAddressId(): int
     {
         return $this->shippingAddressId
-            ?? (int) $this->cart->getCustomerSession()->getCustomer()->getDefaultShippingAddress()->getId();
+               ?? (int)$this->cart->getCustomerSession()->getCustomer()->getDefaultShippingAddress()->getId();
     }
 
     /**
-     * @return int Customer billing address as configured or try default billing address
+     * Customer billing address as configured or try default billing address
      */
     private function getCustomerBillingAddressId(): int
     {
         return $this->billingAddressId
-            ?? (int) $this->cart->getCustomerSession()->getCustomer()->getDefaultBillingAddress()->getId();
+               ?? (int)$this->cart->getCustomerSession()->getCustomer()->getDefaultBillingAddress()->getId();
     }
 
     /**
-     * @return string Shipping method code as configured, or try first available rate
+     * Shipping method code as configured, or try first available rate
      */
     private function getShippingMethodCode(): string
     {
         return $this->shippingMethodCode
-            ?? $this->cart->getQuote()->getShippingAddress()->getAllShippingRates()[0]->getCode();
+               ?? $this->cart->getQuote()->getShippingAddress()->getAllShippingRates()[0]->getCode();
     }
 
     /**
-     * @return string Payment method code as configured, or try first available method
+     * Payment method code as configured, or try first available method
      */
     private function getPaymentMethodCode(): string
     {
@@ -158,7 +128,6 @@ class CustomerCheckout
     }
 
     /**
-     * @return Order
      * @throws \Exception
      */
     public function placeOrder(): Order
@@ -171,11 +140,12 @@ class CustomerCheckout
         // Collect missing totals, like shipping
         $reloadedQuote->collectTotals();
         $order = $this->quoteManagement->submit($reloadedQuote);
-        if (! $order instanceof Order) {
+        if (!$order instanceof Order) {
             $returnType = is_object($order) ? get_class($order) : gettype($order);
             throw new \RuntimeException('QuoteManagement::submit() returned ' . $returnType . ' instead of Order');
         }
         $this->cart->getCheckoutSession()->clearQuote();
+
         return $order;
     }
 

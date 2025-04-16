@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Catalog;
@@ -6,16 +7,12 @@ namespace TddWizard\Fixtures\Catalog;
 use Magento\Eav\Model\Entity\Attribute\Option as AttributeOption;
 use function array_values as values;
 
-/**
- * Class OptionFixturePool
- */
 class OptionFixturePool
 {
-
     /**
      * @var OptionFixture[]
      */
-    private $optionFixtures = [];
+    private array $optionFixtures = [];
 
     public function add(AttributeOption $option, string $attributecode, string $key = null): void
     {
@@ -30,6 +27,7 @@ class OptionFixturePool
      * Returns option fixture by key, or last added if key not specified
      *
      * @param string|null $key
+     *
      * @return OptionFixture
      */
     public function get(string $key = null): OptionFixture
@@ -40,6 +38,7 @@ class OptionFixturePool
         if ($key === null || !\array_key_exists($key, $this->optionFixtures)) {
             throw new \OutOfBoundsException('No matching option found in fixture pool');
         }
+
         return $this->optionFixtures[$key];
     }
 

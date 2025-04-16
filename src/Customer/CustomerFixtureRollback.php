@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Customer;
@@ -13,14 +14,8 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class CustomerFixtureRollback
 {
-    /**
-     * @var Registry
-     */
-    private $registry;
-    /**
-     * @var CustomerRepositoryInterface
-     */
-    private $customerRepository;
+    private Registry $registry;
+    private CustomerRepositoryInterface $customerRepository;
 
     public function __construct(Registry $registry, CustomerRepositoryInterface $customerRepository)
     {
@@ -31,6 +26,7 @@ class CustomerFixtureRollback
     public static function create(): CustomerFixtureRollback
     {
         $objectManager = Bootstrap::getObjectManager();
+
         return new self(
             $objectManager->get(Registry::class),
             $objectManager->get(CustomerRepositoryInterface::class)
@@ -38,7 +34,6 @@ class CustomerFixtureRollback
     }
 
     /**
-     * @param CustomerFixture ...$customerFixtures
      * @throws LocalizedException
      */
     public function execute(CustomerFixture ...$customerFixtures): void

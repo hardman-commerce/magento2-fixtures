@@ -1,16 +1,15 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Sales;
 
 use Magento\Sales\Api\Data\ShipmentInterface;
+use Magento\Sales\Api\Data\ShipmentTrackInterface;
 
 class ShipmentFixture
 {
-    /**
-     * @var ShipmentInterface
-     */
-    private $shipment;
+    private ShipmentInterface $shipment;
 
     public function __construct(ShipmentInterface $shipment)
     {
@@ -24,11 +23,11 @@ class ShipmentFixture
 
     public function getId(): int
     {
-        return (int) $this->shipment->getEntityId();
+        return (int)$this->shipment->getEntityId();
     }
 
     /**
-     * @return \Magento\Sales\Api\Data\ShipmentTrackInterface[]
+     * @return ShipmentTrackInterface[]
      */
     public function getTracks(): array
     {
@@ -37,6 +36,6 @@ class ShipmentFixture
 
     public function getShippingLabel(): string
     {
-        return (string) $this->shipment->getShippingLabel();
+        return (string)$this->shipment->getShippingLabel();
     }
 }

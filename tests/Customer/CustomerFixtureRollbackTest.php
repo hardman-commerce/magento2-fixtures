@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TddWizard\Fixtures\Customer;
 
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -9,21 +11,18 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @magentoAppIsolation enabled
- * @magentoDbIsolation enabled
+ * @magentoDbIsolation  enabled
  */
 class CustomerFixtureRollbackTest extends TestCase
 {
-    /**
-     * @var CustomerRepositoryInterface
-     */
-    private $customerRepository;
+    private CustomerRepositoryInterface $customerRepository;
 
     protected function setUp(): void
     {
         $this->customerRepository = Bootstrap::getObjectManager()->create(CustomerRepositoryInterface::class);
     }
 
-    public function testRollbackSingleCustomerFixture()
+    public function testRollbackSingleCustomerFixture(): void
     {
         $customerFixture = new CustomerFixture(
             CustomerBuilder::aCustomer()->build()
@@ -33,7 +32,7 @@ class CustomerFixtureRollbackTest extends TestCase
         $this->customerRepository->getById($customerFixture->getId());
     }
 
-    public function testRollbackMultipleCustomerFixtures()
+    public function testRollbackMultipleCustomerFixtures(): void
     {
         $customerFixture = new CustomerFixture(
             CustomerBuilder::aCustomer()->build()

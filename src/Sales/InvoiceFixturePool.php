@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Sales;
@@ -7,11 +8,10 @@ use Magento\Sales\Api\Data\InvoiceInterface;
 
 class InvoiceFixturePool
 {
-
     /**
      * @var InvoiceFixture[]
      */
-    private $invoiceFixtures = [];
+    private array $invoiceFixtures = [];
 
     public function add(InvoiceInterface $invoice, string $key = null): void
     {
@@ -26,6 +26,7 @@ class InvoiceFixturePool
      * Returns invoice fixture by key, or last added if key not specified
      *
      * @param string|null $key
+     *
      * @return InvoiceFixture
      */
     public function get(string $key = null): InvoiceFixture
@@ -36,6 +37,7 @@ class InvoiceFixturePool
         if ($key === null || !array_key_exists($key, $this->invoiceFixtures)) {
             throw new \OutOfBoundsException('No matching invoice found in fixture pool');
         }
+
         return $this->invoiceFixtures[$key];
     }
 }

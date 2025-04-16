@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TddWizard\Fixtures\Sales;
 
 use Magento\Framework\Exception\LocalizedException;
@@ -21,12 +23,8 @@ class OrderBuilderTest extends TestCase
     /**
      * @var OrderFixture[]
      */
-    private $orderFixtures;
-
-    /**
-     * @var OrderRepositoryInterface
-     */
-    private $orderRepository;
+    private array $orderFixtures;
+    private OrderRepositoryInterface $orderRepository;
 
     protected function setUp(): void
     {
@@ -47,13 +45,12 @@ class OrderBuilderTest extends TestCase
 
     /**
      * Create an order for an internally generated customer and internally generated product(s).
-     *
      * Easy to set up, least flexible.
      *
      * @test
      * @throws \Exception
      */
-    public function createOrder()
+    public function createOrder(): void
     {
         $orderFixture = new OrderFixture(
             OrderBuilder::anOrder()->build()
@@ -66,13 +63,12 @@ class OrderBuilderTest extends TestCase
 
     /**
      * Create an order for an internally generated customer.
-     *
      * Control the product included with the order, use random item quantities.
      *
      * @test
      * @throws \Exception
      */
-    public function createOrderWithProduct()
+    public function createOrderWithProduct(): void
     {
         $orderFixture = new OrderFixture(
             OrderBuilder::anOrder()->withProducts(ProductBuilder::aSimpleProduct())->build()
@@ -85,13 +81,12 @@ class OrderBuilderTest extends TestCase
 
     /**
      * Create an order for an internally generated customer with multiple products.
-     *
      * Control the products included with the order, use random item quantities.
      *
      * @test
      * @throws \Exception
      */
-    public function createOrderWithProducts()
+    public function createOrderWithProducts(): void
     {
         $orderFixture = new OrderFixture(
             OrderBuilder::anOrder()->withProducts(
@@ -107,13 +102,12 @@ class OrderBuilderTest extends TestCase
 
     /**
      * Create an order for a given customer with internally generated product(s).
-     *
      * Control the customer placing the order.
      *
      * @test
      * @throws \Exception
      */
-    public function createOrderWithCustomer()
+    public function createOrderWithCustomer(): void
     {
         $customerEmail = 'test@example.com';
         $customerBuilder = CustomerBuilder::aCustomer()
@@ -132,7 +126,6 @@ class OrderBuilderTest extends TestCase
 
     /**
      * Create an order for a given cart.
-     *
      * Complex to set up, most flexible:
      * - define products
      * - define customer
@@ -142,7 +135,7 @@ class OrderBuilderTest extends TestCase
      * @test
      * @throws \Exception
      */
-    public function createOrderWithCart()
+    public function createOrderWithCart(): void
     {
         $cartItems = ['foo' => 2, 'bar' => 3];
         $customerEmail = 'test@example.com';
@@ -187,7 +180,7 @@ class OrderBuilderTest extends TestCase
      * @test
      * @throws \Exception
      */
-    public function createMultipleOrders()
+    public function createMultipleOrders(): void
     {
         $shippingMethod = 'flatrate_flatrate';
 
@@ -242,7 +235,7 @@ class OrderBuilderTest extends TestCase
      * @test
      * @throws \Exception
      */
-    public function createIntlOrders()
+    public function createIntlOrders(): void
     {
         $atLocale = 'de_AT';
         $atOrder = OrderBuilder::anOrder()

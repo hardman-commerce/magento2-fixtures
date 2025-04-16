@@ -40,45 +40,15 @@ use Magento\TestFramework\ObjectManager;
  */
 class ProductBuilder
 {
-    /**
-     * @var ProductRepositoryInterface
-     */
     private ProductRepositoryInterface $productRepository;
-    /**
-     * @var StockItemRepositoryInterface
-     */
     private StockItemRepositoryInterface $stockItemRepository;
-    /**
-     * @var ProductWebsiteLinkRepositoryInterface
-     */
     private ProductWebsiteLinkRepositoryInterface $websiteLinkRepository;
-    /**
-     * @var ProductWebsiteLinkInterfaceFactory
-     */
     private ProductWebsiteLinkInterfaceFactory $websiteLinkFactory;
-    /**
-     * @var IndexerFactory
-     */
     private IndexerFactory $indexerFactory;
-    /**
-     * @var DownloadableLinkRepositoryInterface
-     */
     private DownloadableLinkRepositoryInterface $downloadLinkRepository;
-    /**
-     * @var DownloadableLinkInterfaceFactory
-     */
     private DownloadableLinkInterfaceFactory $downloadLinkFactory;
-    /**
-     * @var DomainManagerInterface
-     */
     private DomainManagerInterface $domainManager;
-    /**
-     * @var ProductTierPriceInterfaceFactory
-     */
     private ProductTierPriceInterfaceFactory $tierPriceFactory;
-    /**
-     * @var Product
-     */
     protected ProductInterface $product;
     /**
      * @var int[]
@@ -172,9 +142,9 @@ class ProductBuilder
         /** @var StockItemInterface $stockItem */
         $stockItem = $objectManager->create(StockItemInterface::class);
         $stockItem->setManageStock(true)
-                  ->setQty(100)
-                  ->setIsQtyDecimal(false)
-                  ->setIsInStock(true);
+            ->setQty(100)
+            ->setIsQtyDecimal(false)
+            ->setIsInStock(true);
 
         $extensionAttributes = $product->getExtensionAttributes();
         $extensionAttributes->setStockItem($stockItem);
@@ -362,12 +332,12 @@ class ProductBuilder
             $extensionAttributes = $tierPrice->getExtensionAttributes();
             if (($tierPriceData['website_id'] ?? null)) {
                 $extensionAttributes = $extensionAttributes
-                    ?? ObjectManager::getInstance()->get(ProductTierPriceExtensionInterface::class);
+                                       ?? ObjectManager::getInstance()->get(ProductTierPriceExtensionInterface::class);
                 $extensionAttributes->setWebsiteId($tierPriceData['website_id']);
             }
             if (($tierPriceData['price_type'] ?? null)) {
                 $extensionAttributes = $extensionAttributes
-                    ?? ObjectManager::getInstance()->get(ProductTierPriceExtensionInterface::class);
+                                       ?? ObjectManager::getInstance()->get(ProductTierPriceExtensionInterface::class);
                 $extensionAttributes->setPercentageValue($tierPriceData['price']);
             }
             $tierPrice->setExtensionAttributes($extensionAttributes);
@@ -500,9 +470,9 @@ class ProductBuilder
         );
 
         $fixtureImagePath = $directory->getDir(moduleName: 'Klevu_TestFixtures')
-            . DIRECTORY_SEPARATOR . '_files'
-            . DIRECTORY_SEPARATOR . 'images'
-            . DIRECTORY_SEPARATOR . $fileName;
+                            . DIRECTORY_SEPARATOR . '_files'
+                            . DIRECTORY_SEPARATOR . 'images'
+                            . DIRECTORY_SEPARATOR . $fileName;
         $tmpFilePath = $tmpDirectory->getAbsolutePath($fileName);
         // phpcs:ignore Magento2.Functions.DiscouragedFunction.DiscouragedWithAlternative
         copy(from: $fixtureImagePath, to: $tmpFilePath);

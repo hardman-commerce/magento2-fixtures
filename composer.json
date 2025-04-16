@@ -1,5 +1,5 @@
 {
-    "name": "klevu/magento2-fixtures-fork",
+    "name": "hardman-commerce/magento2-fixtures",
     "description": "Fixture library for Magento 2 integration tests",
     "type": "magento2-module",
     "version" : "1.1.5",

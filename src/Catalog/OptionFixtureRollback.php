@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Catalog;
@@ -18,16 +19,8 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class OptionFixtureRollback
 {
-
-    /**
-     * @var Registry
-     */
-    private $registry;
-
-    /**
-     * @var AttributeOptionManagementInterface
-     */
-    private $optionManagement;
+    private Registry $registry;
+    private AttributeOptionManagementInterface $optionManagement;
 
     /**
      * OptionFixtureRollback constructor.
@@ -41,14 +34,10 @@ class OptionFixtureRollback
         $this->optionManagement = $optionManagement;
     }
 
-    /**
-     * Create the object.
-     *
-     * @return OptionFixtureRollback
-     */
     public static function create(): OptionFixtureRollback
     {
         $objectManager = Bootstrap::getObjectManager();
+
         return new self(
             $objectManager->get(Registry::class),
             $objectManager->get(AttributeOptionManagementInterface::class)
@@ -58,7 +47,6 @@ class OptionFixtureRollback
     /**
      * Remove the given option(s).
      *
-     * @param OptionFixture ...$optionFixtures
      * @throws InputException
      * @throws NoSuchEntityException
      * @throws StateException

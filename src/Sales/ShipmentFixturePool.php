@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Sales;
@@ -7,11 +8,10 @@ use Magento\Sales\Api\Data\ShipmentInterface;
 
 class ShipmentFixturePool
 {
-
     /**
      * @var ShipmentFixture[]
      */
-    private $shipmentFixtures = [];
+    private array $shipmentFixtures = [];
 
     public function add(ShipmentInterface $shipment, string $key = null): void
     {
@@ -26,6 +26,7 @@ class ShipmentFixturePool
      * Returns shipment fixture by key, or last added if key not specified
      *
      * @param string|null $key
+     *
      * @return ShipmentFixture
      */
     public function get(string $key = null): ShipmentFixture

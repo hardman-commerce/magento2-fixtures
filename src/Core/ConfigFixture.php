@@ -14,9 +14,6 @@ class ConfigFixture
 {
     /**
      * Sets configuration in default scope AND all stores, no matter what was configured previously
-     *
-     * @param string $path
-     * @param mixed $value
      */
     public static function setGlobal(string $path, mixed $value): void
     {

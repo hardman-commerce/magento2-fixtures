@@ -1,10 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Catalog;
 
-use TddWizard\Fixtures\Catalog\OptionBuilder;
-use TddWizard\Fixtures\Catalog\OptionFixturePool;
+use Magento\Framework\Exception\InputException;
+use Magento\Framework\Exception\StateException;
 use Magento\Eav\Model\Entity\Attribute\Option as AttributeOption;
 use Magento\Eav\Model\Entity\Attribute\OptionFactory as AttributeOptionFactory;
 use Magento\Eav\Model\ResourceModel\Entity\Attribute\Option as OptionResource;
@@ -17,26 +18,11 @@ use PHPUnit\Framework\TestCase;
  */
 class OptionFixturePoolTest extends TestCase
 {
+    private OptionFixturePool $optionFixtures;
+    private OptionResource $optionResourceModel;
+    private string $dbAttributeCode = 'dropdown_attribute';
 
-    /**
-     * @var OptionFixturePool
-     */
-    private $optionFixtures;
-
-    /**
-     * @var OptionResource
-     */
-    private $optionResourceModel;
-
-    /**
-     * @var string
-     */
-    private $dbAttributeCode = 'dropdown_attribute';
-
-    /**
-     * @var AttributeOptionFactory
-     */
-    private $optionFactory;
+    private AttributeOptionFactory $optionFactory;
 
     protected function setUp(): void
     {
@@ -106,8 +92,6 @@ class OptionFixturePoolTest extends TestCase
 
     /**
      * Creates a dummy option object
-     *
-     * @return AttributeOption
      */
     private function createOption(): AttributeOption
     {
@@ -122,10 +106,8 @@ class OptionFixturePoolTest extends TestCase
     /**
      * Uses builder to create a customer
      *
-     * @param string $attributeCode
-     * @return AttributeOption
-     * @throws \Magento\Framework\Exception\InputException
-     * @throws \Magento\Framework\Exception\StateException
+     * @throws InputException
+     * @throws StateException
      */
     private function createOptionInDb(string $attributeCode): AttributeOption
     {

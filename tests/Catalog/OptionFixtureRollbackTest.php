@@ -1,11 +1,9 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Catalog;
 
-use TddWizard\Fixtures\Catalog\OptionBuilder;
-use TddWizard\Fixtures\Catalog\OptionFixture;
-use TddWizard\Fixtures\Catalog\OptionFixtureRollback;
 use Magento\Eav\Model\Entity\Attribute\OptionFactory;
 use Magento\Eav\Model\ResourceModel\Entity\Attribute\Option as OptionResource;
 use Magento\TestFramework\Helper\Bootstrap;
@@ -17,12 +15,8 @@ use PHPUnit\Framework\TestCase;
  */
 class OptionFixtureRollbackTest extends TestCase
 {
-
-    /** @var OptionResource */
-    private $optionResourceModel;
-
-    /** @var OptionFactory */
-    private $optionFactory;
+    private OptionResource $optionResourceModel;
+    private OptionFactory $optionFactory;
 
     protected function setUp(): void
     {

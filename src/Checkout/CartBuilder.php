@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Checkout;
@@ -18,20 +19,12 @@ use TddWizard\Fixtures\Checkout\CartBuilder as TddCartBuilder;
 
 class CartBuilder
 {
-    /**
-     * @var ProductRepositoryInterface
-     */
-    private $productRepository;
-
-    /**
-     * @var Cart
-     */
-    private $cart;
-
+    private ProductRepositoryInterface $productRepository;
+    private Cart $cart;
     /**
      * @var DataObject[][] Array in the form [sku => [buyRequest]] (multiple requests per sku are possible)
      */
-    private $addToCartRequests;
+    private array $addToCartRequests;
 
     final public function __construct(ProductRepositoryInterface $productRepository, Cart $cart)
     {
@@ -43,6 +36,7 @@ class CartBuilder
     public static function forCurrentSession(): CartBuilder
     {
         $objectManager = Bootstrap::getObjectManager();
+
         return new static(
             $objectManager->create(ProductRepositoryInterface::class),
             $objectManager->create(Cart::class)
@@ -53,6 +47,7 @@ class CartBuilder
     {
         $result = clone $this;
         $result->addToCartRequests[$sku][] = new DataObject(['qty' => $qty]);
+
         return $result;
     }
 
@@ -88,6 +83,7 @@ class CartBuilder
     {
         $result = clone $this;
         $result->cart->getQuote()->setReservedOrderId($orderId);
+
         return $result;
     }
 
@@ -97,6 +93,7 @@ class CartBuilder
      * @param string $sku
      * @param int $qty
      * @param mixed[] $request
+     *
      * @return CartBuilder
      */
     public function withProductRequest($sku, $qty = 1, $request = []): CartBuilder
@@ -104,6 +101,7 @@ class CartBuilder
         $result = clone $this;
         $requestInfo = array_merge(['qty' => $qty], $request);
         $result->addToCartRequests[$sku][] = new DataObject($requestInfo);
+
         return $result;
     }
 
@@ -141,7 +139,7 @@ class CartBuilder
                             /** @var ProductInterface $childProduct */
                             $childProduct = current(array_filter(
                                 $associatedProducts,
-                                static fn (ProductInterface $associatedProduct): bool => (
+                                static fn(ProductInterface $associatedProduct): bool => (
                                     $associatedSku === $associatedProduct->getSku()
                                 ),
                             ));
@@ -167,7 +165,7 @@ class CartBuilder
                             /** @var Attribute $configurableAttribute */
                             $configurableAttribute = current(array_filter(
                                 $configurableAttributes,
-                                static fn (array $attribute): bool => ($attributeCode === $attribute['attribute_code']),
+                                static fn(array $attribute): bool => ($attributeCode === $attribute['attribute_code']),
                             ));
 
                             if (!$configurableAttribute) {
@@ -178,7 +176,7 @@ class CartBuilder
                                 array_column(
                                     array_filter(
                                         $configurableAttribute['options'],
-                                        static fn (array $option): bool => $option['label'] === $value,
+                                        static fn(array $option): bool => $option['label'] === $value,
                                     ),
                                     'value',
                                 )

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TddWizard\Fixtures\Checkout;
 
 use Magento\Quote\Model\Quote\Item;
@@ -9,10 +11,7 @@ use TddWizard\Fixtures\Catalog\ProductFixture;
 
 class CartBuilderTest extends TestCase
 {
-    /**
-     * @var ProductFixture
-     */
-    private $productFixture;
+    private ProductFixture $productFixture;
 
     protected function setUp(): void
     {
@@ -25,7 +24,7 @@ class CartBuilderTest extends TestCase
      * @magentoAppIsolation enabled
      * @magentoAppArea frontend
      */
-    public function testProductCanBeAddedWithCustomBuyRequest()
+    public function testProductCanBeAddedWithCustomBuyRequest(): void
     {
         $qty = 2;
         $customOptionId = 42;

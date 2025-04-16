@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Customer;
@@ -13,10 +14,7 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class CustomerFixture
 {
-    /**
-     * @var CustomerInterface
-     */
-    private $customer;
+    private CustomerInterface $customer;
 
     public function __construct(CustomerInterface $customer)
     {
@@ -30,12 +28,12 @@ class CustomerFixture
 
     public function getDefaultShippingAddressId(): int
     {
-        return (int) $this->customer->getDefaultShipping();
+        return (int)$this->customer->getDefaultShipping();
     }
 
     public function getDefaultBillingAddressId(): int
     {
-        return (int) $this->customer->getDefaultBilling();
+        return (int)$this->customer->getDefaultBilling();
     }
 
     public function getOtherAddressId(): int
@@ -71,7 +69,7 @@ class CustomerFixture
 
     public function getId(): int
     {
-        return (int) $this->customer->getId();
+        return (int)$this->customer->getId();
     }
 
     public function getConfirmation(): string

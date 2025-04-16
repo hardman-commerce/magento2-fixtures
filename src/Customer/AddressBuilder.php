@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Customer;
@@ -17,15 +18,8 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class AddressBuilder
 {
-    /**
-     * @var AddressInterface
-     */
-    private $address;
-
-    /**
-     * @var AddressRepositoryInterface
-     */
-    private $addressRepository;
+    private AddressInterface $address;
+    private AddressRepositoryInterface $addressRepository;
 
     public function __construct(AddressRepositoryInterface $addressRepository, AddressInterface $address)
     {
@@ -44,6 +38,7 @@ class AddressBuilder
         $objectManager = Bootstrap::getObjectManager();
 
         $address = self::prepareFakeAddress($objectManager, $locale);
+
         return new self($objectManager->create(AddressRepositoryInterface::class), $address);
     }
 
@@ -55,6 +50,7 @@ class AddressBuilder
 
         $address = self::prepareFakeAddress($objectManager, $locale);
         $address->setVatId($vatId);
+
         return new self($objectManager->create(AddressRepositoryInterface::class), $address);
     }
 
@@ -62,6 +58,7 @@ class AddressBuilder
     {
         $builder = clone $this;
         $builder->address->setIsDefaultShipping(true);
+
         return $builder;
     }
 
@@ -69,6 +66,7 @@ class AddressBuilder
     {
         $builder = clone $this;
         $builder->address->setIsDefaultBilling(true);
+
         return $builder;
     }
 
@@ -76,6 +74,7 @@ class AddressBuilder
     {
         $builder = clone $this;
         $builder->address->setPrefix($prefix);
+
         return $builder;
     }
 
@@ -83,6 +82,7 @@ class AddressBuilder
     {
         $builder = clone $this;
         $builder->address->setFirstname($firstname);
+
         return $builder;
     }
 
@@ -90,6 +90,7 @@ class AddressBuilder
     {
         $builder = clone $this;
         $builder->address->setMiddlename($middlename);
+
         return $builder;
     }
 
@@ -97,6 +98,7 @@ class AddressBuilder
     {
         $builder = clone $this;
         $builder->address->setLastname($lastname);
+
         return $builder;
     }
 
@@ -104,6 +106,7 @@ class AddressBuilder
     {
         $builder = clone $this;
         $builder->address->setSuffix($suffix);
+
         return $builder;
     }
 
@@ -111,6 +114,7 @@ class AddressBuilder
     {
         $builder = clone $this;
         $builder->address->setStreet((array)$street);
+
         return $builder;
     }
 
@@ -118,6 +122,7 @@ class AddressBuilder
     {
         $builder = clone $this;
         $builder->address->setCompany($company);
+
         return $builder;
     }
 
@@ -125,6 +130,7 @@ class AddressBuilder
     {
         $builder = clone $this;
         $builder->address->setTelephone($telephone);
+
         return $builder;
     }
 
@@ -132,6 +138,7 @@ class AddressBuilder
     {
         $builder = clone $this;
         $builder->address->setPostcode($postcode);
+
         return $builder;
     }
 
@@ -139,6 +146,7 @@ class AddressBuilder
     {
         $builder = clone $this;
         $builder->address->setCity($city);
+
         return $builder;
     }
 
@@ -146,6 +154,7 @@ class AddressBuilder
     {
         $builder = clone $this;
         $builder->address->setCountryId($countryId);
+
         return $builder;
     }
 
@@ -153,12 +162,12 @@ class AddressBuilder
     {
         $builder = clone $this;
         $builder->address->setRegionId($regionId);
+
         return $builder;
     }
 
     /**
      * @param mixed[] $values
-     * @return AddressBuilder
      */
     public function withCustomAttributes(array $values): AddressBuilder
     {
@@ -166,11 +175,11 @@ class AddressBuilder
         foreach ($values as $code => $value) {
             $builder->address->setCustomAttribute($code, $value);
         }
+
         return $builder;
     }
 
     /**
-     * @return AddressInterface
      * @throws LocalizedException
      */
     public function build(): AddressInterface
@@ -191,24 +200,25 @@ class AddressBuilder
         $countryCode = substr($locale, -2);
 
         try {
-            $region = $faker->province;
+            $region = $faker->province();
         } catch (InvalidArgumentException $exception) {
-            $region = $faker->state;
+            $region = $faker->state();
         }
 
         $regionId = $objectManager->create(Region::class)->loadByName($region, $countryCode)->getId();
 
         /** @var AddressInterface $address */
         $address = $objectManager->create(AddressInterface::class);
+        $phoneNumberArray = explode('x', $faker->phoneNumber());
         $address
-            ->setTelephone($faker->phoneNumber)
-            ->setPostcode($faker->postcode)
+            ->setTelephone(str_replace('.', '-', $phoneNumberArray[0]))
+            ->setPostcode($faker->postcode())
             ->setCountryId($countryCode)
-            ->setCity($faker->city)
-            ->setCompany($faker->company)
-            ->setStreet([$faker->streetAddress])
-            ->setLastname($faker->lastName)
-            ->setFirstname($faker->firstName)
+            ->setCity(str_replace(['/', '(', ')'], ['-', '-', ''], $faker->city()))
+            ->setCompany($faker->company())
+            ->setStreet([$faker->streetAddress()])
+            ->setLastname($faker->lastName())
+            ->setFirstname($faker->firstName())
             ->setRegionId($regionId);
 
         return $address;

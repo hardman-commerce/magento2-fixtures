@@ -1,9 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Sales;
 
 use Magento\Sales\Api\Data\ShipmentInterface;
+use Magento\Sales\Api\Data\ShipmentItemCreationInterface;
 use Magento\Sales\Api\Data\ShipmentItemCreationInterfaceFactory;
 use Magento\Sales\Api\Data\ShipmentTrackCreationInterface;
 use Magento\Sales\Api\Data\ShipmentTrackCreationInterfaceFactory;
@@ -17,40 +19,19 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class ShipmentBuilder
 {
-    /**
-     * @var ShipmentItemCreationInterfaceFactory
-     */
-    private $itemFactory;
-
-    /**
-     * @var ShipmentTrackCreationInterfaceFactory
-     */
-    private $trackFactory;
-
-    /**
-     * @var ShipOrderInterface
-     */
-    private $shipOrder;
-
-    /**
-     * @var ShipmentRepositoryInterface
-     */
-    private $shipmentRepository;
-
-    /**
-     * @var Order
-     */
-    private $order;
-
+    private ShipmentItemCreationInterfaceFactory $itemFactory;
+    private ShipmentTrackCreationInterfaceFactory $trackFactory;
+    private ShipOrderInterface $shipOrder;
+    private ShipmentRepositoryInterface $shipmentRepository;
+    private Order $order;
     /**
      * @var int[]
      */
-    private $orderItems;
-
+    private array $orderItems;
     /**
      * @var string[]
      */
-    private $trackingNumbers;
+    private array $trackingNumbers;
 
     final public function __construct(
         ShipmentItemCreationInterfaceFactory $itemFactory,
@@ -86,7 +67,6 @@ class ShipmentBuilder
     public function withItem(int $orderItemId, int $qty): ShipmentBuilder
     {
         $builder = clone $this;
-
         $builder->orderItems[$orderItemId] = $qty;
 
         return $builder;
@@ -95,7 +75,6 @@ class ShipmentBuilder
     public function withTrackingNumbers(string ...$trackingNumbers): ShipmentBuilder
     {
         $builder = clone $this;
-
         $builder->trackingNumbers = $trackingNumbers;
 
         return $builder;
@@ -125,7 +104,7 @@ class ShipmentBuilder
     }
 
     /**
-     * @return \Magento\Sales\Api\Data\ShipmentTrackCreationInterface[]
+     * @return ShipmentTrackCreationInterface[]
      */
     private function buildTracks(): array
     {
@@ -144,7 +123,7 @@ class ShipmentBuilder
     }
 
     /**
-     * @return \Magento\Sales\Api\Data\ShipmentItemCreationInterface[]
+     * @return ShipmentItemCreationInterface[]
      */
     private function buildShipmentItems(): array
     {

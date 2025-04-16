@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TddWizard\Fixtures\Checkout;
 
 use PHPUnit\Framework\TestCase;
@@ -14,14 +16,8 @@ use TddWizard\Fixtures\Customer\CustomerFixturePool;
  */
 class CustomerCheckoutTest extends TestCase
 {
-    /**
-     * @var CustomerFixturePool
-     */
-    private $customerFixtures;
-    /**
-     * @var ProductFixturePool
-     */
-    private $productFixtures;
+    private CustomerFixturePool $customerFixtures;
+    private ProductFixturePool $productFixtures;
 
     protected function setUp(): void
     {
@@ -52,7 +48,7 @@ class CustomerCheckoutTest extends TestCase
      * @magentoAppIsolation enabled
      * @magentoAppArea frontend
      */
-    public function testCreateOrderFromCart()
+    public function testCreateOrderFromCart(): void
     {
         $this->customerFixtures->get()->login();
         $checkout = CustomerCheckout::fromCart(
@@ -69,7 +65,7 @@ class CustomerCheckoutTest extends TestCase
      * @magentoAppIsolation enabled
      * @magentoAppArea frontend
      */
-    public function testCreateOrderFromCartWithVirtualProduct()
+    public function testCreateOrderFromCartWithVirtualProduct(): void
     {
         $this->customerFixtures->get()->login();
         $checkout = CustomerCheckout::fromCart(

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Sales;
@@ -18,25 +19,10 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class OrderFixtureRollback
 {
-    /**
-     * @var Registry
-     */
-    private $registry;
-
-    /**
-     * @var OrderRepository
-     */
-    private $orderRepository;
-
-    /**
-     * @var CustomerRepositoryInterface
-     */
-    private $customerRepository;
-
-    /**
-     * @var ProductRepositoryInterface
-     */
-    private $productRepository;
+    private Registry $registry;
+    private OrderRepository $orderRepository;
+    private CustomerRepositoryInterface $customerRepository;
+    private ProductRepositoryInterface $productRepository;
 
     public function __construct(
         Registry $registry,
@@ -64,8 +50,8 @@ class OrderFixtureRollback
 
     /**
      * Roll back orders with associated customers and products.
+     **
      *
-     * @param OrderFixture ...$orderFixtures
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
@@ -84,7 +70,7 @@ class OrderFixtureRollback
                 function (OrderItemInterface $orderItem) {
                     try {
                         $this->productRepository->deleteById($orderItem->getSku());
-                    } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+                    } catch (NoSuchEntityException) {
                         // ignore if already deleted
                     }
                 }

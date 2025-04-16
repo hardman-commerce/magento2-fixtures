@@ -9,9 +9,8 @@
 
 ---
 
-Magento 2 Fixtures by Fabian Schmengler
-
-🧙🏻‍♂ https://tddwizard.com/
+Forked from [Magento 2 Fixtures by Fabian Schmengler](https://tddwizard.com/).  
+Updated with code from [Klevu Test Fixtures](https://github.com/klevu/module-m2-test-fixtures)
 
 ## What is it?
 
@@ -27,12 +26,12 @@ It aims to be:
 
 Install it into your Magento 2 project with composer:
 
-    composer require --dev tddwizard/magento2-fixtures
+    composer require --dev hardman-commerce/magento2-fixtures
 
 ## Requirements
 
-- Magento 2.3 or Magento 2.4
-- PHP 7.3 or 7.4 *(7.1 and 7.2 is allowed via composer for full Magento 2.3 compatibility but not tested anymore)*
+- Magento 2.4.4+
+- PHP 8.1+
 
 ## Usage examples:
 

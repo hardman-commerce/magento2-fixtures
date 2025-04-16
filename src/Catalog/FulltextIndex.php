@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Catalog;
@@ -11,15 +12,8 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class FulltextIndex
 {
-    /**
-     * @var bool
-     */
-    private static $created = false;
-
-    /**
-     * @var IndexerFactory
-     */
-    private $indexerFactory;
+    private static bool $created = false;
+    private IndexerFactory $indexerFactory;
 
     public function __construct(IndexerFactory $indexerFactory)
     {

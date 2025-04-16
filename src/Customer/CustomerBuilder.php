@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Customer;
@@ -14,30 +15,14 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class CustomerBuilder
 {
-    /**
-     * @var CustomerInterface
-     */
-    private $customer;
-
-    /**
-     * @var string
-     */
-    private $password;
-
-    /**
-     * @var CustomerRepositoryInterface
-     */
-    private $customerRepository;
-
+    private CustomerInterface $customer;
+    private string $password;
+    private CustomerRepositoryInterface $customerRepository;
+    private Encryptor $encryptor;
     /**
      * @var AddressBuilder[]
      */
-    private $addressBuilders;
-
-    /**
-     * @var Encryptor
-     */
-    private $encryptor;
+    private array $addressBuilders;
 
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
@@ -74,6 +59,7 @@ class CustomerBuilder
             ->setTaxvat('12')
             ->setGender(0);
         $password = 'Test#123';
+
         return new self(
             $objectManager->create(CustomerRepositoryInterface::class),
             $customer,
@@ -86,6 +72,7 @@ class CustomerBuilder
     {
         $builder = clone $this;
         $builder->addressBuilders = $addressBuilders;
+
         return $builder;
     }
 
@@ -93,6 +80,7 @@ class CustomerBuilder
     {
         $builder = clone $this;
         $builder->customer->setEmail($email);
+
         return $builder;
     }
 
@@ -100,6 +88,7 @@ class CustomerBuilder
     {
         $builder = clone $this;
         $builder->customer->setGroupId($groupId);
+
         return $builder;
     }
 
@@ -107,6 +96,7 @@ class CustomerBuilder
     {
         $builder = clone $this;
         $builder->customer->setStoreId($storeId);
+
         return $builder;
     }
 
@@ -114,6 +104,7 @@ class CustomerBuilder
     {
         $builder = clone $this;
         $builder->customer->setWebsiteId($websiteId);
+
         return $builder;
     }
 
@@ -121,6 +112,7 @@ class CustomerBuilder
     {
         $builder = clone $this;
         $builder->customer->setPrefix($prefix);
+
         return $builder;
     }
 
@@ -128,6 +120,7 @@ class CustomerBuilder
     {
         $builder = clone $this;
         $builder->customer->setFirstname($firstname);
+
         return $builder;
     }
 
@@ -135,6 +128,7 @@ class CustomerBuilder
     {
         $builder = clone $this;
         $builder->customer->setMiddlename($middlename);
+
         return $builder;
     }
 
@@ -142,6 +136,7 @@ class CustomerBuilder
     {
         $builder = clone $this;
         $builder->customer->setLastname($lastname);
+
         return $builder;
     }
 
@@ -149,6 +144,7 @@ class CustomerBuilder
     {
         $builder = clone $this;
         $builder->customer->setSuffix($suffix);
+
         return $builder;
     }
 
@@ -156,6 +152,7 @@ class CustomerBuilder
     {
         $builder = clone $this;
         $builder->customer->setTaxvat($taxvat);
+
         return $builder;
     }
 
@@ -163,11 +160,13 @@ class CustomerBuilder
     {
         $builder = clone $this;
         $builder->customer->setDob($dob);
+
         return $builder;
     }
 
     /**
      * @param mixed[] $values
+     *
      * @return CustomerBuilder
      */
     public function withCustomAttributes(array $values): CustomerBuilder
@@ -176,6 +175,7 @@ class CustomerBuilder
         foreach ($values as $code => $value) {
             $builder->customer->setCustomAttribute($code, $value);
         }
+
         return $builder;
     }
 
@@ -183,6 +183,7 @@ class CustomerBuilder
     {
         $builder = clone $this;
         $builder->customer->setConfirmation($confirmation);
+
         return $builder;
     }
 
@@ -209,12 +210,12 @@ class CustomerBuilder
          * We need to save again with our own confirmation (null for confirmed customer)
          */
         $customer->setConfirmation((string)$builder->customer->getConfirmation());
+
         return $builder->customerRepository->save($customer);
     }
 
     /**
      * @SuppressWarnings(PHPMD.UnusedPrivateMethod) False positive: the method is used in build() on the cloned builder
-     *
      * @return CustomerInterface
      * @throws LocalizedException
      */

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TddWizard\Fixtures\Catalog;
 
 use Magento\Catalog\Api\CategoryRepositoryInterface;
@@ -14,20 +16,15 @@ use PHPUnit\Framework\TestCase;
  */
 class CategoryBuilderTest extends TestCase
 {
+    private CategoryRepositoryInterface $categoryRepository;
     /**
      * @var CategoryFixture[]
      */
-    private $categories = [];
-
+    private array $categories = [];
     /**
      * @var ProductFixture[]
      */
-    private $products = [];
-
-    /**
-     * @var CategoryRepositoryInterface
-     */
-    private $categoryRepository;
+    private array $products = [];
 
     protected function setUp(): void
     {
@@ -43,14 +40,14 @@ class CategoryBuilderTest extends TestCase
                 CategoryFixtureRollback::create()->execute($product);
             }
         }
-        if (! empty($this->products)) {
+        if (!empty($this->products)) {
             foreach ($this->products as $product) {
                 ProductFixtureRollback::create()->execute($product);
             }
         }
     }
 
-    public function testDefaultTopLevelCategory()
+    public function testDefaultTopLevelCategory(): void
     {
         $categoryFixture = new CategoryFixture(
             CategoryBuilder::topLevelCategory()->build()
@@ -73,7 +70,7 @@ class CategoryBuilderTest extends TestCase
         );
     }
 
-    public function testDefaultChildCategory()
+    public function testDefaultChildCategory(): void
     {
         $parentCategoryFixture = new CategoryFixture(
             CategoryBuilder::topLevelCategory()->build()
@@ -99,7 +96,7 @@ class CategoryBuilderTest extends TestCase
         );
     }
 
-    public function testCategoryWithSpecificAttributes()
+    public function testCategoryWithSpecificAttributes(): void
     {
         $categoryFixture = new CategoryFixture(
             CategoryBuilder::topLevelCategory()
@@ -123,7 +120,7 @@ class CategoryBuilderTest extends TestCase
         );
     }
 
-    public function testCategoryWithProducts()
+    public function testCategoryWithProducts(): void
     {
         $product1 = new ProductFixture(ProductBuilder::aSimpleProduct()->build());
         $product2 = new ProductFixture(ProductBuilder::aSimpleProduct()->build());
@@ -144,7 +141,7 @@ class CategoryBuilderTest extends TestCase
         );
     }
 
-    public function testMultipleCategories()
+    public function testMultipleCategories(): void
     {
         $this->categories[0] = new CategoryFixture(
             CategoryBuilder::topLevelCategory()->build()

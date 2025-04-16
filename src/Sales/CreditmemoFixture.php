@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Sales;
@@ -7,10 +8,7 @@ use Magento\Sales\Api\Data\CreditmemoInterface;
 
 class CreditmemoFixture
 {
-    /**
-     * @var CreditmemoInterface
-     */
-    private $creditmemo;
+    private CreditmemoInterface $creditmemo;
 
     public function __construct(CreditmemoInterface $creditmemo)
     {
@@ -24,6 +22,6 @@ class CreditmemoFixture
 
     public function getId(): int
     {
-        return (int) $this->creditmemo->getEntityId();
+        return (int)$this->creditmemo->getEntityId();
     }
 }

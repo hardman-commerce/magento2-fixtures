@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Customer;
@@ -8,11 +9,10 @@ use function array_values as values;
 
 class CustomerFixturePool
 {
-
     /**
      * @var CustomerFixture[]
      */
-    private $customerFixtures = [];
+    private array $customerFixtures = [];
 
     public function add(CustomerInterface $customer, string $key = null): void
     {
@@ -25,11 +25,8 @@ class CustomerFixturePool
 
     /**
      * Returns customer fixture by key, or last added if key not specified
-     *
-     * @param string|null $key
-     * @return CustomerFixture
      */
-    public function get(string $key = null): CustomerFixture
+    public function get(?string $key = null): CustomerFixture
     {
         if ($key === null) {
             $key = \array_key_last($this->customerFixtures);
@@ -37,6 +34,7 @@ class CustomerFixturePool
         if ($key === null || !array_key_exists($key, $this->customerFixtures)) {
             throw new \OutOfBoundsException('No matching customer found in fixture pool');
         }
+
         return $this->customerFixtures[$key];
     }
 

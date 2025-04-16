@@ -15,19 +15,9 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class CategoryFixtureRollback
 {
-    /**
-     * @var Registry
-     */
     private readonly Registry $registry;
-    /**
-     * @var CategoryRepositoryInterface
-     */
     private readonly CategoryRepositoryInterface $categoryRepository;
 
-    /**
-     * @param Registry $registry
-     * @param CategoryRepositoryInterface $categoryRepository
-     */
     public function __construct(
         Registry $registry,
         CategoryRepositoryInterface $categoryRepository,
@@ -36,12 +26,10 @@ class CategoryFixtureRollback
         $this->categoryRepository = $categoryRepository;
     }
 
-    /**
-     * @return CategoryFixtureRollback
-     */
     public static function create(): CategoryFixtureRollback
     {
         $objectManager = Bootstrap::getObjectManager();
+
         return new self(
             $objectManager->get(Registry::class),
             $objectManager->get(CategoryRepositoryInterface::class),
@@ -49,9 +37,6 @@ class CategoryFixtureRollback
     }
 
     /**
-     * @param CategoryFixture ...$categoryFixtures
-     *
-     * @return void
      * @throws LocalizedException
      */
     public function execute(CategoryFixture ...$categoryFixtures): void

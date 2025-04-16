@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TddWizard\Fixtures\Catalog;
 
 use Magento\Catalog\Api\ProductRepositoryInterface;
@@ -19,20 +21,12 @@ use PHPUnit\Framework\TestCase;
  */
 class ProductBuilderTest extends TestCase
 {
-    /**
-     * @var ObjectManagerInterface
-     */
-    private $objectManager;
-
+    private ObjectManagerInterface $objectManager;
+    private ProductRepositoryInterface $productRepository;
     /**
      * @var ProductFixture[]
      */
-    private $products = [];
-
-    /**
-     * @var ProductRepositoryInterface
-     */
-    private $productRepository;
+    private array $products = [];
 
     protected function setUp(): void
     {
@@ -43,14 +37,14 @@ class ProductBuilderTest extends TestCase
 
     protected function tearDown(): void
     {
-        if (! empty($this->products)) {
+        if (!empty($this->products)) {
             foreach ($this->products as $product) {
                 ProductFixtureRollback::create()->execute($product);
             }
         }
     }
 
-    public function testDefaultSimpleProduct()
+    public function testDefaultSimpleProduct(): void
     {
         $productFixture = new ProductFixture(
             ProductBuilder::aSimpleProduct()->build()
@@ -71,7 +65,7 @@ class ProductBuilderTest extends TestCase
     /**
      * @magentoDataFixture Magento/Store/_files/second_website_with_two_stores.php
      */
-    public function testSimpleProductWithSpecificAttributes()
+    public function testSimpleProductWithSpecificAttributes(): void
     {
         /** @var StoreManagerInterface $storeManager */
         $storeManager = $this->objectManager->get(StoreManagerInterface::class);
@@ -91,7 +85,7 @@ class ProductBuilderTest extends TestCase
                 ->withBackorders(2)
                 ->withCustomAttributes(
                     [
-                        'cost' => 2.0
+                        'cost' => 2.0,
                     ]
                 )
                 ->build()
@@ -126,7 +120,7 @@ class ProductBuilderTest extends TestCase
      * @magentoDataFixture Magento/Catalog/_files/dropdown_attribute.php
      * @magentoDataFixture Magento/Store/_files/second_website_with_two_stores.php
      */
-    public function testSimpleProductWithStoreSpecificAttributes()
+    public function testSimpleProductWithStoreSpecificAttributes(): void
     {
         /*
          * Values from core fixture files
@@ -139,7 +133,7 @@ class ProductBuilderTest extends TestCase
 
         /** @var StoreManagerInterface $storeManager */
         $storeManager = $this->objectManager->get(StoreManagerInterface::class);
-        $secondStoreId = $storeManager->getStore($secondStoreCode)->getId();
+        $secondStoreId = (int)$storeManager->getStore($secondStoreCode)->getId();
         $productFixture = new ProductFixture(
             ProductBuilder::aSimpleProduct()
                 ->withName('Default Name')
@@ -150,12 +144,12 @@ class ProductBuilderTest extends TestCase
                 ->withVisibility(Product\Visibility::VISIBILITY_IN_CATALOG, $secondStoreId)
                 ->withCustomAttributes(
                     [
-                        $userDefinedAttributeCode => $userDefinedDefaultValue
+                        $userDefinedAttributeCode => $userDefinedDefaultValue,
                     ]
                 )
                 ->withCustomAttributes(
                     [
-                        $userDefinedAttributeCode => $userDefinedStoreValue
+                        $userDefinedAttributeCode => $userDefinedStoreValue,
                     ],
                     $secondStoreId
                 )
@@ -197,7 +191,7 @@ class ProductBuilderTest extends TestCase
         );
     }
 
-    public function testDefaultVirtualProduct()
+    public function testDefaultVirtualProduct(): void
     {
         $productFixture = new ProductFixture(
             ProductBuilder::aVirtualProduct()->build()
@@ -214,34 +208,34 @@ class ProductBuilderTest extends TestCase
         );
     }
 
-    public function testRandomSkuOnBuild()
+    public function testRandomSkuOnBuild(): void
     {
         $builder = ProductBuilder::aSimpleProduct();
         $productFixture = new ProductFixture(
             $builder->build()
         );
-        $this->assertRegExp('/[0-9a-f]{32}/', $productFixture->getSku());
+        $this->assertMatchesRegularExpression('/[0-9a-f]{32}/', $productFixture->getSku());
         $this->products[] = $productFixture;
 
         $otherProductFixture = new ProductFixture(
             $builder->build()
         );
-        $this->assertRegExp('/[0-9a-f]{32}/', $otherProductFixture->getSku());
+        $this->assertMatchesRegularExpression('/[0-9a-f]{32}/', $otherProductFixture->getSku());
         $this->assertNotEquals($productFixture->getSku(), $otherProductFixture->getSku());
         $this->products[] = $otherProductFixture;
     }
 
-    public function testRandomSkuOnBuildWithoutSave()
+    public function testRandomSkuOnBuildWithoutSave(): void
     {
         $product = ProductBuilder::aSimpleProduct()->buildWithoutSave();
-        $this->assertRegExp('/[0-9a-f]{32}/', $product->getSku());
+        $this->assertMatchesRegularExpression('/[0-9a-f]{32}/', $product->getSku());
 
         $otherProduct = ProductBuilder::aSimpleProduct()->buildWithoutSave();
-        $this->assertRegExp('/[0-9a-f]{32}/', $otherProduct->getSku());
+        $this->assertMatchesRegularExpression('/[0-9a-f]{32}/', $otherProduct->getSku());
         $this->assertNotEquals($product->getSku(), $otherProduct->getSku());
     }
 
-    public function testProductCanBeLoadedWithCollection()
+    public function testProductCanBeLoadedWithCollection(): void
     {
         $productFixture = new ProductFixture(
             ProductBuilder::aSimpleProduct()->build()

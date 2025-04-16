@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TddWizard\Fixtures\Catalog;
 
 use Magento\Catalog\Api\ProductRepositoryInterface;
@@ -14,17 +16,14 @@ use PHPUnit\Framework\TestCase;
  */
 class ProductFixtureRollbackTest extends TestCase
 {
-    /**
-     * @var ProductRepositoryInterface
-     */
-    private $productRepository;
+    private ProductRepositoryInterface $productRepository;
 
     protected function setUp(): void
     {
         $this->productRepository = Bootstrap::getObjectManager()->create(ProductRepositoryInterface::class);
     }
 
-    public function testRollbackSingleProductFixture()
+    public function testRollbackSingleProductFixture(): void
     {
         $productFixture = new ProductFixture(
             ProductBuilder::aSimpleProduct()->build()
@@ -34,7 +33,7 @@ class ProductFixtureRollbackTest extends TestCase
         $this->productRepository->getById($productFixture->getId());
     }
 
-    public function testRollbackMultipleProductFixtures()
+    public function testRollbackMultipleProductFixtures(): void
     {
         $productFixture = new ProductFixture(
             ProductBuilder::aSimpleProduct()->build()

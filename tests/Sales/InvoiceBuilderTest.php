@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TddWizard\Fixtures\Sales;
 
 use Magento\Framework\Exception\LocalizedException;
@@ -17,15 +19,8 @@ use TddWizard\Fixtures\Checkout\CartBuilder;
  */
 class InvoiceBuilderTest extends TestCase
 {
-    /**
-     * @var OrderFixture
-     */
-    private $orderFixture;
-
-    /**
-     * @var InvoiceRepositoryInterface
-     */
-    private $invoiceRepository;
+    private OrderFixture $orderFixture;
+    private InvoiceRepositoryInterface $invoiceRepository;
 
     protected function setUp(): void
     {
@@ -48,10 +43,9 @@ class InvoiceBuilderTest extends TestCase
      * Create a invoice for all the order's items.
      *
      * @test
-     *
      * @throws \Exception
      */
-    public function createInvoice()
+    public function createInvoice(): void
     {
         $order = OrderBuilder::anOrder()->build();
         $this->orderFixture = new OrderFixture($order);
@@ -68,7 +62,7 @@ class InvoiceBuilderTest extends TestCase
      * @test
      * @throws \Exception
      */
-    public function createPartialInvoices()
+    public function createPartialInvoices(): void
     {
         $order = OrderBuilder::anOrder()->withProducts(
             ProductBuilder::aSimpleProduct()->withSku('foo'),
@@ -83,7 +77,7 @@ class InvoiceBuilderTest extends TestCase
         $orderItemIds = [];
         /** @var OrderItemInterface $orderItem */
         foreach ($order->getAllVisibleItems() as $orderItem) {
-            $orderItemIds[$orderItem->getSku()] = $orderItem->getItemId();
+            $orderItemIds[$orderItem->getSku()] = (int)$orderItem->getItemId();
         }
 
         $invoiceFixture = new InvoiceFixture(

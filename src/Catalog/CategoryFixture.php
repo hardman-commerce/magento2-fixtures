@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Catalog;
@@ -8,14 +9,8 @@ use Magento\Catalog\Model\Category;
 
 class CategoryFixture
 {
-    /**
-     * @var CategoryInterface
-     */
-    private $category;
+    private CategoryInterface $category;
 
-    /**
-     * @return CategoryInterface
-     */
     public function getCategory(): CategoryInterface
     {
         return $this->category;
@@ -28,13 +23,14 @@ class CategoryFixture
 
     public function getId(): int
     {
-        return (int) $this->category->getId();
+        return (int)$this->category->getId();
     }
 
     public function getUrlKey(): string
     {
         /** @var Category $category */
         $category = $this->category;
+
         return (string)$category->getUrlKey();
     }
 

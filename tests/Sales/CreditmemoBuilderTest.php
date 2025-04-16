@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TddWizard\Fixtures\Sales;
 
 use Magento\Framework\Exception\LocalizedException;
@@ -17,15 +19,8 @@ use TddWizard\Fixtures\Checkout\CartBuilder;
  */
 class CreditmemoBuilderTest extends TestCase
 {
-    /**
-     * @var OrderFixture
-     */
-    private $orderFixture;
-
-    /**
-     * @var CreditmemoRepositoryInterface
-     */
-    private $creditmemoRepository;
+    private OrderFixture $orderFixture;
+    private CreditmemoRepositoryInterface $creditmemoRepository;
 
     protected function setUp(): void
     {
@@ -48,10 +43,9 @@ class CreditmemoBuilderTest extends TestCase
      * Create a credit memo for all the order's items.
      *
      * @test
-     *
      * @throws \Exception
      */
-    public function createCreditmemo()
+    public function createCreditmemo(): void
     {
         $order = OrderBuilder::anOrder()->withPaymentMethod('checkmo')->build();
         $this->orderFixture = new OrderFixture($order);
@@ -68,7 +62,7 @@ class CreditmemoBuilderTest extends TestCase
      * @test
      * @throws \Exception
      */
-    public function createPartialCreditmemos()
+    public function createPartialCreditmemos(): void
     {
         $order = OrderBuilder::anOrder()->withPaymentMethod('checkmo')->withProducts(
             ProductBuilder::aSimpleProduct()->withSku('foo'),
@@ -83,7 +77,7 @@ class CreditmemoBuilderTest extends TestCase
         $orderItemIds = [];
         /** @var OrderItemInterface $orderItem */
         foreach ($order->getAllVisibleItems() as $orderItem) {
-            $orderItemIds[$orderItem->getSku()] = $orderItem->getItemId();
+            $orderItemIds[$orderItem->getSku()] = (int)$orderItem->getItemId();
         }
 
         $refundFixture = new CreditmemoFixture(

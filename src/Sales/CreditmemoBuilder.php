@@ -1,10 +1,12 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Sales;
 
 use Magento\Sales\Api\CreditmemoRepositoryInterface;
 use Magento\Sales\Api\Data\CreditmemoInterface;
+use Magento\Sales\Api\Data\CreditmemoItemCreationInterface;
 use Magento\Sales\Api\Data\CreditmemoItemCreationInterfaceFactory;
 use Magento\Sales\Api\RefundOrderInterface;
 use Magento\Sales\Model\Order;
@@ -15,30 +17,14 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class CreditmemoBuilder
 {
-    /**
-     * @var CreditmemoItemCreationInterfaceFactory
-     */
-    private $itemFactory;
-
-    /**
-     * @var RefundOrderInterface
-     */
-    private $refundOrder;
-
-    /**
-     * @var CreditmemoRepositoryInterface
-     */
-    private $creditmemoRepository;
-
-    /**
-     * @var Order
-     */
-    private $order;
-
+    private CreditmemoItemCreationInterfaceFactory $itemFactory;
+    private RefundOrderInterface $refundOrder;
+    private CreditmemoRepositoryInterface $creditmemoRepository;
+    private Order $order;
     /**
      * @var float[]
      */
-    private $orderItems;
+    private array $orderItems;
 
     final public function __construct(
         CreditmemoItemCreationInterfaceFactory $itemFactory,
@@ -89,16 +75,14 @@ class CreditmemoBuilder
                 $this->orderItems[$item->getItemId()] = (float)$item->getQtyOrdered();
             }
         }
-
         $creditmemoItems = $this->buildCreditmemoItems();
-
         $creditmemoId = $this->refundOrder->execute($this->order->getEntityId(), $creditmemoItems);
 
         return $this->creditmemoRepository->get($creditmemoId);
     }
 
     /**
-     * @return \Magento\Sales\Api\Data\CreditmemoItemCreationInterface[]
+     * @return CreditmemoItemCreationInterface[]
      */
     private function buildCreditmemoItems(): array
     {
@@ -109,6 +93,7 @@ class CreditmemoBuilder
             $creditmemoItem->setQty($qty);
             $creditmemoItems[] = $creditmemoItem;
         }
+
         return $creditmemoItems;
     }
 }

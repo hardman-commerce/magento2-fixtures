@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Catalog;
@@ -15,15 +16,8 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class ProductFixtureRollback
 {
-    /**
-     * @var Registry
-     */
-    private $registry;
-
-    /**
-     * @var ProductRepositoryInterface
-     */
-    private $productRepository;
+    private Registry $registry;
+    private ProductRepositoryInterface $productRepository;
 
     public function __construct(Registry $registry, ProductRepositoryInterface $productRepository)
     {
@@ -34,16 +28,13 @@ class ProductFixtureRollback
     public static function create(): ProductFixtureRollback
     {
         $objectManager = Bootstrap::getObjectManager();
+
         return new self(
             $objectManager->get(Registry::class),
             $objectManager->get(ProductRepositoryInterface::class)
         );
     }
 
-    /**
-     * @param ProductFixture ...$productFixtures
-     * @throws LocalizedException
-     */
     public function execute(ProductFixture ...$productFixtures): void
     {
         $this->registry->unregister('isSecureArea');
