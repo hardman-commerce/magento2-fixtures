@@ -39,7 +39,7 @@ class CartBuilder
 
         return new static(
             $objectManager->create(ProductRepositoryInterface::class),
-            $objectManager->create(Cart::class)
+            $objectManager->create(Cart::class),
         );
     }
 
@@ -179,7 +179,7 @@ class CartBuilder
                                         static fn(array $option): bool => $option['label'] === $value,
                                     ),
                                     'value',
-                                )
+                                ),
                             );
                         }
                         $requestInfo->setData('super_attribute', $superAttribute);

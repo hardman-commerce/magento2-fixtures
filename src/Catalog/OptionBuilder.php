@@ -30,7 +30,7 @@ class OptionBuilder
         AttributeOptionManagementInterface $optionManagement,
         AttributeOption $option,
         AttributeOptionLabelInterface $optionLabel,
-        string $attributeCode
+        string $attributeCode,
     ) {
         $this->optionManagement = $optionManagement;
         $this->option = $option;
@@ -73,7 +73,7 @@ class OptionBuilder
             $optionManagement,
             $option,
             $optionLabel,
-            $attributeCode
+            $attributeCode,
         );
     }
 
@@ -125,7 +125,7 @@ class OptionBuilder
         $this->optionManagement->add(
             Product::ENTITY,
             $builder->attributeCode,
-            $builder->option
+            $builder->option,
         );
 
         $optionId = $this->getOptionId();

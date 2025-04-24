@@ -33,7 +33,7 @@ class CategoryBuilder
         CategoryLinkRepositoryInterface $categoryLinkRepository,
         CategoryProductLinkInterfaceFactory $productLinkFactory,
         Category $category,
-        array $skus
+        array $skus,
     ) {
         $this->categoryRepository = $categoryRepository;
         $this->categoryResource = $categoryResource;
@@ -61,12 +61,12 @@ class CategoryBuilder
             $objectManager->create(CategoryLinkRepositoryInterface::class),
             $objectManager->create(CategoryProductLinkInterfaceFactory::class),
             $category,
-            []
+            [],
         );
     }
 
     public static function childCategoryOf(
-        CategoryFixture $parent
+        CategoryFixture $parent,
     ): CategoryBuilder {
         $objectManager = Bootstrap::getObjectManager();
         // use interface to reflect DI configuration but assume instance of the real model because we need its methods
@@ -83,7 +83,7 @@ class CategoryBuilder
             $objectManager->create(CategoryLinkRepositoryInterface::class),
             $objectManager->create(CategoryProductLinkInterfaceFactory::class),
             $category,
-            []
+            [],
         );
     }
 

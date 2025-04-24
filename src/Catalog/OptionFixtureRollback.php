@@ -40,7 +40,7 @@ class OptionFixtureRollback
 
         return new self(
             $objectManager->get(Registry::class),
-            $objectManager->get(AttributeOptionManagementInterface::class)
+            $objectManager->get(AttributeOptionManagementInterface::class),
         );
     }
 
@@ -60,7 +60,7 @@ class OptionFixtureRollback
             $this->optionManagement->delete(
                 Product::ENTITY,
                 $optionFixture->getAttributeCode(),
-                $optionFixture->getOption()->getId()
+                $optionFixture->getOption()->getId(),
             );
         }
 

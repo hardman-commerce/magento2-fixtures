@@ -29,7 +29,7 @@ class CustomerFixtureRollback
 
         return new self(
             $objectManager->get(Registry::class),
-            $objectManager->get(CustomerRepositoryInterface::class)
+            $objectManager->get(CustomerRepositoryInterface::class),
         );
     }
 

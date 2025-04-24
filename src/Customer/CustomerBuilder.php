@@ -64,7 +64,7 @@ class CustomerBuilder
             $objectManager->create(CustomerRepositoryInterface::class),
             $customer,
             $objectManager->create(Encryptor::class),
-            $password
+            $password,
         );
     }
 
@@ -201,7 +201,7 @@ class CustomerBuilder
             function (AddressBuilder $addressBuilder) {
                 return $addressBuilder->buildWithoutSave();
             },
-            $builder->addressBuilders
+            $builder->addressBuilders,
         );
         $builder->customer->setAddresses($addresses);
         $customer = $builder->saveNewCustomer();

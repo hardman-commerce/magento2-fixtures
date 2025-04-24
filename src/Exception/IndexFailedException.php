@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace TddWizard\Fixtures\Catalog;
+namespace TddWizard\Fixtures\Exception;
 
-class IndexFailed extends \RuntimeException
+class IndexFailedException extends \RuntimeException
 {
     public static function becauseInitiallyTriggeredInTransaction(\Exception $previous): self
     {
@@ -26,7 +26,7 @@ Or set the fulltext indexer to "scheduled" before the transaction with:
 TXT
             ,
             0,
-            $previous
+            $previous,
         );
     }
 }

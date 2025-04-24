@@ -30,7 +30,7 @@ class CreditmemoBuilder
         CreditmemoItemCreationInterfaceFactory $itemFactory,
         RefundOrderInterface $refundOrder,
         CreditmemoRepositoryInterface $creditmemoRepository,
-        Order $order
+        Order $order,
     ) {
         $this->itemFactory = $itemFactory;
         $this->refundOrder = $refundOrder;
@@ -41,7 +41,7 @@ class CreditmemoBuilder
     }
 
     public static function forOrder(
-        Order $order
+        Order $order,
     ): CreditmemoBuilder {
         $objectManager = Bootstrap::getObjectManager();
 
@@ -49,7 +49,7 @@ class CreditmemoBuilder
             $objectManager->create(CreditmemoItemCreationInterfaceFactory::class),
             $objectManager->create(RefundOrderInterface::class),
             $objectManager->create(CreditmemoRepositoryInterface::class),
-            $order
+            $order,
         );
     }
 

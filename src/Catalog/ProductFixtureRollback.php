@@ -31,7 +31,7 @@ class ProductFixtureRollback
 
         return new self(
             $objectManager->get(Registry::class),
-            $objectManager->get(ProductRepositoryInterface::class)
+            $objectManager->get(ProductRepositoryInterface::class),
         );
     }
 

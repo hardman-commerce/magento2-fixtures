@@ -38,7 +38,7 @@ class ShipmentBuilder
         ShipmentTrackCreationInterfaceFactory $trackFactory,
         ShipOrderInterface $shipOrder,
         ShipmentRepositoryInterface $shipmentRepository,
-        Order $order
+        Order $order,
     ) {
         $this->itemFactory = $itemFactory;
         $this->trackFactory = $trackFactory;
@@ -51,7 +51,7 @@ class ShipmentBuilder
     }
 
     public static function forOrder(
-        Order $order
+        Order $order,
     ): ShipmentBuilder {
         $objectManager = Bootstrap::getObjectManager();
 
@@ -60,7 +60,7 @@ class ShipmentBuilder
             $objectManager->create(ShipmentTrackCreationInterfaceFactory::class),
             $objectManager->create(ShipOrderInterface::class),
             $objectManager->create(ShipmentRepositoryInterface::class),
-            $order
+            $order,
         );
     }
 
@@ -91,7 +91,7 @@ class ShipmentBuilder
             false,
             false,
             null,
-            $tracks
+            $tracks,
         );
 
         $shipment = $this->shipmentRepository->get($shipmentId);
@@ -118,7 +118,7 @@ class ShipmentBuilder
 
                 return $track;
             },
-            $this->trackingNumbers
+            $this->trackingNumbers,
         );
     }
 
@@ -135,6 +135,7 @@ class ShipmentBuilder
             $shipmentItem->setQty($qty);
             $shipmentItems[] = $shipmentItem;
         }
+
         return $shipmentItems;
     }
 }

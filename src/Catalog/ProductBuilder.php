@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Catalog;
 
+use Magento\Catalog\Api\Data\ProductExtensionInterface;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Api\Data\ProductTierPriceExtensionInterface;
 use Magento\Catalog\Api\Data\ProductTierPriceInterface;
@@ -18,19 +19,28 @@ use Magento\Catalog\Model\Product\Type;
 use Magento\Catalog\Model\Product\Visibility;
 use Magento\CatalogInventory\Api\Data\StockItemInterface;
 use Magento\CatalogInventory\Api\StockItemRepositoryInterface;
+use Magento\ConfigurableProduct\Helper\Product\Options\Factory as ConfigurableOptionsFactory;
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Customer\Model\Group as CustomerGroup;
 use Magento\Downloadable\Api\Data\LinkInterface as DownloadableLinkInterface;
 use Magento\Downloadable\Api\Data\LinkInterfaceFactory as DownloadableLinkInterfaceFactory;
 use Magento\Downloadable\Api\DomainManagerInterface;
 use Magento\Downloadable\Api\LinkRepositoryInterface as DownloadableLinkRepositoryInterface;
 use Magento\Downloadable\Model\Product\Type as DownloadableType;
+use Magento\Eav\Api\Data\AttributeInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\Exception\CouldNotSaveException;
+use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Exception\InputException;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\StateException;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Module\Dir as Directory;
 use Magento\Indexer\Model\IndexerFactory;
 use Magento\MediaStorage\Helper\File\Storage\Database;
 use Magento\TestFramework\Helper\Bootstrap;
 use Magento\TestFramework\ObjectManager;
+use TddWizard\Fixtures\Exception\IndexFailedException;
 
 //phpcs:disable SlevomatCodingStandard.Classes.ClassStructure.IncorrectGroupOrder
 
@@ -49,6 +59,7 @@ class ProductBuilder
     private DownloadableLinkInterfaceFactory $downloadLinkFactory;
     private DomainManagerInterface $domainManager;
     private ProductTierPriceInterfaceFactory $tierPriceFactory;
+    private ConfigurableOptionsFactory $configurableOptionsFactory;
     protected ProductInterface $product;
     /**
      * @var int[]
@@ -62,6 +73,15 @@ class ProductBuilder
      * @var int[]
      */
     private array $categoryIds = [];
+    private ?string $downloadableLinkDomain;
+    /**
+     * @var AttributeInterface[]
+     */
+    private array $configurableAttributes = [];
+    /**
+     * @var ProductInterface[]
+     */
+    private array $variantProducts = [];
 
     /**
      * @param ProductRepositoryInterface $productRepository
@@ -73,13 +93,14 @@ class ProductBuilder
      * @param DownloadableLinkInterfaceFactory $downloadLinkFactory
      * @param DomainManagerInterface $domainManager
      * @param ProductTierPriceInterfaceFactory $tierPriceFactory
+     * @param ConfigurableOptionsFactory $configurableOptionsFactory
      * @param Product $product
      * @param int[] $websiteIds
      * @param mixed[] $storeSpecificValues
+     * @param string|null $downloadableLinkDomain
      */
     public function __construct(
         ProductRepositoryInterface $productRepository,
-        StockItemRepositoryInterface $stockItemRepository,
         ProductWebsiteLinkRepositoryInterface $websiteLinkRepository,
         ProductWebsiteLinkInterfaceFactory $websiteLinkFactory,
         IndexerFactory $indexerFactory,
@@ -87,22 +108,25 @@ class ProductBuilder
         DownloadableLinkInterfaceFactory $downloadLinkFactory,
         DomainManagerInterface $domainManager,
         ProductTierPriceInterfaceFactory $tierPriceFactory,
+        ConfigurableOptionsFactory $configurableOptionsFactory,
         Product $product,
         array $websiteIds,
         array $storeSpecificValues,
+        ?string $downloadableLinkDomain = 'https://magento.test/',
     ) {
         $this->productRepository = $productRepository;
         $this->websiteLinkRepository = $websiteLinkRepository;
-        $this->stockItemRepository = $stockItemRepository;
         $this->websiteLinkFactory = $websiteLinkFactory;
         $this->indexerFactory = $indexerFactory;
         $this->downloadLinkRepository = $downloadLinkRepository;
         $this->downloadLinkFactory = $downloadLinkFactory;
         $this->domainManager = $domainManager;
         $this->tierPriceFactory = $tierPriceFactory;
+        $this->configurableOptionsFactory = $configurableOptionsFactory;
         $this->product = $product;
         $this->websiteIds = $websiteIds;
         $this->storeSpecificValues = $storeSpecificValues;
+        $this->downloadableLinkDomain = $downloadableLinkDomain;
     }
 
     /**
@@ -116,23 +140,23 @@ class ProductBuilder
     /**
      * @return ProductBuilder
      */
-    public static function aSimpleProduct(): ProductBuilder
+    public static function aSimpleProduct(): ProductBuilder // phpcs:ignore Magento2.Functions.StaticFunction.StaticFunction, Generic.Files.LineLength.TooLong
     {
         $objectManager = Bootstrap::getObjectManager();
         /** @var Product $product */
         $product = $objectManager->create(ProductInterface::class);
 
-        $product->setTypeId(Type::TYPE_SIMPLE)
-            ->setAttributeSetId(4)
-            ->setName('Simple Product')
-            ->setPrice(10)
-            ->setVisibility(Visibility::VISIBILITY_BOTH)
-            ->setImage('no_selection')
-            ->setThumbnail('no_selection')
-            ->setSmallImage('no_selection')
-            ->setKlevuImage('no_selection')
-            ->setImage('no_selection')
-            ->setStatus(Status::STATUS_ENABLED);
+        $product->setTypeId(Type::TYPE_SIMPLE);
+        $product->setAttributeSetId(4);
+        $product->setName('TDD Test Simple Product');
+        $product->setPrice(10);
+        $product->setVisibility(Visibility::VISIBILITY_BOTH);
+        $product->setImage('no_selection');
+        $product->setThumbnail('no_selection');
+        $product->setSmallImage('no_selection');
+        $product->setKlevuImage('no_selection');
+        $product->setImage('no_selection');
+        $product->setStatus(Status::STATUS_ENABLED);
         $product->addData(
             [
                 'tax_class_id' => 1,
@@ -150,29 +174,29 @@ class ProductBuilder
         $extensionAttributes->setStockItem($stockItem);
 
         return new static(
-            $objectManager->create(ProductRepositoryInterface::class),
-            $objectManager->create(StockItemRepositoryInterface::class),
-            $objectManager->create(ProductWebsiteLinkRepositoryInterface::class),
-            $objectManager->create(ProductWebsiteLinkInterfaceFactory::class),
-            $objectManager->create(IndexerFactory::class),
-            $objectManager->create(DownloadableLinkRepositoryInterface::class),
-            $objectManager->create(DownloadableLinkInterfaceFactory::class),
-            $objectManager->create(DomainManagerInterface::class),
-            $objectManager->create(ProductTierPriceInterfaceFactory::class),
-            $product,
-            [1],
-            [],
+            productRepository: $objectManager->create(ProductRepositoryInterface::class),
+            websiteLinkRepository: $objectManager->create(ProductWebsiteLinkRepositoryInterface::class),
+            websiteLinkFactory: $objectManager->create(ProductWebsiteLinkInterfaceFactory::class),
+            indexerFactory: $objectManager->create(IndexerFactory::class),
+            downloadLinkRepository: $objectManager->create(DownloadableLinkRepositoryInterface::class),
+            downloadLinkFactory: $objectManager->create(DownloadableLinkInterfaceFactory::class),
+            domainManager: $objectManager->create(DomainManagerInterface::class),
+            tierPriceFactory: $objectManager->create(ProductTierPriceInterfaceFactory::class),
+            configurableOptionsFactory: $objectManager->create(ConfigurableOptionsFactory::class),
+            product: $product,
+            websiteIds: [1],
+            storeSpecificValues: [],
         );
     }
 
     /**
      * @return ProductBuilder
      */
-    public static function aVirtualProduct(): ProductBuilder
+    public static function aVirtualProduct(): ProductBuilder // phpcs:ignore Magento2.Functions.StaticFunction.StaticFunction, Generic.Files.LineLength.TooLong
     {
         $builder = self::aSimpleProduct();
-        $builder->product->setName('Virtual Product');
-        $builder->product->setTypeId(Type::TYPE_VIRTUAL);
+        $builder->product->setName(name: 'TDD Test Virtual Product');
+        $builder->product->setTypeId(typeId: Type::TYPE_VIRTUAL);
 
         return $builder;
     }
@@ -180,11 +204,53 @@ class ProductBuilder
     /**
      * @return ProductBuilder
      */
-    public static function aDownloadableProduct(): ProductBuilder
+    public static function aDownloadableProduct(): ProductBuilder // phpcs:ignore Magento2.Functions.StaticFunction.StaticFunction, Generic.Files.LineLength.TooLong
     {
         $builder = self::aSimpleProduct();
-        $builder->product->setName('Downloadable Product');
-        $builder->product->setTypeId(DownloadableType::TYPE_DOWNLOADABLE);
+        $builder->product->setName(name: 'TDD Test Downloadable Product');
+        $builder->product->setTypeId(typeId: DownloadableType::TYPE_DOWNLOADABLE);
+
+        return $builder;
+    }
+
+    /**
+     * @return ProductBuilder
+     */
+    public static function aConfigurableProduct(): ProductBuilder // phpcs:ignore Magento2.Functions.StaticFunction.StaticFunction, Generic.Files.LineLength.TooLong
+    {
+        $builder = self::aSimpleProduct();
+        $builder->product->setName(name: 'TDD Test Configurable Product');
+        $builder->product->setTypeId(typeId: Configurable::TYPE_CODE);
+
+        return $builder;
+    }
+
+    /**
+     * @param AttributeInterface $attribute
+     *
+     * @return ProductBuilder
+     */
+    public function withConfigurableAttribute(
+        AttributeInterface $attribute,
+    ): ProductBuilder {
+        $builder = clone $this;
+        $attributeCode = $attribute->getAttributeCode();
+        if (!array_key_exists($attributeCode, $builder->configurableAttributes)) {
+            $builder->configurableAttributes[$attributeCode] = $attribute;
+        }
+
+        return $builder;
+    }
+
+    /**
+     * @param ProductInterface $variantProduct
+     *
+     * @return ProductBuilder
+     */
+    public function withVariant(ProductInterface $variantProduct): ProductBuilder
+    {
+        $builder = clone $this;
+        $builder->variantProducts[] = $variantProduct;
 
         return $builder;
     }
@@ -210,7 +276,7 @@ class ProductBuilder
     public function withSku(string $sku): ProductBuilder
     {
         $builder = clone $this;
-        $builder->product->setSku($sku);
+        $builder->product->setSku(sku: $sku);
 
         return $builder;
     }
@@ -227,7 +293,7 @@ class ProductBuilder
         if ($storeId) {
             $builder->storeSpecificValues[$storeId][ProductInterface::NAME] = $name;
         } else {
-            $builder->product->setName($name);
+            $builder->product->setName(name: $name);
         }
 
         return $builder;
@@ -246,7 +312,7 @@ class ProductBuilder
         if ($storeId) {
             $builder->storeSpecificValues[$storeId][ProductInterface::STATUS] = $status;
         } else {
-            $builder->product->setStatus($status);
+            $builder->product->setStatus(status: $status);
         }
 
         return $builder;
@@ -264,7 +330,7 @@ class ProductBuilder
         if ($storeId) {
             $builder->storeSpecificValues[$storeId][ProductInterface::VISIBILITY] = $visibility;
         } else {
-            $builder->product->setVisibility($visibility);
+            $builder->product->setVisibility(visibility: $visibility);
         }
 
         return $builder;
@@ -304,7 +370,7 @@ class ProductBuilder
     public function withPrice(float $price): ProductBuilder
     {
         $builder = clone $this;
-        $builder->product->setPrice($price);
+        $builder->product->setPrice(price: $price);
 
         return $builder;
     }
@@ -340,7 +406,7 @@ class ProductBuilder
                                        ?? ObjectManager::getInstance()->get(ProductTierPriceExtensionInterface::class);
                 $extensionAttributes->setPercentageValue($tierPriceData['price']);
             }
-            $tierPrice->setExtensionAttributes($extensionAttributes);
+            $tierPrice->setExtensionAttributes(extensionAttributes: $extensionAttributes);
             $pricesToSet[] = $tierPrice;
         }
         $builder = clone $this;
@@ -359,7 +425,7 @@ class ProductBuilder
     public function withTaxClassId(int $taxClassId): ProductBuilder
     {
         $builder = clone $this;
-        $builder->product->setData('tax_class_id', $taxClassId);
+        $builder->product->setData(key: 'tax_class_id', value: $taxClassId);
 
         return $builder;
     }
@@ -404,7 +470,7 @@ class ProductBuilder
     }
 
     /**
-     * @param string[] $links
+     * @param DownloadableLinkInterface[] $links
      *
      * @return $this
      */
@@ -424,7 +490,7 @@ class ProductBuilder
     public function withWeight(float $weight): ProductBuilder
     {
         $builder = clone $this;
-        $builder->product->setWeight($weight);
+        $builder->product->setWeight(weight: $weight);
 
         return $builder;
     }
@@ -442,25 +508,39 @@ class ProductBuilder
             if ($storeId) {
                 $builder->storeSpecificValues[$storeId][$code] = $value;
             } else {
-                $builder->product->setCustomAttribute($code, $value);
+                $builder->product->setCustomAttribute(attributeCode: $code, attributeValue: $value);
             }
         }
 
         return $builder;
     }
 
-    public function withImage(string $fileName, ?string $imageType = 'image'): ProductBuilder
-    {
+    /**
+     * @param string $fileName
+     * @param string $imageType image, small_image, thumbnail
+     * @param string $mimeType
+     * @param string|null $imagePath
+     *
+     * @return $this
+     * @throws FileSystemException
+     * @throws LocalizedException
+     */
+    public function withImage(
+        string $fileName = '1',
+        string $imageType = 'image',
+        string $mimeType = 'image/png',
+        ?string $imagePath = null,
+    ): ProductBuilder {
         $builder = clone $this;
 
         $objectManager = Bootstrap::getObjectManager();
-        $dbStorage = $objectManager->create(Database::class);
-        $filesystem = $objectManager->get(Filesystem::class);
-        $tmpDirectory = $filesystem->getDirectoryWrite(DirectoryList::SYS_TMP);
-        $directory = $objectManager->get(Directory::class);
+        $dbStorage = $objectManager->create(type: Database::class);
+        $filesystem = $objectManager->get(type: Filesystem::class);
+        $tmpDirectory = $filesystem->getDirectoryWrite(directoryCode: DirectoryList::SYS_TMP);
+        $directory = $objectManager->get(type: Directory::class);
         $imageUploader = $objectManager->create(
-            ImageUploader::class,
-            [
+            type: ImageUploader::class,
+            arguments: [
                 'baseTmpPath' => 'catalog/tmp/product',
                 'basePath' => 'catalog/product',
                 'coreFileStorageDatabase' => $dbStorage,
@@ -468,18 +548,21 @@ class ProductBuilder
                 'allowedMimeTypes' => ['image/jpg', 'image/jpeg', 'image/gif', 'image/png'],
             ],
         );
-
-        $fixtureImagePath = $directory->getDir(moduleName: 'Klevu_TestFixtures')
-                            . DIRECTORY_SEPARATOR . '_files'
-                            . DIRECTORY_SEPARATOR . 'images'
-                            . DIRECTORY_SEPARATOR . $fileName;
-        $tmpFilePath = $tmpDirectory->getAbsolutePath($fileName);
+        if (!$imagePath) {
+            $imagePath = $directory->getDir(moduleName: 'TddWizard_Fixtures')
+                         . DIRECTORY_SEPARATOR
+                         . '_files'
+                         . DIRECTORY_SEPARATOR
+                         . 'images';
+        }
+        $fixtureImagePath = $imagePath . DIRECTORY_SEPARATOR . $fileName;
+        $tmpFilePath = $tmpDirectory->getAbsolutePath(path: $fileName);
         // phpcs:ignore Magento2.Functions.DiscouragedFunction.DiscouragedWithAlternative
         copy(from: $fixtureImagePath, to: $tmpFilePath);
         // phpcs:ignore Magento2.Security.Superglobal.SuperglobalUsageError, SlevomatCodingStandard.Variables.DisallowSuperGlobalVariable.DisallowedSuperGlobalVariable
         $_FILES['image'] = [
             'name' => $fileName,
-            'type' => 'image/jpeg',
+            'type' => $mimeType,
             'tmp_name' => $tmpFilePath,
             'error' => 0,
             'size' => 12500,
@@ -504,6 +587,13 @@ class ProductBuilder
     {
         try {
             $product = $this->createProduct();
+            if ($product->getTypeId() === Configurable::TYPE_CODE) {
+                $product = $this->associateChildren(
+                    configurableProduct: $product,
+                    configurableAttributes: $this->configurableAttributes,
+                    variantProducts: $this->variantProducts,
+                );
+            }
 
             $indexer = $this->indexerFactory->create();
             $indexerNames = [
@@ -511,16 +601,15 @@ class ProductBuilder
                 'catalog_product_price',
             ];
             foreach ($indexerNames as $indexerName) {
-                $indexer->load($indexerName)->reindexRow($product->getId());
+                $indexer->load(indexerId: $indexerName)->reindexRow(id: $product->getId());
             }
 
             return $product;
-        } catch (\Exception $e) {
-            $e->getPrevious();
-            if (self::isTransactionException($e) || self::isTransactionException($e->getPrevious())) {
-                throw IndexFailed::becauseInitiallyTriggeredInTransaction($e);
+        } catch (\Exception $exception) {
+            if (self::isTransactionException($exception) || self::isTransactionException($exception->getPrevious())) {
+                throw IndexFailedException::becauseInitiallyTriggeredInTransaction($exception);
             }
-            throw $e;
+            throw $exception;
         }
     }
 
@@ -530,10 +619,10 @@ class ProductBuilder
     public function buildWithoutSave(): ProductInterface
     {
         if (!$this->product->getSku()) {
-            $this->product->setSku(sha1(uniqid('', true)));
+            $this->product->setSku(sku: sha1(uniqid(more_entropy: true)));
         }
-        $this->product->setCustomAttribute('url_key', $this->product->getSku());
-        $this->product->setData('category_ids', $this->categoryIds);
+        $this->product->setCustomAttribute(attributeCode: 'url_key', attributeValue: $this->product->getSku());
+        $this->product->setData(key: 'category_ids', value: $this->categoryIds);
 
         return clone $this->product;
     }
@@ -546,17 +635,23 @@ class ProductBuilder
     {
         $builder = clone $this;
         if (!$builder->product->getSku()) {
-            $builder->product->setSku(sha1(uniqid('', true)));
+            $builder->product->setSku(sku: sha1(uniqid(more_entropy: true)));
         }
-        if (!$builder->product->getCustomAttribute('url_key')) {
-            $builder->product->setCustomAttribute('url_key', $builder->product->getSku());
+        if (!$builder->product->getCustomAttribute(attributeCode: 'url_key')) {
+            $builder->product->setCustomAttribute(
+                attributeCode: 'url_key',
+                attributeValue: strtolower(
+                    string: str_replace(search: ' ', replace: '_', subject: $builder->product->getSku()),
+                ),
+            );
         }
-        $builder->product->setData('category_ids', $builder->categoryIds);
-        $product = $builder->productRepository->save($builder->product);
+        $builder->product->setData(key: 'category_ids', value: $builder->categoryIds);
+        $product = $builder->productRepository->save(product: $builder->product);
         foreach ($builder->websiteIds as $websiteId) {
             $websiteLink = $builder->websiteLinkFactory->create();
-            $websiteLink->setWebsiteId($websiteId)->setSku($product->getSku());
-            $builder->websiteLinkRepository->save($websiteLink);
+            $websiteLink->setWebsiteId(websiteId: $websiteId);
+            $websiteLink->setSku(sku: $product->getSku());
+            $builder->websiteLinkRepository->save(productWebsiteLink: $websiteLink);
         }
         if (!empty($builder->websiteIds)) {
             $extensionAttributes = $product->getExtensionAttributes();
@@ -565,7 +660,7 @@ class ProductBuilder
         foreach ($builder->storeSpecificValues as $storeId => $values) {
             /** @var Product $storeProduct */
             $storeProduct = clone $product;
-            $storeProduct->setStoreId($storeId);
+            $storeProduct->setStoreId(storeId: $storeId);
             $storeProduct->addData($values);
             $storeProduct->save();
         }
@@ -588,36 +683,102 @@ class ProductBuilder
         if (!$links) {
             /** @var DownloadableLinkInterface $link */
             $link = $builder->downloadLinkFactory->create();
-            $link->setTitle('Downloadable Item');
-            $link->setNumberOfDownloads(100);
-            $link->setIsShareable(1);
-            $link->setLinkType('url');
-            $link->setLinkUrl('https://magento.test/');
-            $link->setPrice(54.99);
-            $link->setSortOrder(1);
+            $link->setTitle(title: 'Downloadable Item');
+            $link->setNumberOfDownloads(numberOfDownloads: 100);
+            $link->setIsShareable(isShareable: 1);
+            $link->setLinkType(linkType: 'url');
+            $link->setLinkUrl(linkUrl: $this->downloadableLinkDomain);
+            $link->setPrice(price: 54.99);
+            $link->setSortOrder(sortOrder: 1);
             $links = [$link];
         }
         $domains = array_map(
             callback: static function (DownloadableLinkInterface $link) {
-                $urlParts = explode('://', $link->getLinkUrl());
-                $url = explode('/', $urlParts[1]);
+                $urlParts = explode(separator: '://', string: $link->getLinkUrl());
+                $url = explode(separator: '/', string: $urlParts[1]);
 
                 return $url[0];
             },
             array: $links,
         );
-        $builder->domainManager->addDomains($domains);
+        $builder->domainManager->addDomains(hosts: $domains);
 
         foreach ($links as $link) {
             $builder->downloadLinkRepository->save(
                 sku: $product->getSku(),
                 link: $link,
-                isGlobalScopeContent: true,
             );
         }
         // Removing these added domains can lead to an empty array for downloadable_domains which causes
         // ERROR: deployment configuration is corrupted. The application state is no longer valid.
         // $builder->domainManager->removeDomains($domains);
+    }
+
+    /**
+     * @param ProductInterface $configurableProduct
+     * @param AttributeInterface[] $configurableAttributes
+     * @param ProductInterface[] $variantProducts
+     *
+     * @return ProductInterface
+     * @throws CouldNotSaveException
+     * @throws InputException
+     * @throws StateException
+     */
+    private function associateChildren(
+        ProductInterface $configurableProduct,
+        array $configurableAttributes,
+        array $variantProducts,
+    ): ProductInterface {
+        if (!$configurableAttributes) {
+            return $configurableProduct;
+        }
+
+        $attributeValues = [];
+        foreach ($configurableAttributes as $attributeCode => $configurableAttribute) {
+            $attributeValues[$attributeCode] = [];
+
+            /** @var Product $variantProduct */
+            foreach ($variantProducts as $variantProduct) {
+                $attributeCode = $configurableAttribute->getAttributeCode();
+                $attributeValues[$attributeCode][] = [
+                    'label' => 'test',
+                    'attribute_id' => $configurableAttribute->getId(),
+                    'value_index' => $variantProduct->getData(key: $attributeCode),
+                ];
+            }
+        }
+
+        $configurableAttributesData = [];
+        $position = 0;
+        foreach ($attributeValues as $attributeCode => $values) {
+            $configurableAttribute = $configurableAttributes[$attributeCode];
+
+            $configurableAttributesData[] = [
+                'attribute_id' => $configurableAttribute->getId(),
+                'code' => $configurableAttribute->getAttributeCode(),
+                'label' => $configurableAttribute->getDataUsingMethod(key: 'store_label'),
+                'position' => $position++,
+                'values' => $values,
+            ];
+        }
+
+        $extensionConfigurableAttributes = $configurableProduct->getExtensionAttributes();
+        if (!$extensionConfigurableAttributes) {
+            $objectManager = ObjectManager::getInstance();
+            $extensionConfigurableAttributes = $objectManager->create(type: ProductExtensionInterface::class);
+        }
+
+        $configurableOptions = $this->configurableOptionsFactory->create(attributesData: $configurableAttributesData);
+        $extensionConfigurableAttributes->setConfigurableProductOptions($configurableOptions);
+        $extensionConfigurableAttributes->setConfigurableProductLinks(
+            array_map(
+                static fn (ProductInterface $variantProduct): int => (int)$variantProduct->getId(),
+                $variantProducts,
+            ),
+        );
+        $configurableProduct->setExtensionAttributes(extensionAttributes: $extensionConfigurableAttributes);
+
+        return $this->productRepository->save(product: $configurableProduct);
     }
 
     /**

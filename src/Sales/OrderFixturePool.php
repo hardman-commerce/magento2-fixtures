@@ -34,6 +34,7 @@ class OrderFixturePool
         if ($key === null || !array_key_exists($key, $this->orderFixtures)) {
             throw new \OutOfBoundsException('No matching order found in fixture pool');
         }
+
         return $this->orderFixtures[$key];
     }
 

@@ -34,7 +34,7 @@ class CustomerCheckout
         int $shippingAddressId = null,
         int $billingAddressId = null,
         string $shippingMethodCode = null,
-        string $paymentMethodCode = null
+        string $paymentMethodCode = null,
     ) {
         $this->addressRepository = $addressRepository;
         $this->quoteRepository = $quoteRepository;
@@ -56,7 +56,7 @@ class CustomerCheckout
             $objectManager->create(CartRepositoryInterface::class),
             $objectManager->create(QuoteManagement::class),
             $objectManager->create(PaymentConfig::class),
-            $cart
+            $cart,
         );
     }
 
@@ -156,7 +156,7 @@ class CustomerCheckout
     {
         $billingAddress = $this->cart->getQuote()->getBillingAddress();
         $billingAddress->importCustomerAddressData(
-            $this->addressRepository->getById($this->getCustomerBillingAddressId())
+            $this->addressRepository->getById($this->getCustomerBillingAddressId()),
         );
         $billingAddress->save();
     }
@@ -168,7 +168,7 @@ class CustomerCheckout
     {
         $shippingAddress = $this->cart->getQuote()->getShippingAddress();
         $shippingAddress->importCustomerAddressData(
-            $this->addressRepository->getById($this->getCustomerShippingAddressId())
+            $this->addressRepository->getById($this->getCustomerShippingAddressId()),
         );
         $shippingAddress->setCollectShippingRates(true);
         $shippingAddress->collectShippingRates();

@@ -91,7 +91,7 @@ class OrderBuilder
             static function (ProductBuilder $productBuilder) {
                 return $productBuilder->build();
             },
-            $builder->productBuilders
+            $builder->productBuilders,
         );
 
         if (empty($builder->customerBuilder)) {

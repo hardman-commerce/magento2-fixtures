@@ -28,7 +28,7 @@ class OrderFixtureRollback
         Registry $registry,
         OrderRepository $orderRepository,
         CustomerRepositoryInterface $customerRepository,
-        ProductRepositoryInterface $productRepository
+        ProductRepositoryInterface $productRepository,
     ) {
         $this->registry = $registry;
         $this->orderRepository = $orderRepository;
@@ -44,7 +44,7 @@ class OrderFixtureRollback
             $objectManager->get(Registry::class),
             $objectManager->get(OrderRepositoryInterface::class),
             $objectManager->get(CustomerRepositoryInterface::class),
-            $objectManager->get(ProductRepositoryInterface::class)
+            $objectManager->get(ProductRepositoryInterface::class),
         );
     }
 
@@ -73,7 +73,7 @@ class OrderFixtureRollback
                     } catch (NoSuchEntityException) {
                         // ignore if already deleted
                     }
-                }
+                },
             );
         }
 

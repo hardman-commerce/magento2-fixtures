@@ -127,6 +127,7 @@ class ProductFixturePoolTest extends TestCase
         $product = Bootstrap::getObjectManager()->create(ProductInterface::class);
         $product->setSku('product-' . $nextId);
         $product->setId($nextId++);
+
         return $product;
     }
 

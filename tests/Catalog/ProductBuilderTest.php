@@ -8,6 +8,7 @@ use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Catalog\Model\Product\Type;
+use Magento\Downloadable\Model\Product\Type as DownloadableType;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -47,17 +48,17 @@ class ProductBuilderTest extends TestCase
     public function testDefaultSimpleProduct(): void
     {
         $productFixture = new ProductFixture(
-            ProductBuilder::aSimpleProduct()->build()
+            ProductBuilder::aSimpleProduct()->build(),
         );
         $this->products[] = $productFixture;
         /** @var Product $product */
         $product = $this->productRepository->getById($productFixture->getId());
         $this->assertEquals(Type::TYPE_SIMPLE, $product->getTypeId());
-        $this->assertEquals('Simple Product', $product->getName());
+        $this->assertEquals('TDD Test Simple Product', $product->getName());
         $this->assertEquals([1], $product->getWebsiteIds());
         $this->assertEquals(1, $product->getData('tax_class_id'));
         $this->assertTrue(
-            $product->getExtensionAttributes()->getStockItem()->getIsInStock()
+            $product->getExtensionAttributes()->getStockItem()->getIsInStock(),
         );
         $this->assertEquals(100, $product->getExtensionAttributes()->getStockItem()->getQty());
     }
@@ -86,9 +87,9 @@ class ProductBuilderTest extends TestCase
                 ->withCustomAttributes(
                     [
                         'cost' => 2.0,
-                    ]
+                    ],
                 )
-                ->build()
+                ->build(),
         );
         $this->products[] = $productFixture;
         /** @var Product $product */
@@ -105,13 +106,13 @@ class ProductBuilderTest extends TestCase
         $this->assertEquals(2, $product->getData('tax_class_id'), 'tax class id');
         $this->assertFalse(
             $product->getExtensionAttributes()->getStockItem()->getIsInStock(),
-            'in stock'
+            'in stock',
         );
         $this->assertEquals(-1, $product->getExtensionAttributes()->getStockItem()->getQty(), 'stock qty');
         $this->assertEquals(
             2,
             $product->getExtensionAttributes()->getStockItem()->getData('backorders'),
-            'stock backorders'
+            'stock backorders',
         );
         $this->assertEquals(2.0, $product->getCustomAttribute('cost')->getValue(), 'custom attribute "cost"');
     }
@@ -136,7 +137,7 @@ class ProductBuilderTest extends TestCase
         $secondStoreId = (int)$storeManager->getStore($secondStoreCode)->getId();
         $productFixture = new ProductFixture(
             ProductBuilder::aSimpleProduct()
-                ->withName('Default Name')
+                ->withName('TDD Test Default Name')
                 ->withName('Store Name', $secondStoreId)
                 ->withStatus(Status::STATUS_DISABLED)
                 ->withStatus(Status::STATUS_ENABLED, $secondStoreId)
@@ -145,30 +146,30 @@ class ProductBuilderTest extends TestCase
                 ->withCustomAttributes(
                     [
                         $userDefinedAttributeCode => $userDefinedDefaultValue,
-                    ]
+                    ],
                 )
                 ->withCustomAttributes(
                     [
                         $userDefinedAttributeCode => $userDefinedStoreValue,
                     ],
-                    $secondStoreId
+                    $secondStoreId,
                 )
-                ->build()
+                ->build(),
         );
         $this->products[] = $productFixture;
         /** @var Product $product */
         $product = $this->productRepository->getById($productFixture->getId());
-        $this->assertEquals('Default Name', $product->getName(), 'Default name');
+        $this->assertEquals('TDD Test Default Name', $product->getName(), 'Default name');
         $this->assertEquals(Status::STATUS_DISABLED, $product->getStatus(), 'Default status should be disabled');
         $this->assertEquals(
             Product\Visibility::VISIBILITY_NOT_VISIBLE,
             $product->getVisibility(),
-            'Default visibility'
+            'Default visibility',
         );
         $this->assertEquals(
             $userDefinedDefaultValue,
             $product->getCustomAttribute($userDefinedAttributeCode)->getValue(),
-            'Default custom attribute'
+            'Default custom attribute',
         );
 
         /** @var Product $product */
@@ -177,34 +178,17 @@ class ProductBuilderTest extends TestCase
         $this->assertEquals(
             Status::STATUS_ENABLED,
             $productInStore->getStatus(),
-            'Store specific status should be enabled'
+            'Store specific status should be enabled',
         );
         $this->assertEquals(
             Product\Visibility::VISIBILITY_IN_CATALOG,
             $productInStore->getVisibility(),
-            'Store specific visibility'
+            'Store specific visibility',
         );
         $this->assertEquals(
             $userDefinedStoreValue,
             $productInStore->getCustomAttribute($userDefinedAttributeCode)->getValue(),
-            'Store specific custom attribute'
-        );
-    }
-
-    public function testDefaultVirtualProduct(): void
-    {
-        $productFixture = new ProductFixture(
-            ProductBuilder::aVirtualProduct()->build()
-        );
-        $this->products[] = $productFixture;
-        /** @var Product $product */
-        $product = $this->productRepository->getById($productFixture->getId());
-        $this->assertEquals(Type::TYPE_VIRTUAL, $product->getTypeId());
-        $this->assertEquals('Virtual Product', $product->getName());
-        $this->assertEquals([1], $product->getWebsiteIds());
-        $this->assertEquals(1, $product->getData('tax_class_id'));
-        $this->assertTrue(
-            $product->getExtensionAttributes()->getStockItem()->getIsInStock()
+            'Store specific custom attribute',
         );
     }
 
@@ -212,13 +196,13 @@ class ProductBuilderTest extends TestCase
     {
         $builder = ProductBuilder::aSimpleProduct();
         $productFixture = new ProductFixture(
-            $builder->build()
+            $builder->build(),
         );
         $this->assertMatchesRegularExpression('/[0-9a-f]{32}/', $productFixture->getSku());
         $this->products[] = $productFixture;
 
         $otherProductFixture = new ProductFixture(
-            $builder->build()
+            $builder->build(),
         );
         $this->assertMatchesRegularExpression('/[0-9a-f]{32}/', $otherProductFixture->getSku());
         $this->assertNotEquals($productFixture->getSku(), $otherProductFixture->getSku());
@@ -238,13 +222,58 @@ class ProductBuilderTest extends TestCase
     public function testProductCanBeLoadedWithCollection(): void
     {
         $productFixture = new ProductFixture(
-            ProductBuilder::aSimpleProduct()->build()
+            ProductBuilder::aSimpleProduct()->build(),
         );
         $this->products[] = $productFixture;
         /** @var SearchCriteriaBuilder $searchCriteriaBuilder */
         $searchCriteriaBuilder = $this->objectManager->create(SearchCriteriaBuilder::class);
         $searchCriteriaBuilder->addFilter('sku', $productFixture->getSku());
         $productsFromCollection = $this->productRepository->getList($searchCriteriaBuilder->create())->getItems();
-        $this->assertCount(1, $productsFromCollection, 'The product should be able to be loaded from collection');
+        $this->assertCount(
+            1,
+            $productsFromCollection,
+            'The product should be able to be loaded from collection',
+        );
+    }
+
+    public function testDefaultVirtualProduct(): void
+    {
+        $productFixture = new ProductFixture(
+            ProductBuilder::aVirtualProduct()->build(),
+        );
+        $this->products[] = $productFixture;
+        /** @var Product $product */
+        $product = $this->productRepository->getById($productFixture->getId());
+        $this->assertEquals(Type::TYPE_VIRTUAL, $product->getTypeId());
+        $this->assertEquals('TDD Test Virtual Product', $product->getName());
+        $this->assertEquals([1], $product->getWebsiteIds());
+        $this->assertTrue(
+            $product->getExtensionAttributes()->getStockItem()->getIsInStock(),
+        );
+    }
+
+    public function testDefaultDownloadableProduct(): void
+    {
+        $productFixture = new ProductFixture(
+            ProductBuilder::aDownloadableProduct()->build(),
+        );
+        $this->products[] = $productFixture;
+        /** @var Product $product */
+        $product = $this->productRepository->getById($productFixture->getId());
+        $this->assertEquals(DownloadableType::TYPE_DOWNLOADABLE, $product->getTypeId());
+        $this->assertEquals('TDD Test Downloadable Product', $product->getName());
+        $this->assertEquals([1], $product->getWebsiteIds());
+
+        $extensionAttributes = $product->getExtensionAttributes();
+        $this->assertTrue(
+            $extensionAttributes->getStockItem()->getIsInStock(),
+        );
+
+        $productLinks = $extensionAttributes->getDownloadableProductLinks();
+        $this->assertCount(1, $productLinks);
+        $productLink = array_shift($productLinks);
+        $this->assertSame('https://magento.test/', $productLink->getLinkUrl());
+        $this->assertSame('Downloadable Item', $productLink->getTitle());
+        $this->assertEquals(54.99, $productLink->getPrice());
     }
 }

@@ -30,7 +30,7 @@ class InvoiceBuilder
         InvoiceItemCreationInterfaceFactory $itemFactory,
         InvoiceOrderInterface $invoiceOrder,
         InvoiceRepositoryInterface $invoiceRepository,
-        Order $order
+        Order $order,
     ) {
         $this->itemFactory = $itemFactory;
         $this->invoiceOrder = $invoiceOrder;
@@ -41,7 +41,7 @@ class InvoiceBuilder
     }
 
     public static function forOrder(
-        Order $order
+        Order $order,
     ): InvoiceBuilder {
         $objectManager = Bootstrap::getObjectManager();
 
@@ -49,7 +49,7 @@ class InvoiceBuilder
             $objectManager->create(InvoiceItemCreationInterfaceFactory::class),
             $objectManager->create(InvoiceOrderInterface::class),
             $objectManager->create(InvoiceRepositoryInterface::class),
-            $order
+            $order,
         );
     }
 

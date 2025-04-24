@@ -49,8 +49,8 @@ class CustomerFixture
         return array_values(
             array_diff(
                 $this->getAllAddressIds(),
-                [$this->getDefaultBillingAddressId(), $this->getDefaultShippingAddressId()]
-            )
+                [$this->getDefaultBillingAddressId(), $this->getDefaultShippingAddressId()],
+            ),
         );
     }
 
@@ -63,7 +63,7 @@ class CustomerFixture
             function (AddressInterface $address): int {
                 return (int)$address->getId();
             },
-            (array)$this->customer->getAddresses()
+            (array)$this->customer->getAddresses(),
         );
     }
 
