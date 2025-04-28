@@ -144,7 +144,7 @@ class CategoryBuilderTest extends TestCase
                     'meta_title' => 'Custom Meta Title',
                 ])
                 ->withStoreId(storeId: (int)$storeFixture->getId())
-                ->withImage(fileName: '2.png')
+                ->withImage(fileName: 'image2.png')
                 ->build(),
         );
         $this->categories[] = $categoryFixture;
@@ -167,7 +167,7 @@ class CategoryBuilderTest extends TestCase
         $customAttribute = $category->getCustomAttribute(attributeCode: 'meta_title');
         $this->assertSame(expected: 'meta_title', actual: $customAttribute->getAttributeCode());
         $this->assertSame(expected: 'Custom Meta Title', actual: $customAttribute->getValue());
-        $this->assertStringMatchesFormat(format: '%A/media/catalog/category/2%A.png', string: $category->getImageUrl());
+        $this->assertStringMatchesFormat(format: '%A/media/catalog/category/image2%A.png', string: $category->getImageUrl());
     }
 
     public function testCategoryWithProducts(): void

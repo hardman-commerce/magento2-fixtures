@@ -225,7 +225,7 @@ class CategoryBuilder
     }
 
     public function withImage(
-        string $fileName,
+        string $fileName = 'image1',
         string $mimeType = 'image/png',
         ?string $imagePath = null,
     ): CategoryBuilder {

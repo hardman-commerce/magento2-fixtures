@@ -526,7 +526,7 @@ class ProductBuilder
      * @throws LocalizedException
      */
     public function withImage(
-        string $fileName = '1',
+        string $fileName = 'image1',
         string $imageType = 'image',
         string $mimeType = 'image/png',
         ?string $imagePath = null,
