@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-namespace TddWizard\Fixtures\Catalog;
+namespace TddWizard\Fixtures\Attribute;
 
 use Magento\Catalog\Api\Data\CategoryAttributeInterface;
 use Magento\Catalog\Api\Data\ProductAttributeInterface;
@@ -22,7 +22,7 @@ trait AttributeTrait
      */
     public function createAttribute(?array $attributeData = []): void
     {
-        if (!($attributeData['attribute_type'] ?? null)) {
+        if (null === ($attributeData['attribute_type'] ?? null)) {
             $attributeData['attribute_type'] = 'text';
         }
         if (!($attributeData['code'] ?? null)) {
@@ -61,8 +61,8 @@ trait AttributeTrait
         }
         $attributeBuilder = $attributeBuilder->withLabel(label: $attributeData['label']);
 
-        if ($attributeData['labels'] ?? null) {
-            $attributeBuilder = $attributeBuilder->withLabels(labels: $attributeData['labels']);
+        if ($attributeData['store_labels'] ?? null) {
+            $attributeBuilder = $attributeBuilder->withLabels(labels: $attributeData['store_labels']);
         }
 
         if ($attributeData['data'] ?? null) {

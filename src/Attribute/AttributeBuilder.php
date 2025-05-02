@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-namespace TddWizard\Fixtures\Catalog;
+namespace TddWizard\Fixtures\Attribute;
 
 use Magento\Catalog\Api\Data\CategoryAttributeInterface;
 use Magento\Catalog\Api\Data\EavAttributeInterface;
@@ -337,22 +337,22 @@ class AttributeBuilder
         $builder->attribute->setEntityTypeId(id: $entityTypeId);
         $builder->attribute->setIsUserDefined(isUserDefined: 1);
         switch ($builder->attributeType) {
-            case ('configurable'):
-                $builder->attribute->setData(key: AttributeResourceModel::KEY_IS_GLOBAL, value: 1);
-                $builder->attribute->setFrontendInput(frontendInput: 'select');
-                $builder->attribute->setBackendType(data: 'int');
+            case ('text'):
+                $builder->attribute->setFrontendInput(frontendInput: 'text');
+                $builder->attribute->setBackendType(data: 'varchar');
                 break;
             case ('textarea'):
                 $builder->attribute->setFrontendInput(frontendInput: 'textarea');
                 $builder->attribute->setBackendType(data: 'text');
                 break;
-            case ('text'):
-                $builder->attribute->setFrontendInput(frontendInput: 'text');
-                $builder->attribute->setBackendType(data: 'varchar');
-                break;
             case ('date'):
                 $builder->attribute->setFrontendInput(frontendInput: 'date');
                 $builder->attribute->setBackendType(data: 'datetime');
+                break;
+            case ('configurable'):
+                $builder->attribute->setData(key: AttributeResourceModel::KEY_IS_GLOBAL, value: 1);
+                $builder->attribute->setFrontendInput(frontendInput: 'select');
+                $builder->attribute->setBackendType(data: 'int');
                 break;
             case ('enum'):
                 $builder->attribute->setFrontendInput(frontendInput: 'select');
@@ -362,15 +362,22 @@ class AttributeBuilder
                 $builder->attribute->setFrontendInput(frontendInput: 'select');
                 $builder->attribute->setBackendType(data: 'varchar');
                 break;
-            case ('boolean'):
-                $builder->attribute->setFrontendInput(frontendInput: 'boolean');
-                $builder->attribute->setBackendType(data: 'int');
-                break;
             case ('multiselect'):
+            case ('multi-select'):
+            case ('multi_select'):
+            case ('multiSelect'):
                 $builder->attribute->setFrontendInput(frontendInput: 'multiselect');
                 $builder->attribute->setBackendType(data: 'text');
                 break;
+            case ('boolean'):
+            case ('bool'):
+                $builder->attribute->setFrontendInput(frontendInput: 'boolean');
+                $builder->attribute->setBackendType(data: 'int');
+                break;
             case ('yes_no'):
+            case ('yes-no'):
+            case ('yesNo'):
+            case ('yesno'):
                 $builder->attribute->setFrontendInput(frontendInput: 'boolean');
                 $builder->attribute->setBackendType(data: 'int');
                 $builder->attribute->setSourceModel(sourceModel: Boolean::class);
