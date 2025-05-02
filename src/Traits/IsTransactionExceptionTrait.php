@@ -1,8 +1,12 @@
 <?php
 
+/**
+ * Copyright © HardmanCommerce. All rights reserved. See LICENSE.txt for license details.
+ */
+
 declare(strict_types=1);
 
-namespace TddWizard\Fixtures\Trait;
+namespace TddWizard\Fixtures\Traits;
 
 trait IsTransactionExceptionTrait
 {

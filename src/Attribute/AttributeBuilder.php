@@ -30,7 +30,7 @@ use Magento\Framework\Exception\StateException;
 use Magento\TestFramework\Helper\Bootstrap;
 use Magento\Weee\Model\Attribute\Backend\Weee\Tax as BackendWeeTax;
 use TddWizard\Fixtures\Exception\IndexFailedException;
-use TddWizard\Fixtures\Trait\IsTransactionExceptionTrait;
+use TddWizard\Fixtures\Traits\IsTransactionExceptionTrait;
 
 class AttributeBuilder
 {

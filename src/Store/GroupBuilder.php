@@ -17,7 +17,7 @@ use Magento\Store\Api\WebsiteRepositoryInterface;
 use Magento\Store\Model\ResourceModel\Store as StoreResourceModel;
 use Magento\TestFramework\Helper\Bootstrap;
 use TddWizard\Fixtures\Exception\IndexFailedException;
-use TddWizard\Fixtures\Trait\IsTransactionExceptionTrait;
+use TddWizard\Fixtures\Traits\IsTransactionExceptionTrait;
 
 class GroupBuilder
 {

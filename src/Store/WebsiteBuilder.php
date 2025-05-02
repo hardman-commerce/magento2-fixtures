@@ -14,7 +14,7 @@ use Magento\Store\Api\Data\WebsiteInterface;
 use Magento\Store\Model\ResourceModel\Website as WebsiteResourceModel;
 use Magento\TestFramework\Helper\Bootstrap;
 use TddWizard\Fixtures\Exception\IndexFailedException;
-use TddWizard\Fixtures\Trait\IsTransactionExceptionTrait;
+use TddWizard\Fixtures\Traits\IsTransactionExceptionTrait;
 
 class WebsiteBuilder
 {
