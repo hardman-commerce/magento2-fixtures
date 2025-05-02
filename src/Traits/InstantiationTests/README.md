@@ -12,9 +12,9 @@ The test `testFqcnResolvesToExpectedImplementation` will run as long as `impleme
 defined
 
 ```php
-use Magento\Framework\ObjectManagerInterface
+use Magento\Framework\ObjectManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
-use PHPUnit\Framework\TestCase
+use PHPUnit\Framework\TestCase;
 use TddWizard\Fixtures\Traits\InstantiationTests\TestObjectInstantiationTrait;
 use Vendor\Module\Model\ClassToBeTested;
 
@@ -46,9 +46,9 @@ The class constructor may require arguments to be passed to it. We can define th
 instantiating the class in a test.
 
 ```php
-use Magento\Framework\ObjectManagerInterface
+use Magento\Framework\ObjectManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
-use PHPUnit\Framework\TestCase
+use PHPUnit\Framework\TestCase;
 use TddWizard\Fixtures\Traits\InstantiationTests\TestObjectInstantiationTrait;
 use Vendor\Module\Model\ClassToBeTested;
 
@@ -88,9 +88,9 @@ class SomeTest extends TestCase
 Test that the class can be created when using a Virtual Type
 
 ```php
-use Magento\Framework\ObjectManagerInterface
+use Magento\Framework\ObjectManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
-use PHPUnit\Framework\TestCase
+use PHPUnit\Framework\TestCase;
 use TddWizard\Fixtures\Traits\InstantiationTests\TestObjectInstantiationTrait;
 use Vendor\Module\Model\ClassToBeTested;
 use Vendor\Module\Model\ClassToBeTested\VirtualType;
@@ -129,9 +129,9 @@ are defined.
 This Trait also requires `\TddWizard\Fixtures\Traits\InstantiationTests\TestObjectInstantiationTrait` to be included.
 
 ```php
-use Magento\Framework\ObjectManagerInterface
+use Magento\Framework\ObjectManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
-use PHPUnit\Framework\TestCase
+use PHPUnit\Framework\TestCase;
 use TddWizard\Fixtures\Traits\InstantiationTests\TestObjectInstantiationTrait;
 use TddWizard\Fixtures\Traits\InstantiationTests\TestImplementsInterfaceTrait;
 use Vendor\Module\Model\ClassToBeTested;
@@ -163,9 +163,9 @@ The test `testInterfacePreferenceResolvesToExpectedImplementation` will run as l
 This Trait also requires `\TddWizard\Fixtures\Traits\InstantiationTests\TestObjectInstantiationTrait` to be included.
 
 ```php
-use Magento\Framework\ObjectManagerInterface
+use Magento\Framework\ObjectManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
-use PHPUnit\Framework\TestCase
+use PHPUnit\Framework\TestCase;
 use TddWizard\Fixtures\Traits\InstantiationTests\TestObjectInstantiationTrait;
 use TddWizard\Fixtures\Traits\InstantiationTests\TestInterfacePreferenceTrait;
 use Vendor\Module\Model\ClassToBeTested;
@@ -186,5 +186,3 @@ class SomeTest extends TestCase
     }
 }
 ```
-
----
