@@ -42,7 +42,7 @@ class SomeTest extends TestCase
 
 ### With Constructor Arguments
 
-The class constructor may require arguments to be passed to it. We can define those in the setUp method or when
+The class constructor may require arguments to be passed to it. We can define those in the `setUp` method or when
 instantiating the class in a test.
 
 ```php
@@ -62,7 +62,7 @@ class SomeTest extends TestCase
     {        
         $this->objectManager = Bootstrap::getObjectManager();
         $this->implementationFqcn = ClassToBeTested::class;
-        $this->constructorArgumentDefaults = [ // optional
+        $this->constructorArgumentDefaults = [
             'argument1' => 'value1',
             'argument2' => 'value2',
         ];
@@ -72,7 +72,7 @@ class SomeTest extends TestCase
     {
         // create the class defined by $this->implementationFqcn (with overridden arguments if required)
         $classUnderTest = $this->instantiateTestObject(
-            arguments: [ // optional
+            arguments: [
                 'argument1' => 'value3',
                 'argument2' => 'value4',
             ],

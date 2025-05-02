@@ -184,19 +184,19 @@ $attributeBuilder = AttributeBuilder::addProductAttribute(
     attributeCode: 'tdd_attribute_code',
     attributeType: 'text',
 );
-$attributeBuilder->withLabel('TDD Attribute Label');
-$attributeBuilder->withLabels([
+$attributeBuilder = $attributeBuilder->withLabel('TDD Attribute Label');
+$attributeBuilder = $attributeBuilder->withLabels([
     $storeFixture1->getId() => 'Store 1 Label',
     $storeFixture2->getId() => 'Store 2 Label',
 ]);
-$attributeBuilder->withAttributeData([
+$attributeBuilder = $attributeBuilder->withAttributeData([
     'is_required' => 1,
     'used_in_product_listing' => 1,
     'is_filterable' => 1,
 ]);
-$attributeBuilder->withAttributeSet('Custom Attribute Set'); // name or id
-$attributeBuilder->withAttributeGroup(3); // name or id
-$attributeBuilder->withOptions([
+$attributeBuilder = $attributeBuilder->withAttributeSet('Custom Attribute Set'); // name or id
+$attributeBuilder = $attributeBuilder->withAttributeGroup(3); // name or id
+$attributeBuilder = $attributeBuilder->withOptions([
     '1' => 'Variant 1',
     '2' => 'Variant 2',
     '3' => 'Variant 3',

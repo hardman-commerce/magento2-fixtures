@@ -91,12 +91,12 @@ Build with custom values
 
 ```php
 $storeBuilder = StoreBuilder::addStore();
-$storeBuilder->withCode('store_code');
-$storeBuilder->withName('Store Name');
-$storeBuilder->withWebsiteId(10);
-$storeBuilder->withGroupId(3);
-$storeBuilder->withIsActive(true);
-$storeBuilder->withSequence(false);
+$storeBuilder = $storeBuilder->withCode('store_code');
+$storeBuilder = $storeBuilder->withName('Store Name');
+$storeBuilder = $storeBuilder->withWebsiteId(10);
+$storeBuilder = $storeBuilder->withGroupId(3);
+$storeBuilder = $storeBuilder->withIsActive(true);
+$storeBuilder = $storeBuilder->withSequence(false);
 $storeBuilder->build();
 ```
 
@@ -207,10 +207,10 @@ Build with custom values
 
 ```php
 $groupBuilder = GroupBuilder::addGroup();
-$groupBuilder->withCode('group_code');
-$groupBuilder->withName('Group Name');
-$groupBuilder->withWebsiteId(10);
-$groupBuilder->withRootCategoryId(3);
+$groupBuilder = $groupBuilder->withCode('group_code');
+$groupBuilder = $groupBuilder->withName('Group Name');
+$groupBuilder = $groupBuilder->withWebsiteId(10);
+$groupBuilder = $groupBuilder->withRootCategoryId(3);
 $groupBuilder->build();
 ```
 
@@ -319,9 +319,9 @@ Build with custom values
 
 ```php
 $websiteBuilder = WebsiteBuilder::addWebsite();
-$websiteBuilder->withCode('website_code');
-$websiteBuilder->withName('Website Name');
-$websiteBuilder->withDefaultGroupId(300);
+$websiteBuilder = $websiteBuilder->withCode('website_code');
+$websiteBuilder = $websiteBuilder->withName('Website Name');
+$websiteBuilder = $websiteBuilder->withDefaultGroupId(300);
 $websiteBuilder->build();
 ```
 
