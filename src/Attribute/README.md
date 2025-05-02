@@ -219,7 +219,7 @@ $this->attributeFixturePool->add(
 Retrieve from fixture pool using tag/key
 
 ```php
-$store = $this->attributeFixturePool->get('tdd_attribute');
+$attributeFixture = $this->attributeFixturePool->get('tdd_attribute');
 ```
 
 ---
