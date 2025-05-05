@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-namespace TddWizard\Fixtures\Catalog;
+namespace TddWizard\Fixtures\Catalog\Category;
 
 trait CategoryTrait
 {
@@ -109,7 +109,7 @@ trait CategoryTrait
 
         $this->categoryFixturePool->add(
             category: $categoryBuilder->build(),
-            key: $categoryData['key'] ?? 'test_category',
+            key: $categoryData['key'] ?? 'tdd_category',
         );
     }
 }

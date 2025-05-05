@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TddWizard\Fixtures\Catalog;
+namespace TddWizard\Fixtures\Catalog\Category;
 
 use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;

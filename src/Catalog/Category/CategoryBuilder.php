@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TddWizard\Fixtures\Catalog;
+namespace TddWizard\Fixtures\Catalog\Category;
 
 use Magento\Catalog\Api\CategoryLinkRepositoryInterface;
 use Magento\Catalog\Api\CategoryListInterface;
@@ -106,7 +106,7 @@ class CategoryBuilder
     }
 
     public static function childCategoryOf(
-        CategoryFixture $parent,
+        CategoryInterface $parent,
     ): CategoryBuilder {
         $objectManager = Bootstrap::getObjectManager();
         // use interface to reflect DI configuration but assume instance of the real model because we need its methods
@@ -115,7 +115,7 @@ class CategoryBuilder
 
         $category->setName('Child Category');
         $category->setIsActive(true);
-        $category->setPath((string)$parent->getCategory()->getPath());
+        $category->setPath((string)$parent->getPath());
 
         return new self(
             categoryResource: $objectManager->create(CategoryResource::class),

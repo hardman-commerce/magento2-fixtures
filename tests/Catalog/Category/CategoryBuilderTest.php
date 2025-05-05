@@ -2,13 +2,16 @@
 
 declare(strict_types=1);
 
-namespace TddWizard\Fixtures\Catalog;
+namespace TddWizard\Fixtures\Catalog\Category;
 
 use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\Catalog\Model\Category;
 use Magento\Store\Model\Store;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
+use TddWizard\Fixtures\Catalog\ProductBuilder;
+use TddWizard\Fixtures\Catalog\ProductFixture;
+use TddWizard\Fixtures\Catalog\ProductFixtureRollback;
 use TddWizard\Fixtures\Store\StoreFixturePool;
 use TddWizard\Fixtures\Store\StoreTrait;
 
@@ -109,7 +112,7 @@ class CategoryBuilderTest extends TestCase
         );
         $this->categories[] = $parentCategoryFixture;
         $childCategoryFixture = new CategoryFixture(
-            CategoryBuilder::childCategoryOf($parentCategoryFixture)->build(),
+            CategoryBuilder::childCategoryOf($parentCategoryFixture->getCategory())->build(),
         );
 
         /** @var Category $category */
@@ -131,7 +134,7 @@ class CategoryBuilderTest extends TestCase
     public function testCategoryWithSpecificAttributes(): void
     {
         $this->createStore();
-        $storeFixture = $this->storeFixturePool->get('tdd_store_1');
+        $storeFixture = $this->storeFixturePool->get('tdd_store');
 
         $categoryFixture = new CategoryFixture(
             CategoryBuilder::topLevelCategory()
@@ -214,7 +217,7 @@ class CategoryBuilderTest extends TestCase
     public function testCategoryWithStoreSpecificAttributes(): void
     {
         $this->createStore();
-        $storeFixture = $this->storeFixturePool->get('tdd_store_1');
+        $storeFixture = $this->storeFixturePool->get('tdd_store');
 
         $categoryFixture = new CategoryFixture(
             CategoryBuilder::topLevelCategory()
