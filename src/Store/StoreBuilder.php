@@ -26,7 +26,7 @@ class StoreBuilder
 {
     use IsTransactionExceptionTrait;
 
-    public const DEFAULT_CODE = 'tdd_store_1';
+    public const DEFAULT_CODE = 'tdd_store';
 
     private StoreInterface & AbstractModel $store;
     private ResourceConnection $resourceConnection;

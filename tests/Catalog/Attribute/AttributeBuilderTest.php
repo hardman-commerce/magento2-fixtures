@@ -316,7 +316,9 @@ class AttributeBuilderTest extends TestCase
 
     public function testProductAttribute_withLabelsPerStore(): void
     {
-        $this->createStore();
+        $this->createStore([
+            'key' => 'tdd_store_1',
+        ]);
         $storeFixture1 = $this->storeFixturePool->get(key: 'tdd_store_1');
         $this->createStore([
             'key' => 'tdd_store_2',

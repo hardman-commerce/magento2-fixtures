@@ -20,7 +20,7 @@ class WebsiteBuilder
 {
     use IsTransactionExceptionTrait;
 
-    public const DEFAULT_CODE = 'tdd_website_1';
+    public const DEFAULT_CODE = 'tdd_website';
 
     private WebsiteInterface & AbstractModel $website;
 

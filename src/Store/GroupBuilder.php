@@ -23,7 +23,7 @@ class GroupBuilder
 {
     use IsTransactionExceptionTrait;
 
-    public const DEFAULT_CODE = 'tdd_store_group_1';
+    public const DEFAULT_CODE = 'tdd_store_group';
 
     private GroupInterface & AbstractModel $group;
     private WebsiteRepositoryInterface $websiteRepository;
