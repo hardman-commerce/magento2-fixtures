@@ -55,7 +55,7 @@ class SomeTest extends TestCase
             'code' => 'tdd_test_store_12345',
             'name' => 'Tdd Test Store',
             'website_id' => 10,
-            'group_id' => 3
+            'group_id' => 3,
             'is_active' => true,
             'with_sequence' => false,
         ]);
