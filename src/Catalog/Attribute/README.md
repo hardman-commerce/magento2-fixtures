@@ -80,12 +80,7 @@ $builder->withAttributeData([
 ### Build With Trait
 
 ```php
-use Magento\Framework\ObjectManagerInterface;
-use PHPUnit\Framework\TestCase;
-use TddWizard\Fixtures\Attribute\AttributeFixturesPool;
-use TddWizard\Fixtures\Attribute\AttributeTrait;
-use TddWizard\Fixtures\Store\StoreFixturesPool;
-use TddWizard\Fixtures\Store\StoreTrait;
+use Magento\Framework\ObjectManagerInterface;use PHPUnit\Framework\TestCase;use TddWizard\Fixtures\Attribute\AttributeFixturesPool;use TddWizard\Fixtures\Catalog\Attribute\AttributeTrait;use TddWizard\Fixtures\Store\StoreFixturesPool;use TddWizard\Fixtures\Store\StoreTrait;
 
 class SomeTest extends TestCase
 {

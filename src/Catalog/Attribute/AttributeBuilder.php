@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-namespace TddWizard\Fixtures\Attribute;
+namespace TddWizard\Fixtures\Catalog\Attribute;
 
 use Magento\Catalog\Api\Data\CategoryAttributeInterface;
 use Magento\Catalog\Api\Data\EavAttributeInterface;
@@ -333,9 +333,11 @@ class AttributeBuilder
         $entityTypeId = $this->eavSetup->getEntityTypeId(
             entityTypeId: $builder->attribute->getData(key: self::ENTITY_TYPE),
         );
-        $builder->attribute->setAttributeCode(data: $builder->attributeCode);
         $builder->attribute->setEntityTypeId(id: $entityTypeId);
-        $builder->attribute->setIsUserDefined(isUserDefined: 1);
+        $builder->attribute->setAttributeCode(data: $builder->attributeCode);
+        if (null === $builder->attribute->getIsUserDefined()) {
+            $builder->attribute->setIsUserDefined(isUserDefined: 1);
+        }
         switch ($builder->attributeType) {
             case ('text'):
                 $builder->attribute->setFrontendInput(frontendInput: 'text');

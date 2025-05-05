@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-namespace TddWizard\Fixtures\Attribute;
+namespace TddWizard\Fixtures\Catalog\Attribute;
 
 use Magento\Catalog\Api\Data\ProductAttributeInterface;
 use Magento\Eav\Api\AttributeRepositoryInterface;
