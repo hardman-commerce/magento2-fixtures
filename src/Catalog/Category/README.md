@@ -92,6 +92,7 @@ class SomeTest extends TestCase
             'url_key' => 'tdd-test-top-level-category',
             'is_anchor' => true,
             'display_mode' => 'PRODUCTS',
+            'image' => 'image3.png',
             'products' => [
                 'PRODUCT_SKU_001',
                 'PRODUCT_SKU_002',
