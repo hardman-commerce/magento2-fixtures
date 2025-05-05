@@ -221,6 +221,7 @@ class ProductBuilder
         $builder = self::aSimpleProduct();
         $builder->product->setName(name: 'TDD Test Configurable Product');
         $builder->product->setTypeId(typeId: Configurable::TYPE_CODE);
+        $builder->product->unsetData(key: 'price');
 
         return $builder;
     }
@@ -235,7 +236,7 @@ class ProductBuilder
     ): ProductBuilder {
         $builder = clone $this;
         $attributeCode = $attribute->getAttributeCode();
-        if (!array_key_exists($attributeCode, $builder->configurableAttributes)) {
+        if (!array_key_exists(key: $attributeCode, array: $builder->configurableAttributes)) {
             $builder->configurableAttributes[$attributeCode] = $attribute;
         }
 
@@ -601,7 +602,8 @@ class ProductBuilder
                 'catalog_product_price',
             ];
             foreach ($indexerNames as $indexerName) {
-                $indexer->load(indexerId: $indexerName)->reindexRow(id: $product->getId());
+                $indexerToRun = $indexer->load(indexerId: $indexerName);
+                $indexerToRun->reindexRow(id: $product->getId());
             }
 
             return $product;
@@ -619,7 +621,7 @@ class ProductBuilder
     public function buildWithoutSave(): ProductInterface
     {
         if (!$this->product->getSku()) {
-            $this->product->setSku(sku: sha1(uniqid(more_entropy: true)));
+            $this->product->setSku(sku: sha1(uniqid(prefix: '', more_entropy: true)));
         }
         $this->product->setCustomAttribute(attributeCode: 'url_key', attributeValue: $this->product->getSku());
         $this->product->setData(key: 'category_ids', value: $this->categoryIds);
@@ -635,7 +637,7 @@ class ProductBuilder
     {
         $builder = clone $this;
         if (!$builder->product->getSku()) {
-            $builder->product->setSku(sku: sha1(uniqid(more_entropy: true)));
+            $builder->product->setSku(sku: sha1(uniqid(prefix: '', more_entropy: true)));
         }
         if (!$builder->product->getCustomAttribute(attributeCode: 'url_key')) {
             $builder->product->setCustomAttribute(

@@ -9,12 +9,15 @@ use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Catalog\Model\Product\Visibility;
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Downloadable\Model\Product\Type as DownloadableType;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
+use TddWizard\Fixtures\Catalog\Attribute\AttributeFixturePool;
+use TddWizard\Fixtures\Catalog\Attribute\AttributeTrait;
 
 /**
  * @magentoDataFixtureBeforeTransaction Magento/Catalog/_files/enable_reindex_schedule.php
@@ -23,6 +26,8 @@ use PHPUnit\Framework\TestCase;
  */
 class ProductBuilderTest extends TestCase
 {
+    use AttributeTrait;
+
     private ObjectManagerInterface $objectManager;
     private ProductRepositoryInterface $productRepository;
     /**
@@ -33,6 +38,8 @@ class ProductBuilderTest extends TestCase
     protected function setUp(): void
     {
         $this->objectManager = Bootstrap::getObjectManager();
+
+        $this->attributeFixturePool = $this->objectManager->create(type: AttributeFixturePool::class);
         $this->productRepository = $this->objectManager->create(type: ProductRepositoryInterface::class);
         $this->products = [];
     }
@@ -44,6 +51,7 @@ class ProductBuilderTest extends TestCase
                 ProductFixtureRollback::create()->execute($product);
             }
         }
+        $this->attributeFixturePool->rollback();
     }
 
     public function testDefaultSimpleProduct(): void
@@ -302,5 +310,76 @@ class ProductBuilderTest extends TestCase
         $this->assertSame(expected: 'https://magento.test/', actual: $productLink->getLinkUrl());
         $this->assertSame(expected: 'Downloadable Item', actual: $productLink->getTitle());
         $this->assertEquals(expected: 54.99, actual: $productLink->getPrice());
+    }
+
+    public function testDefaultConfigurableProduct(): void
+    {
+        $this->createAttribute(attributeData: [
+            'attribute_type' => 'configurable',
+            'code' => 'tdd_configurable_attribute',
+            'key' => 'tdd_configurable_attribute',
+        ]);
+        $attributeFixture = $this->attributeFixturePool->get('tdd_configurable_attribute');
+
+        $simpleProductBuilder1 = ProductBuilder::aSimpleProduct();
+        $simpleProductBuilder1 = $simpleProductBuilder1->withVisibility(visibility: Visibility::VISIBILITY_NOT_VISIBLE);
+        $simpleProductBuilder1 = $simpleProductBuilder1->withSku(sku: 'TDD_TEST_SIMPLE_001');
+        $simpleProductBuilder1 = $simpleProductBuilder1->withPrice(price: 24.99);
+        $simpleProductBuilder1 = $simpleProductBuilder1->withData(data: [
+            $attributeFixture->getAttributeCode() => '1',
+        ]);
+        $simpleProductFixture1 = new ProductFixture(
+            product: $simpleProductBuilder1->build(),
+        );
+
+        $simpleProductBuilder2 = ProductBuilder::aSimpleProduct();
+        $simpleProductBuilder2 = $simpleProductBuilder2->withVisibility(visibility: Visibility::VISIBILITY_NOT_VISIBLE);
+        $simpleProductBuilder2 = $simpleProductBuilder2->withSku(sku: 'TDD_TEST_SIMPLE_002');
+        $simpleProductBuilder2 = $simpleProductBuilder2->withPrice(price: 19.99);
+        $simpleProductBuilder2 = $simpleProductBuilder2->withData(data: [
+            $attributeFixture->getAttributeCode() => '2',
+        ]);
+        $simpleProductFixture2 = new ProductFixture(
+            product: $simpleProductBuilder2->build(),
+        );
+
+        $configurableProductBuilder = ProductBuilder::aConfigurableProduct();
+        $configurableProductBuilder = $configurableProductBuilder->withVisibility(
+            visibility: Visibility::VISIBILITY_BOTH,
+        );
+        $configurableProductBuilder = $configurableProductBuilder->withSku(
+            sku: 'TDD_TEST_CONFIGURABLE',
+        );
+        $configurableProductBuilder = $configurableProductBuilder->withConfigurableAttribute(
+            attribute: $attributeFixture->getAttribute(),
+        );
+        $configurableProductBuilder = $configurableProductBuilder->withVariant(
+            variantProduct: $simpleProductFixture1->getProduct(),
+        );
+        $configurableProductBuilder = $configurableProductBuilder->withVariant(
+            variantProduct: $simpleProductFixture2->getProduct(),
+        );
+        $configurableProductFixture = new ProductFixture(
+            product: $configurableProductBuilder->build(),
+        );
+
+        $configurableProduct = $configurableProductFixture->getProduct();
+        /** @var Configurable $configurableProductType */
+        $configurableProductType = $configurableProduct->getTypeInstance();
+        $childIdsArray = $configurableProductType->getChildrenIds(parentId: (int)$configurableProduct->getId());
+        $this->assertIsArray(actual: $childIdsArray);
+        $childIds = array_shift(array: $childIdsArray);
+        $this->assertIsArray(actual: $childIds);
+        $this->assertArrayHasKey(key: $simpleProductFixture1->getId(), array: $childIds);
+        $this->assertSame(
+            expected: (string)$simpleProductFixture1->getId(),
+            actual: $childIds[$simpleProductFixture1->getId()],
+        );
+        $this->assertArrayHasKey(key: $simpleProductFixture2->getId(), array: $childIds);
+        $this->assertSame(
+            expected: (string)$simpleProductFixture2->getId(),
+            actual: $childIds[$simpleProductFixture2->getId()],
+        );
+        $this->assertEquals(expected: 19.99, actual: $configurableProduct->getFinalPrice());
     }
 }
