@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TddWizard\Fixtures\Catalog;
+namespace TddWizard\Fixtures\Catalog\Product;
 
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -26,7 +26,7 @@ class ProductFixtureRollbackTest extends TestCase
     public function testRollbackSingleProductFixture(): void
     {
         $productFixture = new ProductFixture(
-            ProductBuilder::aSimpleProduct()->build()
+            ProductBuilder::aSimpleProduct()->build(),
         );
         ProductFixtureRollback::create()->execute($productFixture);
         $this->expectException(NoSuchEntityException::class);
@@ -36,10 +36,10 @@ class ProductFixtureRollbackTest extends TestCase
     public function testRollbackMultipleProductFixtures(): void
     {
         $productFixture = new ProductFixture(
-            ProductBuilder::aSimpleProduct()->build()
+            ProductBuilder::aSimpleProduct()->build(),
         );
         $otherProductFixture = new ProductFixture(
-            ProductBuilder::aSimpleProduct()->build()
+            ProductBuilder::aSimpleProduct()->build(),
         );
         ProductFixtureRollback::create()->execute($productFixture, $otherProductFixture);
         $productDeleted = false;

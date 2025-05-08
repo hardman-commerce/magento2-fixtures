@@ -9,9 +9,9 @@ use Magento\Catalog\Model\Category;
 use Magento\Store\Model\Store;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
-use TddWizard\Fixtures\Catalog\ProductBuilder;
-use TddWizard\Fixtures\Catalog\ProductFixture;
-use TddWizard\Fixtures\Catalog\ProductFixtureRollback;
+use TddWizard\Fixtures\Catalog\Product\ProductBuilder;
+use TddWizard\Fixtures\Catalog\Product\ProductFixture;
+use TddWizard\Fixtures\Catalog\Product\ProductFixtureRollback;
 use TddWizard\Fixtures\Store\StoreFixturePool;
 use TddWizard\Fixtures\Store\StoreTrait;
 

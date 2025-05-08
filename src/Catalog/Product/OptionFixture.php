@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TddWizard\Fixtures\Catalog;
+namespace TddWizard\Fixtures\Catalog\Product;
 
 use Magento\Eav\Model\Entity\Attribute\Option as AttributeOption;
 use Magento\Framework\Exception\LocalizedException;

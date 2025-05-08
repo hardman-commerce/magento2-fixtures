@@ -10,7 +10,7 @@ use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
-use TddWizard\Fixtures\Catalog\ProductBuilder;
+use TddWizard\Fixtures\Catalog\Product\ProductBuilder;
 use TddWizard\Fixtures\Checkout\CartBuilder;
 
 /**
@@ -66,11 +66,11 @@ class CreditmemoBuilderTest extends TestCase
     {
         $order = OrderBuilder::anOrder()->withPaymentMethod('checkmo')->withProducts(
             ProductBuilder::aSimpleProduct()->withSku('foo'),
-            ProductBuilder::aSimpleProduct()->withSku('bar')
+            ProductBuilder::aSimpleProduct()->withSku('bar'),
         )->withCart(
             CartBuilder::forCurrentSession()
                 ->withSimpleProduct('foo', 2)
-                ->withSimpleProduct('bar', 3)
+                ->withSimpleProduct('bar', 3),
         )->build();
         $this->orderFixture = new OrderFixture($order);
 
@@ -84,7 +84,7 @@ class CreditmemoBuilderTest extends TestCase
             CreditmemoBuilder::forOrder($order)
                 ->withItem($orderItemIds['foo'], 2)
                 ->withItem($orderItemIds['bar'], 2)
-                ->build()
+                ->build(),
         );
 
         self::assertInstanceOf(CreditmemoInterface::class, $this->creditmemoRepository->get($refundFixture->getId()));
@@ -93,7 +93,7 @@ class CreditmemoBuilderTest extends TestCase
         $refundFixture = new CreditmemoFixture(
             CreditmemoBuilder::forOrder($order)
                 ->withItem($orderItemIds['bar'], 1)
-                ->build()
+                ->build(),
         );
 
         self::assertInstanceOf(CreditmemoInterface::class, $this->creditmemoRepository->get($refundFixture->getId()));

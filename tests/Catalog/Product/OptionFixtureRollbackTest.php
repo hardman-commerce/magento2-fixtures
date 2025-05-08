@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TddWizard\Fixtures\Catalog;
+namespace TddWizard\Fixtures\Catalog\Product;
 
 use Magento\Eav\Model\Entity\Attribute\OptionFactory;
 use Magento\Eav\Model\ResourceModel\Entity\Attribute\Option as OptionResource;
@@ -33,7 +33,7 @@ class OptionFixtureRollbackTest extends TestCase
         $userDefinedAttributeCode = 'dropdown_attribute';
         $optionFixture = new OptionFixture(
             OptionBuilder::anOptionFor($userDefinedAttributeCode)->build(),
-            $userDefinedAttributeCode
+            $userDefinedAttributeCode,
         );
         OptionFixtureRollback::create()->execute($optionFixture);
 
@@ -51,11 +51,11 @@ class OptionFixtureRollbackTest extends TestCase
         $userDefinedAttributeCode = 'dropdown_attribute';
         $optionFixture = new OptionFixture(
             OptionBuilder::anOptionFor($userDefinedAttributeCode)->build(),
-            $userDefinedAttributeCode
+            $userDefinedAttributeCode,
         );
         $otherOptionFixture = new OptionFixture(
             OptionBuilder::anOptionFor($userDefinedAttributeCode)->build(),
-            $userDefinedAttributeCode
+            $userDefinedAttributeCode,
         );
         OptionFixtureRollback::create()->execute($optionFixture, $otherOptionFixture);
 

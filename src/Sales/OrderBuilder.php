@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace TddWizard\Fixtures\Sales;
 
 use Magento\Sales\Model\Order;
-use TddWizard\Fixtures\Catalog\ProductBuilder;
+use TddWizard\Fixtures\Catalog\Product\ProductBuilder;
 use TddWizard\Fixtures\Checkout\CartBuilder;
 use TddWizard\Fixtures\Checkout\CustomerCheckout;
 use TddWizard\Fixtures\Customer\AddressBuilder;

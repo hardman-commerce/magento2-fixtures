@@ -9,7 +9,7 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
-use TddWizard\Fixtures\Catalog\ProductBuilder;
+use TddWizard\Fixtures\Catalog\Product\ProductBuilder;
 use TddWizard\Fixtures\Checkout\CartBuilder;
 use TddWizard\Fixtures\Customer\AddressBuilder;
 use TddWizard\Fixtures\Customer\CustomerBuilder;
@@ -53,7 +53,7 @@ class OrderBuilderTest extends TestCase
     public function createOrder(): void
     {
         $orderFixture = new OrderFixture(
-            OrderBuilder::anOrder()->build()
+            OrderBuilder::anOrder()->build(),
         );
         $this->orderFixtures[] = $orderFixture;
 
@@ -71,7 +71,7 @@ class OrderBuilderTest extends TestCase
     public function createOrderWithProduct(): void
     {
         $orderFixture = new OrderFixture(
-            OrderBuilder::anOrder()->withProducts(ProductBuilder::aSimpleProduct())->build()
+            OrderBuilder::anOrder()->withProducts(ProductBuilder::aSimpleProduct())->build(),
         );
         $this->orderFixtures[] = $orderFixture;
 
@@ -91,8 +91,8 @@ class OrderBuilderTest extends TestCase
         $orderFixture = new OrderFixture(
             OrderBuilder::anOrder()->withProducts(
                 ProductBuilder::aSimpleProduct()->withSku('foo'),
-                ProductBuilder::aSimpleProduct()->withSku('bar')
-            )->build()
+                ProductBuilder::aSimpleProduct()->withSku('bar'),
+            )->build(),
         );
         $this->orderFixtures[] = $orderFixture;
 
@@ -115,7 +115,7 @@ class OrderBuilderTest extends TestCase
             ->withAddresses(AddressBuilder::anAddress()->asDefaultBilling()->asDefaultShipping());
 
         $orderFixture = new OrderFixture(
-            OrderBuilder::anOrder()->withCustomer($customerBuilder)->build()
+            OrderBuilder::anOrder()->withCustomer($customerBuilder)->build(),
         );
         $this->orderFixtures[] = $orderFixture;
 
@@ -163,7 +163,7 @@ class OrderBuilderTest extends TestCase
                 ->withCustomer($customerBuilder)
                 ->withCart($cartBuilder)
                 ->withPaymentMethod($paymentMethod)->withShippingMethod($shippingMethod)
-                ->build()
+                ->build(),
         );
         $this->orderFixtures[] = $orderFixture;
 
@@ -188,7 +188,7 @@ class OrderBuilderTest extends TestCase
         $orderFixture = new OrderFixture(
             OrderBuilder::anOrder()
                 ->withShippingMethod($shippingMethod)
-                ->build()
+                ->build(),
         );
         $this->orderFixtures[] = $orderFixture;
 
@@ -199,7 +199,7 @@ class OrderBuilderTest extends TestCase
                 ->withShippingMethod($shippingMethod)
                 ->withProducts(ProductBuilder::aSimpleProduct()->withSku('bar'))
                 ->withCart($cartBuilder->withSimpleProduct('bar', 3))
-                ->build()
+                ->build(),
         );
         $this->orderFixtures[] = $orderWithCartFixture;
 
@@ -212,10 +212,10 @@ class OrderBuilderTest extends TestCase
                         ->withAddresses(
                             AddressBuilder::anAddress('de_AT')
                                 ->asDefaultBilling()
-                                ->asDefaultShipping()
-                        )
+                                ->asDefaultShipping(),
+                        ),
                 )
-                ->build()
+                ->build(),
         );
         $this->orderFixtures[] = $orderWithCustomerFixture;
 
@@ -241,8 +241,8 @@ class OrderBuilderTest extends TestCase
         $atOrder = OrderBuilder::anOrder()
             ->withCustomer(
                 CustomerBuilder::aCustomer()->withAddresses(
-                    AddressBuilder::anAddress($atLocale)->asDefaultBilling()->asDefaultShipping()
-                )
+                    AddressBuilder::anAddress($atLocale)->asDefaultBilling()->asDefaultShipping(),
+                ),
             )
             ->build();
         $this->orderFixtures[] = new OrderFixture($atOrder);
@@ -251,8 +251,8 @@ class OrderBuilderTest extends TestCase
         $usOrder = OrderBuilder::anOrder()
             ->withCustomer(
                 CustomerBuilder::aCustomer()->withAddresses(
-                    AddressBuilder::anAddress($usLocale)->asDefaultBilling()->asDefaultShipping()
-                )
+                    AddressBuilder::anAddress($usLocale)->asDefaultBilling()->asDefaultShipping(),
+                ),
             )
             ->build();
         $this->orderFixtures[] = new OrderFixture($usOrder);
@@ -261,8 +261,8 @@ class OrderBuilderTest extends TestCase
         $caOrder = OrderBuilder::anOrder()
             ->withCustomer(
                 CustomerBuilder::aCustomer()->withAddresses(
-                    AddressBuilder::anAddress($caLocale)->asDefaultBilling()->asDefaultShipping()
-                )
+                    AddressBuilder::anAddress($caLocale)->asDefaultBilling()->asDefaultShipping(),
+                ),
             )
             ->build();
         $this->orderFixtures[] = new OrderFixture($caOrder);

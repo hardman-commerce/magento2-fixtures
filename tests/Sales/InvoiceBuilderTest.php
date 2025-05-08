@@ -10,7 +10,7 @@ use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
-use TddWizard\Fixtures\Catalog\ProductBuilder;
+use TddWizard\Fixtures\Catalog\Product\ProductBuilder;
 use TddWizard\Fixtures\Checkout\CartBuilder;
 
 /**
@@ -66,11 +66,11 @@ class InvoiceBuilderTest extends TestCase
     {
         $order = OrderBuilder::anOrder()->withProducts(
             ProductBuilder::aSimpleProduct()->withSku('foo'),
-            ProductBuilder::aSimpleProduct()->withSku('bar')
+            ProductBuilder::aSimpleProduct()->withSku('bar'),
         )->withCart(
             CartBuilder::forCurrentSession()
                 ->withSimpleProduct('foo', 2)
-                ->withSimpleProduct('bar', 3)
+                ->withSimpleProduct('bar', 3),
         )->build();
         $this->orderFixture = new OrderFixture($order);
 
@@ -84,7 +84,7 @@ class InvoiceBuilderTest extends TestCase
             InvoiceBuilder::forOrder($order)
                 ->withItem($orderItemIds['foo'], 2)
                 ->withItem($orderItemIds['bar'], 2)
-                ->build()
+                ->build(),
         );
 
         self::assertInstanceOf(InvoiceInterface::class, $this->invoiceRepository->get($invoiceFixture->getId()));
@@ -93,7 +93,7 @@ class InvoiceBuilderTest extends TestCase
         $invoiceFixture = new InvoiceFixture(
             InvoiceBuilder::forOrder($order)
                 ->withItem($orderItemIds['bar'], 1)
-                ->build()
+                ->build(),
         );
 
         self::assertInstanceOf(InvoiceInterface::class, $this->invoiceRepository->get($invoiceFixture->getId()));

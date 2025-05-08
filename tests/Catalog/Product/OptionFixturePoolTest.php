@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace TddWizard\Fixtures\Catalog;
+namespace TddWizard\Fixtures\Catalog\Product;
 
-use Magento\Framework\Exception\InputException;
-use Magento\Framework\Exception\StateException;
 use Magento\Eav\Model\Entity\Attribute\Option as AttributeOption;
 use Magento\Eav\Model\Entity\Attribute\OptionFactory as AttributeOptionFactory;
 use Magento\Eav\Model\ResourceModel\Entity\Attribute\Option as OptionResource;
+use Magento\Framework\Exception\InputException;
+use Magento\Framework\Exception\StateException;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
 

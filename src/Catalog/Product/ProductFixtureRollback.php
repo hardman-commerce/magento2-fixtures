@@ -2,12 +2,9 @@
 
 declare(strict_types=1);
 
-namespace TddWizard\Fixtures\Catalog;
+namespace TddWizard\Fixtures\Catalog\Product;
 
 use Magento\Catalog\Api\ProductRepositoryInterface;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\Exception\StateException;
 use Magento\Framework\Registry;
 use Magento\TestFramework\Helper\Bootstrap;
 

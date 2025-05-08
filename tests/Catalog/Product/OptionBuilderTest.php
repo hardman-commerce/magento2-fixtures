@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TddWizard\Fixtures\Catalog;
+namespace TddWizard\Fixtures\Catalog\Product;
 
 use Magento\Catalog\Model\Product;
 use Magento\Eav\Api\AttributeOptionManagementInterface;
@@ -47,7 +47,7 @@ class OptionBuilderTest extends TestCase
         $userDefinedAttributeCode = 'dropdown_attribute';
         $optionFixture = new OptionFixture(
             OptionBuilder::anOptionFor($userDefinedAttributeCode)->build(),
-            $userDefinedAttributeCode
+            $userDefinedAttributeCode,
         );
         $this->options[] = $optionFixture;
 
@@ -67,7 +67,7 @@ class OptionBuilderTest extends TestCase
         $label = uniqid('Label ', true);
         $optionFixture = new OptionFixture(
             OptionBuilder::anOptionFor($userDefinedAttributeCode)->withLabel($label)->build(),
-            $userDefinedAttributeCode
+            $userDefinedAttributeCode,
         );
         $this->options[] = $optionFixture;
 

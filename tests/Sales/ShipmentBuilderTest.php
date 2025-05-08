@@ -11,7 +11,7 @@ use Magento\Sales\Api\Data\ShipmentTrackInterface;
 use Magento\Sales\Api\ShipmentRepositoryInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
-use TddWizard\Fixtures\Catalog\ProductBuilder;
+use TddWizard\Fixtures\Catalog\Product\ProductBuilder;
 use TddWizard\Fixtures\Checkout\CartBuilder;
 
 /**
@@ -69,7 +69,7 @@ class ShipmentBuilderTest extends TestCase
         $this->orderFixture = new OrderFixture($order);
 
         $shipmentFixture = new ShipmentFixture(
-            ShipmentBuilder::forOrder($order)->withTrackingNumbers('123456', '987654', 'abcdef')->build()
+            ShipmentBuilder::forOrder($order)->withTrackingNumbers('123456', '987654', 'abcdef')->build(),
         );
 
         self::assertInstanceOf(ShipmentInterface::class, $this->shipmentRepository->get($shipmentFixture->getId()));
@@ -90,11 +90,11 @@ class ShipmentBuilderTest extends TestCase
     {
         $order = OrderBuilder::anOrder()->withProducts(
             ProductBuilder::aSimpleProduct()->withSku('foo'),
-            ProductBuilder::aSimpleProduct()->withSku('bar')
+            ProductBuilder::aSimpleProduct()->withSku('bar'),
         )->withCart(
             CartBuilder::forCurrentSession()
                 ->withSimpleProduct('foo', 2)
-                ->withSimpleProduct('bar', 3)
+                ->withSimpleProduct('bar', 3),
         )->build();
         $this->orderFixture = new OrderFixture($order);
 
@@ -108,7 +108,7 @@ class ShipmentBuilderTest extends TestCase
             ShipmentBuilder::forOrder($order)
                 ->withItem($orderItemIds['foo'], 2)
                 ->withItem($orderItemIds['bar'], 2)
-                ->build()
+                ->build(),
         );
 
         self::assertInstanceOf(ShipmentInterface::class, $this->shipmentRepository->get($shipmentFixture->getId()));
@@ -117,7 +117,7 @@ class ShipmentBuilderTest extends TestCase
         $shipmentFixture = new ShipmentFixture(
             ShipmentBuilder::forOrder($order)
                 ->withItem($orderItemIds['bar'], 1)
-                ->build()
+                ->build(),
         );
 
         self::assertInstanceOf(ShipmentInterface::class, $this->shipmentRepository->get($shipmentFixture->getId()));
