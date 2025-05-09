@@ -44,6 +44,7 @@ use Magento\MediaStorage\Helper\File\Storage\Database;
 use Magento\TestFramework\Helper\Bootstrap;
 use Magento\TestFramework\ObjectManager;
 use TddWizard\Fixtures\Exception\IndexFailedException;
+use TddWizard\Fixtures\Traits\IsTransactionExceptionTrait;
 
 //phpcs:disable SlevomatCodingStandard.Classes.ClassStructure.IncorrectGroupOrder
 
@@ -53,6 +54,8 @@ use TddWizard\Fixtures\Exception\IndexFailedException;
  */
 class ProductBuilder
 {
+    use IsTransactionExceptionTrait;
+
     private ProductRepositoryInterface $productRepository;
     private StockItemRepositoryInterface $stockItemRepository;
     private ProductWebsiteLinkRepositoryInterface $websiteLinkRepository;
@@ -809,17 +812,5 @@ class ProductBuilder
         $parentProduct->setProductLinks(links: $productLinks);
 
         $this->productRepository->save(product: $parentProduct);
-    }
-
-    private static function isTransactionException(?\Throwable $exception): bool
-    {
-        if ($exception === null) {
-            return false;
-        }
-
-        return (bool)preg_match(
-            '{please retry transaction|DDL statements are not allowed in transactions}i',
-            $exception->getMessage(),
-        );
     }
 }
