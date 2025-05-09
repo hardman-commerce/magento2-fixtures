@@ -114,7 +114,7 @@ to avoid a clash in the `productFixturePool`.
 $this->createProduct(
     productData: [
         'key' => 'tdd_simple_product',
-        'type_id' => 'simple',
+        'type_id' => 'simple', // or virtual, downloadable, grouped, configurable
         'sku' => 'PRODUCT_SKU_001',
         'name' => 'TDD Test Product 001',
         'status' => Status::STATUS_ENABLED,
