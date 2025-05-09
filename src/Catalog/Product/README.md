@@ -10,8 +10,8 @@
     'type_id' => 'simple',
     'sku' => sha1(uniqid(prefix: '', more_entropy: true)),
     'name' => 'TDD Test Simple Product',
-    'status' => 1, // enabled
-    'visibility' => 4, // both
+    'status' => Status::STATUS_ENABLED,
+    'visibility' => Visibility::VISIBILITY_BOTH,
     'description' => 'Description',
     'url_key' => strtolower(str_replace( ' ', replace: '_', subject: $sku)),
     'qty' => 100,
@@ -21,8 +21,6 @@
     'price' => 10.00,
     'tax_class_id' => 1,
     'attribute_set_id' => 4,
-    'category_ids' => [],
-    'stores' => [],
 ]
 ```
 
@@ -85,7 +83,7 @@ As `aSimpleProduct` with the following changes
 ```
 
 When creating a grouped product, we will likely also wish to link some simple products.
-We will also need to specify the attributes to be used for create the configurable product.
+We will also need to specify the attributes to be used to create the configurable product.
 
 ```php
 $attributeBuilder = AttributeBuilder::aProductAttribute(
@@ -101,9 +99,7 @@ $simpleProductBuilder->withCustomAttributes(values: [
 $simpleProduct = $simpleProductBuilder->build();
 
 $configurableProductBuilder = ProductBuilder::aConfigurableProduct();
-$configurableProductBuilder = $productBuilder->withConfigurableAttribute(
-    attribute: $attribute,
-);
+$configurableProductBuilder = $productBuilder->withConfigurableAttribute(attribute: $attribute,);
 $configurableProductBuilder->withVariant(variantProduct: $simpleProduct);
 
 ```
@@ -180,7 +176,7 @@ $this->createProduct(
 $productFixture = $this->productFixturePool->get('tdd_simple_product');
 ```
 
-Example Test Class
+### Example Test Class
 
 ```php
 use Magento\Framework\ObjectManagerInterface;
