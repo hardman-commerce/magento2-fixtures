@@ -11,19 +11,19 @@ Some of these defaults are only set when using `AttributeTrait`.
     'key' => 'tdd_attribute',
     'code' => 'tdd_attribute',
     'attribute_type' => 'text',
-    'entity_type' => 'catalog_product',
+    'entity_type' => 'catalog_product', // or catalog_category
     'label' => 'Tdd Attribute',
     'store_labels' => [],
     'data' => [],
-    'options' => [ // if attribute type requires options (select, multiselect or configurable)
+    'options' => [ // if attribute type requires options (i.e. attribute type is select, multiselect or configurable)
         '1' => 'Option 1',
         '2' => 'Option 2',
         '3' => 'Option 3',
         '4' => 'Option 4',
         '5' => 'Option 5',
     ],
-    'attribute_set' => 'Default',
-    'attribute_group' => 'General',
+    'attribute_set' => 'Default', // name or id
+    'attribute_group' => 'General', // name or id
 ]
 ```
 
