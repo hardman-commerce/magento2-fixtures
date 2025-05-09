@@ -146,7 +146,7 @@ $this->createProduct(
         ],
         'category_ids' => [3, 4, 5, 6],
         'website_ids' => [$store1->getWebsiteId(), $store2->getWebsiteId()],
-        'custom_attributes' => [
+        'custom_attributes' => [ // can also use 'data' => [] to set these values
             'description' => 'Product description',
             'short_description' => 'Prod desc',
             'special_price' => 17.50,
@@ -252,11 +252,19 @@ class SomeTest extends TestCase
     
         $this->createProduct([
             'custom_attributes' => [
-                $attributeFixture->getAttributeCode => 1,
+                $attributeFixture->getAttributeCode => '1',
             ],
         ]);
-        $simpleProductFixture = $this->productFixturePool->get('tdd_product');
-        
+        $simpleProductFixture1 = $this->productFixturePool->get('tdd_product');
+
+        $this->createProduct([
+            'key' => 'tdd_product_2',
+            'custom_attributes' => [
+                $attributeFixture->getAttributeCode => '2',
+            ],
+        ]);
+        $simpleProductFixture2 = $this->productFixturePool->get('tdd_product_2');
+
         $this->createProduct([
             'key' => 'tdd_configurable_product',
             'type_id' => 'configurable',
@@ -264,7 +272,8 @@ class SomeTest extends TestCase
                 $attributeFixture->getAttribute(),
             ],
             'variants' => [
-                $simpleProductFixture->getProduct(),
+                $simpleProductFixture1->getProduct(),
+                $simpleProductFixture2->getProduct(),
             ],
         ]);
         $configurableProductFixture = $this->productFixturePool->get('tdd_configurable_product');

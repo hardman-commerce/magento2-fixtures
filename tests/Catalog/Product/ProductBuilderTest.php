@@ -71,6 +71,7 @@ class ProductBuilderTest extends TestCase
         $this->assertEquals(expected: 'TDD Test Simple Product', actual: $product->getName());
         $this->assertEquals(expected: [1], actual: $product->getWebsiteIds());
         $this->assertEquals(expected: 1, actual: $product->getData('tax_class_id'));
+        $this->assertEquals(expected: 10.00, actual: $product->getFinalPrice(qty: 1), message: 'price');
         $stockItem = $product->getExtensionAttributes()->getStockItem();
         $this->assertTrue(condition: $stockItem->getIsInStock());
         $this->assertEquals(expected: 100, actual: $stockItem->getQty());
@@ -101,7 +102,7 @@ class ProductBuilderTest extends TestCase
                 ->withBackorders(backorders: Stock::BACKORDERS_YES_NOTIFY)
                 ->withWeight(weight: 10)
                 ->withCustomAttributes(
-                    values: [
+                    attributeValues: [
                         'cost' => 2.0,
                     ],
                 )
@@ -130,7 +131,7 @@ class ProductBuilderTest extends TestCase
             actual: $product->getWebsiteIds(),
             message: 'website ids',
         );
-        $this->assertEquals(expected: 9.99, actual: $product->getPrice(), message: 'price');
+        $this->assertEquals(expected: 9.99, actual: $product->getFinalPrice(qty: 1), message: 'price');
         $this->assertEquals(expected: 10, actual: $product->getWeight(), message: 'weight');
         $this->assertEquals(expected: 2, actual: $product->getData(key: 'tax_class_id'), message: 'tax class id');
         $stockItem = $product->getExtensionAttributes()->getStockItem();
@@ -177,12 +178,12 @@ class ProductBuilderTest extends TestCase
                 ->withVisibility(visibility: Visibility::VISIBILITY_NOT_VISIBLE)
                 ->withVisibility(visibility: Visibility::VISIBILITY_IN_CATALOG, storeId: $secondStoreId)
                 ->withCustomAttributes(
-                    values: [
+                    attributeValues: [
                         $userDefinedAttributeCode => $userDefinedDefaultValue,
                     ],
                 )
                 ->withCustomAttributes(
-                    values: [
+                    attributeValues: [
                         $userDefinedAttributeCode => $userDefinedStoreValue,
                     ],
                     storeId: $secondStoreId,
@@ -209,7 +210,7 @@ class ProductBuilderTest extends TestCase
         );
         $this->assertEquals(
             expected: $userDefinedDefaultValue,
-            actual: $product->getCustomAttribute($userDefinedAttributeCode)->getValue(),
+            actual: $product->getCustomAttribute(attributeCode: $userDefinedAttributeCode)->getValue(),
             message: 'Default custom attribute',
         );
 
@@ -235,7 +236,7 @@ class ProductBuilderTest extends TestCase
         );
         $this->assertEquals(
             expected: $userDefinedStoreValue,
-            actual: $productInStore->getCustomAttribute($userDefinedAttributeCode)->getValue(),
+            actual: $productInStore->getCustomAttribute(attributeCode: $userDefinedAttributeCode)->getValue(),
             message: 'Store specific custom attribute',
         );
     }
@@ -348,7 +349,14 @@ class ProductBuilderTest extends TestCase
             'code' => 'tdd_configurable_attribute',
             'key' => 'tdd_configurable_attribute',
         ]);
-        $attributeFixture = $this->attributeFixturePool->get('tdd_configurable_attribute');
+        $attributeFixture1 = $this->attributeFixturePool->get('tdd_configurable_attribute');
+
+        $this->createAttribute(attributeData: [
+            'attribute_type' => 'configurable',
+            'code' => 'tdd_configurable_attribute_2',
+            'key' => 'tdd_configurable_attribute_2',
+        ]);
+        $attributeFixture2 = $this->attributeFixturePool->get('tdd_configurable_attribute_2');
 
         $simpleProductBuilder1 = ProductBuilder::aSimpleProduct();
         $simpleProductBuilder1 = $simpleProductBuilder1->withVisibility(visibility: Visibility::VISIBILITY_NOT_VISIBLE);
@@ -360,7 +368,8 @@ class ProductBuilderTest extends TestCase
             'special_price_to' => '2099-12-31',
         ]);
         $simpleProductBuilder1 = $simpleProductBuilder1->withData(data: [
-            $attributeFixture->getAttributeCode() => '1',
+            $attributeFixture1->getAttributeCode() => '1',
+            $attributeFixture2->getAttributeCode() => '5',
         ]);
         $simpleProductFixture1 = new ProductFixture(
             product: $simpleProductBuilder1->build(),
@@ -376,7 +385,8 @@ class ProductBuilderTest extends TestCase
             'special_price_to' => '2099-12-31',
         ]);
         $simpleProductBuilder2 = $simpleProductBuilder2->withData(data: [
-            $attributeFixture->getAttributeCode() => '2',
+            $attributeFixture1->getAttributeCode() => '2',
+            $attributeFixture2->getAttributeCode() => '3',
         ]);
         $simpleProductFixture2 = new ProductFixture(
             product: $simpleProductBuilder2->build(),
@@ -390,7 +400,10 @@ class ProductBuilderTest extends TestCase
             sku: 'TDD_TEST_CONFIGURABLE',
         );
         $configurableProductBuilder = $configurableProductBuilder->withConfigurableAttribute(
-            attribute: $attributeFixture->getAttribute(),
+            attribute: $attributeFixture1->getAttribute(),
+        );
+        $configurableProductBuilder = $configurableProductBuilder->withConfigurableAttribute(
+            attribute: $attributeFixture2->getAttribute(),
         );
         $configurableProductBuilder = $configurableProductBuilder->withVariant(
             variantProduct: $simpleProductFixture1->getProduct(),
@@ -419,7 +432,7 @@ class ProductBuilderTest extends TestCase
             expected: (string)$simpleProductFixture2->getId(),
             actual: $childIds[$simpleProductFixture2->getId()],
         );
-        $this->assertEquals(expected: 15.99, actual: $configurableProduct->getFinalPrice());
+        $this->assertEquals(expected: 15.99, actual: $configurableProduct->getFinalPrice(qty: 1));
     }
 
     public function testGroupedProduct_withSpecialPrices(): void
@@ -492,7 +505,7 @@ class ProductBuilderTest extends TestCase
 
         $this->assertSame(expected: 'TDD_TEST_GROUPED_001', actual: $groupedProduct->getSku());
         $minimumPricedProduct = $this->getGroupedMinimumPriceProduct(groupedProduct: $groupedProduct);
-        $this->assertSame(expected: 14.99, actual: $minimumPricedProduct->getFinalPrice());
+        $this->assertSame(expected: 14.99, actual: $minimumPricedProduct->getFinalPrice(qty: 1));
     }
 
     public function testTierPricesLowerThenSpecialPrice(): void
