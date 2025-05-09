@@ -6,6 +6,7 @@ namespace TddWizard\Fixtures\Catalog\Product;
 
 use Magento\Catalog\Api\Data\ProductExtensionInterface;
 use Magento\Catalog\Api\Data\ProductInterface;
+use Magento\Catalog\Api\Data\ProductLinkInterfaceFactory;
 use Magento\Catalog\Api\Data\ProductTierPriceExtensionInterface;
 use Magento\Catalog\Api\Data\ProductTierPriceInterface;
 use Magento\Catalog\Api\Data\ProductTierPriceInterfaceFactory;
@@ -36,6 +37,8 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\StateException;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Module\Dir as Directory;
+use Magento\GroupedProduct\Model\Product\Initialization\Helper\ProductLinks\Plugin\Grouped as GroupedProductHelperPlugin;
+use Magento\GroupedProduct\Model\Product\Type\Grouped;
 use Magento\Indexer\Model\IndexerFactory;
 use Magento\MediaStorage\Helper\File\Storage\Database;
 use Magento\TestFramework\Helper\Bootstrap;
@@ -60,6 +63,7 @@ class ProductBuilder
     private DomainManagerInterface $domainManager;
     private ProductTierPriceInterfaceFactory $tierPriceFactory;
     private ConfigurableOptionsFactory $configurableOptionsFactory;
+    private ProductLinkInterfaceFactory $productLinkFactory;
     protected ProductInterface $product;
     /**
      * @var int[]
@@ -82,22 +86,14 @@ class ProductBuilder
      * @var ProductInterface[]
      */
     private array $variantProducts = [];
+    /**
+     * @var ProductInterface[]
+     */
+    private array $linkedProducts = [];
 
     /**
-     * @param ProductRepositoryInterface $productRepository
-     * @param StockItemRepositoryInterface $stockItemRepository
-     * @param ProductWebsiteLinkRepositoryInterface $websiteLinkRepository
-     * @param ProductWebsiteLinkInterfaceFactory $websiteLinkFactory
-     * @param IndexerFactory $indexerFactory
-     * @param DownloadableLinkRepositoryInterface $downloadLinkRepository
-     * @param DownloadableLinkInterfaceFactory $downloadLinkFactory
-     * @param DomainManagerInterface $domainManager
-     * @param ProductTierPriceInterfaceFactory $tierPriceFactory
-     * @param ConfigurableOptionsFactory $configurableOptionsFactory
-     * @param Product $product
      * @param int[] $websiteIds
      * @param mixed[] $storeSpecificValues
-     * @param string|null $downloadableLinkDomain
      */
     public function __construct(
         ProductRepositoryInterface $productRepository,
@@ -109,6 +105,7 @@ class ProductBuilder
         DomainManagerInterface $domainManager,
         ProductTierPriceInterfaceFactory $tierPriceFactory,
         ConfigurableOptionsFactory $configurableOptionsFactory,
+        ProductLinkInterfaceFactory $productLinkFactory,
         Product $product,
         array $websiteIds,
         array $storeSpecificValues,
@@ -123,55 +120,54 @@ class ProductBuilder
         $this->domainManager = $domainManager;
         $this->tierPriceFactory = $tierPriceFactory;
         $this->configurableOptionsFactory = $configurableOptionsFactory;
+        $this->productLinkFactory = $productLinkFactory;
         $this->product = $product;
         $this->websiteIds = $websiteIds;
         $this->storeSpecificValues = $storeSpecificValues;
         $this->downloadableLinkDomain = $downloadableLinkDomain;
     }
 
-    /**
-     * @return void
-     */
     public function __clone(): void
     {
         $this->product = clone $this->product;
     }
 
-    /**
-     * @return ProductBuilder
-     */
     public static function aSimpleProduct(): ProductBuilder // phpcs:ignore Magento2.Functions.StaticFunction.StaticFunction, Generic.Files.LineLength.TooLong
     {
         $objectManager = Bootstrap::getObjectManager();
         /** @var Product $product */
-        $product = $objectManager->create(ProductInterface::class);
+        $product = $objectManager->create(type: ProductInterface::class);
 
-        $product->setTypeId(Type::TYPE_SIMPLE);
-        $product->setAttributeSetId(4);
-        $product->setName('TDD Test Simple Product');
-        $product->setPrice(10);
-        $product->setVisibility(Visibility::VISIBILITY_BOTH);
-        $product->setImage('no_selection');
-        $product->setThumbnail('no_selection');
-        $product->setSmallImage('no_selection');
-        $product->setKlevuImage('no_selection');
-        $product->setImage('no_selection');
-        $product->setStatus(Status::STATUS_ENABLED);
-        $product->addData(
-            [
-                'tax_class_id' => 1,
-                'description' => 'Description',
-            ],
-        );
-        /** @var StockItemInterface $stockItem */
-        $stockItem = $objectManager->create(StockItemInterface::class);
-        $stockItem->setManageStock(true)
-            ->setQty(100)
-            ->setIsQtyDecimal(false)
-            ->setIsInStock(true);
-
+        $product->setTypeId(typeId: Type::TYPE_SIMPLE);
+        $product->setAttributeSetId(attributeSetId: 4);
+        $product->setName(name: 'TDD Test Simple Product');
+        $product->setStatus(status: Status::STATUS_ENABLED);
+        $product->setVisibility(visibility: Visibility::VISIBILITY_BOTH);
+        $product->setPrice(price: 10);
+        $product->addData([
+            'tax_class_id' => 1, // @TODO get default tax class id
+            'description' => 'TDD Test Product Description.',
+            'short_description' => 'TDD Test Product Short Description.',
+            'image' => 'no_selection',
+            'small_image' => 'no_selection',
+            'thumbnail' => 'no_selection',
+        ]);
+        $product->setStockData([
+            'manage_stock' => 1,
+            'is_in_stock' => 1,
+            'qty' => 100,
+            'is_qty_decimal' => 0,
+        ]);
         $extensionAttributes = $product->getExtensionAttributes();
-        $extensionAttributes->setStockItem($stockItem);
+        if (method_exists(object_or_class: $extensionAttributes, method: 'setData')) {
+            /** @var StockItemInterface $stockItem */
+            $stockItem = $objectManager->create(type: StockItemInterface::class);
+            $stockItem->setManageStock(manageStock: true);
+            $stockItem->setQty(qty: 100);
+            $stockItem->setIsQtyDecimal(isQtyDecimal: false);
+            $stockItem->setIsInStock(isInStock: true);
+            $extensionAttributes->setData(key: 'stock_item', value: $stockItem);
+        }
 
         return new static(
             productRepository: $objectManager->create(ProductRepositoryInterface::class),
@@ -183,15 +179,13 @@ class ProductBuilder
             domainManager: $objectManager->create(DomainManagerInterface::class),
             tierPriceFactory: $objectManager->create(ProductTierPriceInterfaceFactory::class),
             configurableOptionsFactory: $objectManager->create(ConfigurableOptionsFactory::class),
+            productLinkFactory: $objectManager->create(ProductLinkInterfaceFactory::class),
             product: $product,
             websiteIds: [1],
             storeSpecificValues: [],
         );
     }
 
-    /**
-     * @return ProductBuilder
-     */
     public static function aVirtualProduct(): ProductBuilder // phpcs:ignore Magento2.Functions.StaticFunction.StaticFunction, Generic.Files.LineLength.TooLong
     {
         $builder = self::aSimpleProduct();
@@ -201,9 +195,6 @@ class ProductBuilder
         return $builder;
     }
 
-    /**
-     * @return ProductBuilder
-     */
     public static function aDownloadableProduct(): ProductBuilder // phpcs:ignore Magento2.Functions.StaticFunction.StaticFunction, Generic.Files.LineLength.TooLong
     {
         $builder = self::aSimpleProduct();
@@ -213,9 +204,15 @@ class ProductBuilder
         return $builder;
     }
 
-    /**
-     * @return ProductBuilder
-     */
+    public static function aGroupedProduct(): ProductBuilder
+    {
+        $builder = self::aSimpleProduct();
+        $builder->product->setName(name: 'TDD Test Grouped Product');
+        $builder->product->setTypeId(typeId: Grouped::TYPE_CODE);
+
+        return $builder;
+    }
+
     public static function aConfigurableProduct(): ProductBuilder // phpcs:ignore Magento2.Functions.StaticFunction.StaticFunction, Generic.Files.LineLength.TooLong
     {
         $builder = self::aSimpleProduct();
@@ -226,11 +223,6 @@ class ProductBuilder
         return $builder;
     }
 
-    /**
-     * @param AttributeInterface $attribute
-     *
-     * @return ProductBuilder
-     */
     public function withConfigurableAttribute(
         AttributeInterface $attribute,
     ): ProductBuilder {
@@ -243,11 +235,6 @@ class ProductBuilder
         return $builder;
     }
 
-    /**
-     * @param ProductInterface $variantProduct
-     *
-     * @return ProductBuilder
-     */
     public function withVariant(ProductInterface $variantProduct): ProductBuilder
     {
         $builder = clone $this;
@@ -256,10 +243,16 @@ class ProductBuilder
         return $builder;
     }
 
+    public function withLinkedProduct(ProductInterface $linkedProduct): ProductBuilder
+    {
+        $builder = clone $this;
+        $builder->linkedProducts[] = $linkedProduct;
+
+        return $builder;
+    }
+
     /**
      * @param mixed[] $data
-     *
-     * @return ProductBuilder
      */
     public function withData(array $data): ProductBuilder
     {
@@ -269,11 +262,6 @@ class ProductBuilder
         return $builder;
     }
 
-    /**
-     * @param string $sku
-     *
-     * @return $this
-     */
     public function withSku(string $sku): ProductBuilder
     {
         $builder = clone $this;
@@ -282,12 +270,6 @@ class ProductBuilder
         return $builder;
     }
 
-    /**
-     * @param string $name
-     * @param int|null $storeId
-     *
-     * @return $this
-     */
     public function withName(string $name, ?int $storeId = null): ProductBuilder
     {
         $builder = clone $this;
@@ -301,11 +283,8 @@ class ProductBuilder
     }
 
     /**
-     * @param int $status
      * @param int|null $storeId Pass store ID to set value for specific store.
-     *                          Attention: Status is configured per website, will affect all stores of the same website
-     *
-     * @return ProductBuilder
+     *  Attention: Status is configured per website, will affect all stores of the same website
      */
     public function withStatus(int $status, ?int $storeId = null): ProductBuilder
     {
@@ -319,12 +298,6 @@ class ProductBuilder
         return $builder;
     }
 
-    /**
-     * @param int $visibility
-     * @param int|null $storeId
-     *
-     * @return $this
-     */
     public function withVisibility(int $visibility, ?int $storeId = null): ProductBuilder
     {
         $builder = clone $this;
@@ -339,35 +312,32 @@ class ProductBuilder
 
     /**
      * @param int[] $websiteIds
-     *
-     * @return ProductBuilder
      */
     public function withWebsiteIds(array $websiteIds): ProductBuilder
     {
         $builder = clone $this;
-        $builder->websiteIds = $websiteIds;
+        $builder->websiteIds = array_map(
+            callback: static fn (mixed $websiteId): int => (int)$websiteId,
+            array: $websiteIds,
+        );
 
         return $builder;
     }
 
     /**
      * @param int[] $categoryIds
-     *
-     * @return ProductBuilder
      */
     public function withCategoryIds(array $categoryIds): ProductBuilder
     {
         $builder = clone $this;
-        $builder->categoryIds = $categoryIds;
+        $builder->categoryIds = array_map(
+            callback: static fn (mixed $categoryId): int => (int)$categoryId,
+            array: $categoryIds,
+        );
 
         return $builder;
     }
 
-    /**
-     * @param float $price
-     *
-     * @return $this
-     */
     public function withPrice(float $price): ProductBuilder
     {
         $builder = clone $this;
@@ -377,9 +347,7 @@ class ProductBuilder
     }
 
     /**
-     * @param mixed[] $tierPrices
-     *
-     * @return $this
+     * @param array<int, array<string, int|float>> $tierPrices
      */
     public function withTierPrices(array $tierPrices): ProductBuilder
     {
@@ -418,11 +386,6 @@ class ProductBuilder
         return $builder;
     }
 
-    /**
-     * @param int $taxClassId
-     *
-     * @return $this
-     */
     public function withTaxClassId(int $taxClassId): ProductBuilder
     {
         $builder = clone $this;
@@ -431,63 +394,105 @@ class ProductBuilder
         return $builder;
     }
 
-    /**
-     * @param bool $inStock
-     *
-     * @return $this
-     */
     public function withIsInStock(bool $inStock): ProductBuilder
     {
         $builder = clone $this;
-        $builder->product->getExtensionAttributes()->getStockItem()->setIsInStock($inStock);
+        $stockData = $builder->product->getStockData();
+        $stockData['is_in_stock'] = $inStock;
+        $builder->product->setStockData($stockData);
+
+        $extensionAttributes = $builder->product->getExtensionAttributes();
+        if (method_exists(object_or_class: $extensionAttributes, method: 'getData')) {
+            $extensionAttributes->getData('stock_item')?->setIsInStock($inStock);
+        }
 
         return $builder;
     }
 
-    /**
-     * @param float $qty
-     *
-     * @return $this
-     */
-    public function withStockQty(float $qty): ProductBuilder
+    public function withStockQty(int|float $qty): ProductBuilder
     {
         $builder = clone $this;
-        $builder->product->getExtensionAttributes()->getStockItem()->setQty($qty);
+        $stockData = $builder->product->getStockData();
+        $stockData['qty'] = $qty;
+        $builder->product->setStockData($stockData);
+
+        $extensionAttributes = $builder->product->getExtensionAttributes();
+        if (method_exists(object_or_class: $extensionAttributes, method: 'getData')) {
+            $extensionAttributes->getData('stock_item')?->setQty($qty);
+        }
 
         return $builder;
     }
 
-    /**
-     * @param float $backorders
-     *
-     * @return $this
-     */
-    public function withBackorders(float $backorders): ProductBuilder
+    public function withBackorders(int $backorders): ProductBuilder
     {
         $builder = clone $this;
-        $builder->product->getExtensionAttributes()->getStockItem()->setBackorders($backorders);
+        $stockData = $builder->product->getStockData();
+        $stockData['backorders'] = $backorders;
+        $builder->product->setStockData($stockData);
+
+        $extensionAttributes = $builder->product->getExtensionAttributes();
+        if (method_exists(object_or_class: $extensionAttributes, method: 'getData')) {
+            $extensionAttributes->getData('stock_item')?->setBackorders($backorders);
+        }
+
+        return $builder;
+    }
+
+    public function withManageStock(bool $manageStock): ProductBuilder
+    {
+        $builder = clone $this;
+        $stockData = $builder->product->getStockData();
+        $stockData['manage_stock'] = $manageStock;
+        $builder->product->setStockData($stockData);
+
+        $extensionAttributes = $builder->product->getExtensionAttributes();
+        if (method_exists(object_or_class: $extensionAttributes, method: 'getData')) {
+            $extensionAttributes->getData('stock_item')?->setManageStock($manageStock);
+        }
+
+        return $builder;
+    }
+
+    public function withIsQtyDecimal(bool $isQtyDecimal): ProductBuilder
+    {
+        $builder = clone $this;
+        $stockData = $builder->product->getStockData();
+        $stockData['is_qty_decimal'] = $isQtyDecimal;
+        $builder->product->setStockData($stockData);
+
+        $extensionAttributes = $builder->product->getExtensionAttributes();
+        if (method_exists(object_or_class: $extensionAttributes, method: 'getData')) {
+            $extensionAttributes->getData('stock_item')?->setIsQtyDecimal($isQtyDecimal);
+        }
 
         return $builder;
     }
 
     /**
      * @param DownloadableLinkInterface[] $links
-     *
-     * @return $this
      */
     public function withDownloadLinks(?array $links = []): ProductBuilder
     {
         $builder = clone $this;
-        $builder->product->getExtensionAttributes()->setDownloadableProductLinks($links);
+        foreach ($links as $link) {
+            if (!($link instanceof DownloadableLinkInterface)) {
+                throw new \InvalidArgumentException(
+                    message: sprintf(
+                        'Links must be instance of DownloadableLinkInterface. %s provided',
+                        get_debug_type($link),
+                    ),
+                );
+            }
+        }
+        $extensionAttributes = $builder->product->getExtensionAttributes();
+        if (method_exists(object_or_class: $extensionAttributes, method: 'setData')) {
+            $extensionAttributes->setData(key: 'downloadable_product_links', value: $links);
+        }
 
         return $builder;
     }
 
-    /**
-     * @param float $weight
-     *
-     * @return $this
-     */
     public function withWeight(float $weight): ProductBuilder
     {
         $builder = clone $this;
@@ -497,10 +502,7 @@ class ProductBuilder
     }
 
     /**
-     * @param mixed[] $values
-     * @param int|null $storeId
-     *
-     * @return ProductBuilder
+     * @param array<string, mixed> $values
      */
     public function withCustomAttributes(array $values, ?int $storeId = null): ProductBuilder
     {
@@ -509,7 +511,7 @@ class ProductBuilder
             if ($storeId) {
                 $builder->storeSpecificValues[$storeId][$code] = $value;
             } else {
-                $builder->product->setCustomAttribute(attributeCode: $code, attributeValue: $value);
+                $builder->product->setCustomAttribute(attributeCode: (string)$code, attributeValue: $value);
             }
         }
 
@@ -517,12 +519,8 @@ class ProductBuilder
     }
 
     /**
-     * @param string $fileName
      * @param string $imageType image, small_image, thumbnail
-     * @param string $mimeType
-     * @param string|null $imagePath
      *
-     * @return $this
      * @throws FileSystemException
      * @throws LocalizedException
      */
@@ -581,13 +579,18 @@ class ProductBuilder
     }
 
     /**
-     * @return ProductInterface
      * @throws \Exception
      */
     public function build(): ProductInterface
     {
         try {
             $product = $this->createProduct();
+            if ($product->getTypeId() === Grouped::TYPE_CODE) {
+                $this->associateLinkedProducts(
+                    parentProduct: $product,
+                    linkedProducts: $this->linkedProducts,
+                );
+            }
             if ($product->getTypeId() === Configurable::TYPE_CODE) {
                 $product = $this->associateChildren(
                     configurableProduct: $product,
@@ -608,16 +611,16 @@ class ProductBuilder
 
             return $product;
         } catch (\Exception $exception) {
-            if (self::isTransactionException($exception) || self::isTransactionException($exception->getPrevious())) {
-                throw IndexFailedException::becauseInitiallyTriggeredInTransaction($exception);
+            if (
+                self::isTransactionException(exception: $exception)
+                || self::isTransactionException(exception: $exception->getPrevious())
+            ) {
+                throw IndexFailedException::becauseInitiallyTriggeredInTransaction(previous: $exception);
             }
             throw $exception;
         }
     }
 
-    /**
-     * @return ProductInterface
-     */
     public function buildWithoutSave(): ProductInterface
     {
         if (!$this->product->getSku()) {
@@ -630,7 +633,6 @@ class ProductBuilder
     }
 
     /**
-     * @return ProductInterface
      * @throws \Exception
      */
     private function createProduct(): ProductInterface
@@ -673,11 +675,6 @@ class ProductBuilder
         return $product;
     }
 
-    /**
-     * @param ProductInterface $product
-     *
-     * @return void
-     */
     private function setDownloadableLinks(ProductInterface $product): void
     {
         $builder = clone $this;
@@ -717,11 +714,9 @@ class ProductBuilder
     }
 
     /**
-     * @param ProductInterface $configurableProduct
-     * @param AttributeInterface[] $configurableAttributes
+     * @param array<string, AttributeInterface> $configurableAttributes
      * @param ProductInterface[] $variantProducts
      *
-     * @return ProductInterface
      * @throws CouldNotSaveException
      * @throws InputException
      * @throws StateException
@@ -784,10 +779,41 @@ class ProductBuilder
     }
 
     /**
-     * @param \Throwable|null $exception
+     * @param ProductInterface[] $linkedProducts
      *
-     * @return bool
+     * @throws CouldNotSaveException
+     * @throws InputException
+     * @throws StateException
      */
+    private function associateLinkedProducts(
+        ProductInterface $parentProduct,
+        array $linkedProducts,
+    ): void {
+        $productLinks = [];
+        $position = 1;
+        foreach ($linkedProducts as $linkedProduct) {
+            if (!($linkedProduct instanceof ProductInterface)) {
+                throw new \InvalidArgumentException(
+                    message: sprintf(
+                        '$linkedProducts must be instance of ProductInterface. %s provided',
+                        get_debug_type($linkedProduct),
+                    ),
+                );
+            }
+            $productLink = $this->productLinkFactory->create();
+            $productLink->setSku(sku: $parentProduct->getSku());
+            $productLink->setLinkType(linkType: GroupedProductHelperPlugin::TYPE_NAME);
+            $productLink->setLinkedProductSku(linkedProductSku: $linkedProduct->getSku());
+            $productLink->setPosition(position: $position++);
+            $extensionAttributes = $productLink->getExtensionAttributes();
+            $extensionAttributes?->setQty(qty: 1);
+            $productLinks[] = $productLink;
+        }
+        $parentProduct->setProductLinks(links: $productLinks);
+
+        $this->productRepository->save(product: $parentProduct);
+    }
+
     private static function isTransactionException(?\Throwable $exception): bool
     {
         if ($exception === null) {

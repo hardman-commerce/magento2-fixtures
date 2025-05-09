@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Catalog\Product;
 
+use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Catalog\Model\Product\Visibility;
+use Magento\CatalogInventory\Model\Stock;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
+use Magento\Customer\Model\Group;
 use Magento\Downloadable\Model\Product\Type as DownloadableType;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\Pricing\PriceInfo\Base as BasePriceInfo;
+use Magento\GroupedProduct\Pricing\Price\FinalPrice;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
@@ -69,6 +74,8 @@ class ProductBuilderTest extends TestCase
         $stockItem = $product->getExtensionAttributes()->getStockItem();
         $this->assertTrue(condition: $stockItem->getIsInStock());
         $this->assertEquals(expected: 100, actual: $stockItem->getQty());
+        $this->assertEquals(expected: 0, actual: $stockItem->getIsQtyDecimal(), message: 'is qty decimal');
+        $this->assertEquals(expected: Stock::BACKORDERS_NO, actual: $stockItem->getBackorders(), message: 'backorders');
     }
 
     /**
@@ -89,9 +96,10 @@ class ProductBuilderTest extends TestCase
                 ->withPrice(price: 9.99)
                 ->withTaxClassId(taxClassId: 2)
                 ->withIsInStock(inStock: false)
-                ->withStockQty(qty: -1)
+                ->withIsQtyDecimal(isQtyDecimal: true)
+                ->withStockQty(qty: -1.2)
+                ->withBackorders(backorders: Stock::BACKORDERS_YES_NOTIFY)
                 ->withWeight(weight: 10)
-                ->withBackorders(backorders: 2)
                 ->withCustomAttributes(
                     values: [
                         'cost' => 2.0,
@@ -127,8 +135,13 @@ class ProductBuilderTest extends TestCase
         $this->assertEquals(expected: 2, actual: $product->getData(key: 'tax_class_id'), message: 'tax class id');
         $stockItem = $product->getExtensionAttributes()->getStockItem();
         $this->assertFalse(condition: $stockItem->getIsInStock(), message: 'in stock');
-        $this->assertEquals(expected: -1, actual: $stockItem->getQty(), message: 'stock qty');
-        $this->assertEquals(expected: 2, actual: $stockItem->getData(key: 'backorders'), message: 'stock backorders');
+        $this->assertEquals(expected: 1, actual: $stockItem->getIsQtyDecimal(), message: 'is qty decimal');
+        $this->assertEquals(expected: -1.2, actual: $stockItem->getQty(), message: 'stock qty');
+        $this->assertEquals(
+            expected: Stock::BACKORDERS_YES_NOTIFY,
+            actual: $stockItem->getBackorders(),
+            message: 'backorders',
+        );
         $this->assertEquals(
             expected: 2.0,
             actual: $product->getCustomAttribute(attributeCode: 'cost')->getValue(),
@@ -179,11 +192,13 @@ class ProductBuilderTest extends TestCase
         $this->products[] = $productFixture;
         /** @var Product $product */
         $product = $this->productRepository->getById(productId: $productFixture->getId());
-        $this->assertEquals(expected: 'TDD Test Default Name',
+        $this->assertEquals(
+            expected: 'TDD Test Default Name',
             actual: $product->getName(),
             message: 'Default name',
         );
-        $this->assertEquals(expected: Status::STATUS_DISABLED,
+        $this->assertEquals(
+            expected: Status::STATUS_DISABLED,
             actual: $product->getStatus(),
             message: 'Default status should be disabled',
         );
@@ -271,20 +286,34 @@ class ProductBuilderTest extends TestCase
         );
     }
 
-    public function testDefaultVirtualProduct(): void
+    public function testVirtualProduct_withTierPrices(): void
     {
+        $productBuilder = ProductBuilder::aVirtualProduct();
+        $productBuilder = $productBuilder->withPrice(price: 25.99);
+        $productBuilder = $productBuilder->withTierPrices(tierPrices: [
+            ['price' => 15.99, 'qty' => 1, 'customer_group_id' => Group::NOT_LOGGED_IN_ID],
+            ['price' => 14.99, 'qty' => 1, 'customer_group_id' => Group::CUST_GROUP_ALL],
+            ['price' => 13.99, 'qty' => 5, 'customer_group_id' => Group::NOT_LOGGED_IN_ID],
+            ['price' => 12.99, 'qty' => 5, 'customer_group_id' => Group::CUST_GROUP_ALL],
+            ['price' => 11.99, 'qty' => 10, 'customer_group_id' => Group::NOT_LOGGED_IN_ID],
+            ['price' => 10.99, 'qty' => 10, 'customer_group_id' => Group::CUST_GROUP_ALL],
+
+        ]);
         $productFixture = new ProductFixture(
-            product: ProductBuilder::aVirtualProduct()->build(),
+            product: $productBuilder->build(),
         );
         $this->products[] = $productFixture;
         /** @var Product $product */
         $product = $this->productRepository->getById(productId: $productFixture->getId());
+        $product->setData(key: 'customer_group_id', value: Group::NOT_LOGGED_IN_ID);
+
         $this->assertEquals(expected: Type::TYPE_VIRTUAL, actual: $product->getTypeId());
         $this->assertEquals(expected: 'TDD Test Virtual Product', actual: $product->getName());
         $this->assertEquals(expected: [1], actual: $product->getWebsiteIds());
         $this->assertTrue(
             condition: $product->getExtensionAttributes()->getStockItem()->getIsInStock(),
         );
+        $this->assertEquals(expected: 15.99, actual: $product->getFinalPrice(qty: 1));
     }
 
     public function testDefaultDownloadableProduct(): void
@@ -312,7 +341,7 @@ class ProductBuilderTest extends TestCase
         $this->assertEquals(expected: 54.99, actual: $productLink->getPrice());
     }
 
-    public function testDefaultConfigurableProduct(): void
+    public function testConfigurableProduct_withSpecialPrices(): void
     {
         $this->createAttribute(attributeData: [
             'attribute_type' => 'configurable',
@@ -326,6 +355,11 @@ class ProductBuilderTest extends TestCase
         $simpleProductBuilder1 = $simpleProductBuilder1->withSku(sku: 'TDD_TEST_SIMPLE_001');
         $simpleProductBuilder1 = $simpleProductBuilder1->withPrice(price: 24.99);
         $simpleProductBuilder1 = $simpleProductBuilder1->withData(data: [
+            'special_price' => 15.99,
+            'special_price_from' => '1970-01-01',
+            'special_price_to' => '2099-12-31',
+        ]);
+        $simpleProductBuilder1 = $simpleProductBuilder1->withData(data: [
             $attributeFixture->getAttributeCode() => '1',
         ]);
         $simpleProductFixture1 = new ProductFixture(
@@ -336,6 +370,11 @@ class ProductBuilderTest extends TestCase
         $simpleProductBuilder2 = $simpleProductBuilder2->withVisibility(visibility: Visibility::VISIBILITY_NOT_VISIBLE);
         $simpleProductBuilder2 = $simpleProductBuilder2->withSku(sku: 'TDD_TEST_SIMPLE_002');
         $simpleProductBuilder2 = $simpleProductBuilder2->withPrice(price: 19.99);
+        $simpleProductBuilder2 = $simpleProductBuilder2->withData(data: [
+            'special_price' => 18.99,
+            'special_price_from' => '1970-01-01',
+            'special_price_to' => '2099-12-31',
+        ]);
         $simpleProductBuilder2 = $simpleProductBuilder2->withData(data: [
             $attributeFixture->getAttributeCode() => '2',
         ]);
@@ -380,6 +419,164 @@ class ProductBuilderTest extends TestCase
             expected: (string)$simpleProductFixture2->getId(),
             actual: $childIds[$simpleProductFixture2->getId()],
         );
-        $this->assertEquals(expected: 19.99, actual: $configurableProduct->getFinalPrice());
+        $this->assertEquals(expected: 15.99, actual: $configurableProduct->getFinalPrice());
+    }
+
+    public function testGroupedProduct_withSpecialPrices(): void
+    {
+        $simpleProductBuilder1 = ProductBuilder::aSimpleProduct();
+        $simpleProductBuilder1 = $simpleProductBuilder1->withVisibility(visibility: Visibility::VISIBILITY_NOT_VISIBLE);
+        $simpleProductBuilder1 = $simpleProductBuilder1->withSku(sku: 'TDD_TEST_SIMPLE_001');
+        $simpleProductBuilder1 = $simpleProductBuilder1->withStatus(status: Status::STATUS_ENABLED);
+        $simpleProductBuilder1 = $simpleProductBuilder1->withPrice(price: 18.99);
+        $simpleProductBuilder1 = $simpleProductBuilder1->withData(data: [
+            'special_price' => 15.99,
+            'special_price_from' => '1970-01-01',
+            'special_price_to' => '2099-12-31',
+        ]);
+        $simpleProductFixture1 = new ProductFixture(
+            product: $simpleProductBuilder1->build(),
+        );
+
+        $simpleProductBuilder2 = ProductBuilder::aSimpleProduct();
+        $simpleProductBuilder2 = $simpleProductBuilder2->withVisibility(visibility: Visibility::VISIBILITY_NOT_VISIBLE);
+        $simpleProductBuilder2 = $simpleProductBuilder2->withSku(sku: 'TDD_TEST_SIMPLE_002');
+        $simpleProductBuilder2 = $simpleProductBuilder2->withStatus(status: Status::STATUS_ENABLED);
+        $simpleProductBuilder2 = $simpleProductBuilder2->withPrice(price: 19.99);
+        $simpleProductBuilder2 = $simpleProductBuilder2->withData(data: [
+            'special_price' => 14.99,
+            'special_price_from' => '1970-01-01',
+            'special_price_to' => '2099-12-31',
+        ]);
+        $simpleProductFixture2 = new ProductFixture(
+            product: $simpleProductBuilder2->build(),
+        );
+
+        $simpleProductBuilder3 = ProductBuilder::aSimpleProduct();
+        $simpleProductBuilder3 = $simpleProductBuilder3->withVisibility(visibility: Visibility::VISIBILITY_NOT_VISIBLE);
+        $simpleProductBuilder3 = $simpleProductBuilder3->withSku(sku: 'TDD_TEST_SIMPLE_003');
+        $simpleProductBuilder3 = $simpleProductBuilder3->withStatus(status: Status::STATUS_DISABLED);
+        $simpleProductBuilder3 = $simpleProductBuilder3->withPrice(price: 3.99);
+        $simpleProductBuilder3 = $simpleProductBuilder3->withData(data: [
+            'special_price' => 2.99,
+            'special_price_from' => '1970-01-01',
+            'special_price_to' => '2099-12-31',
+        ]);
+        $simpleProductFixture3 = new ProductFixture(
+            product: $simpleProductBuilder3->build(),
+        );
+
+        $groupedProductBuilder = ProductBuilder::aGroupedProduct();
+        $groupedProductBuilder = $groupedProductBuilder->withVisibility(visibility: Visibility::VISIBILITY_BOTH);
+        $groupedProductBuilder = $groupedProductBuilder->withSku(sku: 'TDD_TEST_GROUPED_001');
+        $groupedProductBuilder = $groupedProductBuilder->withStatus(status: Status::STATUS_ENABLED);
+        $groupedProductBuilder = $groupedProductBuilder->withPrice(price: 25.99);
+        $groupedProductBuilder = $groupedProductBuilder->withData(data: [
+            'special_price' => 18.99,
+            'special_price_from' => '1970-01-01',
+            'special_price_to' => '2099-12-31',
+        ]);
+        $groupedProductBuilder = $groupedProductBuilder->withLinkedProduct(
+            linkedProduct: $simpleProductFixture1->getProduct(),
+        );
+        $groupedProductBuilder = $groupedProductBuilder->withLinkedProduct(
+            linkedProduct: $simpleProductFixture2->getProduct(),
+        );
+        $groupedProductBuilder = $groupedProductBuilder->withLinkedProduct(
+            linkedProduct: $simpleProductFixture3->getProduct(),
+        );
+        $groupedProductFixture = new ProductFixture(
+            product: $groupedProductBuilder->build(),
+        );
+        $groupedProduct = $groupedProductFixture->getProduct();
+
+        $this->assertSame(expected: 'TDD_TEST_GROUPED_001', actual: $groupedProduct->getSku());
+        $minimumPricedProduct = $this->getGroupedMinimumPriceProduct(groupedProduct: $groupedProduct);
+        $this->assertSame(expected: 14.99, actual: $minimumPricedProduct->getFinalPrice());
+    }
+
+    public function testTierPricesLowerThenSpecialPrice(): void
+    {
+        $productBuilder = ProductBuilder::aSimpleProduct();
+        $productBuilder = $productBuilder->withPrice(price: 25.99);
+        $productBuilder = $productBuilder->withTierPrices(tierPrices: [
+            ['price' => 15.99, 'qty' => 1, 'customer_group_id' => Group::NOT_LOGGED_IN_ID],
+            ['price' => 14.99, 'qty' => 1, 'customer_group_id' => Group::CUST_GROUP_ALL],
+            ['price' => 13.99, 'qty' => 5, 'customer_group_id' => Group::NOT_LOGGED_IN_ID],
+            ['price' => 12.99, 'qty' => 5, 'customer_group_id' => Group::CUST_GROUP_ALL],
+            ['price' => 11.99, 'qty' => 10, 'customer_group_id' => Group::NOT_LOGGED_IN_ID],
+            ['price' => 10.99, 'qty' => 10, 'customer_group_id' => Group::CUST_GROUP_ALL],
+        ]);
+        $productBuilder = $productBuilder->withData(data: [
+            'special_price' => 18.99,
+            'special_price_from' => '1970-01-01',
+            'special_price_to' => '2099-12-31',
+        ]);
+        $productFixture = new ProductFixture(
+            product: $productBuilder->build(),
+        );
+        $this->products[] = $productFixture;
+        /** @var Product $product */
+        $product = $this->productRepository->getById(productId: $productFixture->getId());
+        $product->setData(key: 'customer_group_id', value: Group::NOT_LOGGED_IN_ID);
+
+        $this->assertEquals(expected: 15.99, actual: $product->getFinalPrice(qty: 1));
+        $this->assertEquals(expected: 13.99, actual: $product->getFinalPrice(qty: 5));
+        $this->assertEquals(expected: 11.99, actual: $product->getFinalPrice(qty: 10));
+    }
+
+    public function testSpecialPriceLowerThenTierPrices(): void
+    {
+        $productBuilder = ProductBuilder::aSimpleProduct();
+        $productBuilder = $productBuilder->withPrice(price: 25.99);
+        $productBuilder = $productBuilder->withTierPrices(tierPrices: [
+            ['price' => 15.99, 'qty' => 1, 'customer_group_id' => Group::NOT_LOGGED_IN_ID],
+            ['price' => 14.99, 'qty' => 1, 'customer_group_id' => Group::CUST_GROUP_ALL],
+            ['price' => 13.99, 'qty' => 5, 'customer_group_id' => Group::NOT_LOGGED_IN_ID],
+            ['price' => 12.99, 'qty' => 5, 'customer_group_id' => Group::CUST_GROUP_ALL],
+            ['price' => 11.99, 'qty' => 10, 'customer_group_id' => Group::NOT_LOGGED_IN_ID],
+            ['price' => 10.99, 'qty' => 10, 'customer_group_id' => Group::CUST_GROUP_ALL],
+        ]);
+        $productBuilder = $productBuilder->withData(data: [
+            'special_price' => 9.99,
+            'special_price_from' => '1970-01-01',
+            'special_price_to' => '2099-12-31',
+        ]);
+        $productFixture = new ProductFixture(
+            product: $productBuilder->build(),
+        );
+        $this->products[] = $productFixture;
+        /** @var Product $product */
+        $product = $this->productRepository->getById(productId: $productFixture->getId());
+        $product->setData(key: 'customer_group_id', value: Group::NOT_LOGGED_IN_ID);
+
+        $this->assertEquals(expected: 9.99, actual: $product->getFinalPrice(qty: 1));
+        $this->assertEquals(expected: 9.99, actual: $product->getFinalPrice(qty: 5));
+        $this->assertEquals(expected: 9.99, actual: $product->getFinalPrice(qty: 10));
+    }
+
+    /**
+     * Magento return type hint for $price->getMinProduct is Product,
+     *  though it can return null if all child products are disabled.
+     */
+    private function getGroupedMinimumPriceProduct(ProductInterface $groupedProduct): ?ProductInterface
+    {
+        if (!(method_exists($groupedProduct, 'getPriceInfo'))) {
+            throw new \LogicException(
+                sprintf(
+                    'Method getPriceInfo does not exists on product object %s',
+                    $groupedProduct::class,
+                ),
+            );
+        }
+        /** @var BasePriceInfo $priceInfo */
+        $priceInfo = $groupedProduct->getPriceInfo();
+        /** @var FinalPrice $price */
+        $price = $priceInfo->getPrice(FinalPrice::PRICE_CODE);
+        if (!(method_exists($price, 'getMinProduct'))) {
+            return null;
+        }
+
+        return $price->getMinProduct();
     }
 }
