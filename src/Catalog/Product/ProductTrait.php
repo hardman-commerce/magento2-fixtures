@@ -109,9 +109,13 @@ trait ProductTrait
         if (!empty($productData['category_ids'])) {
             $productBuilder = $productBuilder->withCategoryIds(categoryIds: $productData['category_ids']);
         }
-        if (!empty($productData['custom_attributes'])) {
+        if (!empty($productData['custom_attributes']) || !empty($productData['data'])) {
+            $attributeValues = array_merge(
+                $productData['custom_attributes'] ?? [],
+                $productData['data'] ?? [],
+            );
             $productBuilder = $productBuilder->withCustomAttributes(
-                values: $productData['custom_attributes'],
+                attributeValues: $attributeValues,
                 storeId: $storeId,
             );
         }
@@ -143,9 +147,6 @@ trait ProductTrait
                     imagePath: $path,
                 );
             }
-        }
-        if (!empty($productData['data'])) {
-            $productBuilder = $productBuilder->withData(data: $productData['data']);
         }
         if (($productData['type_id'] ?? null) === Grouped::TYPE_CODE) {
             // grouped product
@@ -277,7 +278,7 @@ trait ProductTrait
             }
             if (!empty($productStoreData['custom_attributes'])) {
                 $productBuilder = $productBuilder->withCustomAttributes(
-                    values: $productStoreData['custom_attributes'],
+                    attributeValues: $productStoreData['custom_attributes'],
                     storeId: $storeIdKey,
                 );
             }

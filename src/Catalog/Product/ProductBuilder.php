@@ -251,17 +251,6 @@ class ProductBuilder
         return $builder;
     }
 
-    /**
-     * @param mixed[] $data
-     */
-    public function withData(array $data): ProductBuilder
-    {
-        $builder = clone $this;
-        $builder->product->addData($data);
-
-        return $builder;
-    }
-
     public function withSku(string $sku): ProductBuilder
     {
         $builder = clone $this;
@@ -502,12 +491,12 @@ class ProductBuilder
     }
 
     /**
-     * @param array<string, mixed> $values
+     * @param array<string, mixed> $attributeValues
      */
-    public function withCustomAttributes(array $values, ?int $storeId = null): ProductBuilder
+    public function withCustomAttributes(array $attributeValues, ?int $storeId = null): ProductBuilder
     {
         $builder = clone $this;
-        foreach ($values as $code => $value) {
+        foreach ($attributeValues as $code => $value) {
             if ($storeId) {
                 $builder->storeSpecificValues[$storeId][$code] = $value;
             } else {
@@ -516,6 +505,14 @@ class ProductBuilder
         }
 
         return $builder;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    public function withData(array $data, ?int $storeId = null): ProductBuilder
+    {
+        return $this->withCustomAttributes(attributeValues: $data, storeId: $storeId);
     }
 
     /**
