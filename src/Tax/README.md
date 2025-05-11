@@ -176,15 +176,15 @@ use Magento\Framework\ObjectManagerInterface;
 use PHPUnit\Framework\TestCase;
 use TddWizard\Fixtures\Tax\TaxRateFixturesPool;
 use TddWizard\Fixtures\Tax\TaxRateTrait;
-use TddWizard\Fixtures\Tax\TaxRuelFixturesPool;
-use TddWizard\Fixtures\Tax\TaxRuelTrait;
+use TddWizard\Fixtures\Tax\TaxRuleFixturesPool;
+use TddWizard\Fixtures\Tax\TaxRuleTrait;
 use TddWizard\Fixtures\Store\StoreFixturesPool;
 use TddWizard\Fixtures\Store\StoreTrait;
 
 class SomeTest extends TestCase
 {
     use TaxRateTrait;
-    use TaxRulrTrait;
+    use TaxRuleTrait;
     
     private ?ObjectManagerInterface $objectManager = null;
     
