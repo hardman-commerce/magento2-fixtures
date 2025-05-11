@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TddWizard\Fixtures\Tax;
 
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\ObjectManagerInterface;
 use Magento\Tax\Api\Data\TaxRuleInterface;
 use Magento\Tax\Api\TaxRuleRepositoryInterface;
 use Magento\TestFramework\Helper\Bootstrap;
@@ -19,6 +20,7 @@ class TaxRuleFixturePoolTest extends TestCase
 {
     private TaxRuleFixturePool $taxRuleFixtures;
     private TaxRuleRepositoryInterface $taxRuleRepository;
+    private ?ObjectManagerInterface $objectManager = null;
     /**
      * @var TaxRateFixture[]
      */
@@ -28,8 +30,10 @@ class TaxRuleFixturePoolTest extends TestCase
     {
         parent::setUp();
 
+        $this->objectManager = Bootstrap::getObjectManager();
+
         $this->taxRuleFixtures = new TaxRuleFixturePool();
-        $this->taxRuleRepository = Bootstrap::getObjectManager()->create(type: TaxRuleRepositoryInterface::class);
+        $this->taxRuleRepository = $this->objectManager->create(type: TaxRuleRepositoryInterface::class);
     }
 
     /**
@@ -129,7 +133,7 @@ class TaxRuleFixturePoolTest extends TestCase
     {
         static $nextId = 1;
         /** @var TaxRuleInterface $taxRule */
-        $taxRule = Bootstrap::getObjectManager()->create(type: TaxRuleInterface::class);
+        $taxRule = $this->objectManager->create(type: TaxRuleInterface::class);
         $taxRule->setId($nextId++);
 
         return $taxRule;

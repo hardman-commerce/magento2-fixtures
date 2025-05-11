@@ -24,8 +24,9 @@ class AttributeFixturePoolTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->objectManager = Bootstrap::getObjectManager();
+        parent::setUp();
 
+        $this->objectManager = Bootstrap::getObjectManager();
         $this->attributeFixturePool = new AttributeFixturePool();
         $this->attributeRepository = $this->objectManager->get(type: AttributeRepositoryInterface::class);
     }

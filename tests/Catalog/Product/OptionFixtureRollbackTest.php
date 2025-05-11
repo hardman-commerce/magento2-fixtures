@@ -20,6 +20,8 @@ class OptionFixtureRollbackTest extends TestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $objectManager = Bootstrap::getObjectManager();
         $this->optionFactory = $objectManager->get(OptionFactory::class);
         $this->optionResourceModel = $objectManager->get(OptionResource::class);

@@ -42,8 +42,9 @@ class ProductBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->objectManager = Bootstrap::getObjectManager();
+        parent::setUp();
 
+        $this->objectManager = Bootstrap::getObjectManager();
         $this->attributeFixturePool = $this->objectManager->create(type: AttributeFixturePool::class);
         $this->productRepository = $this->objectManager->create(type: ProductRepositoryInterface::class);
         $this->products = [];

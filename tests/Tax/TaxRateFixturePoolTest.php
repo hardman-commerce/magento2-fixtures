@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TddWizard\Fixtures\Tax;
 
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\ObjectManagerInterface;
 use Magento\Tax\Api\Data\TaxRateInterface;
 use Magento\Tax\Api\TaxRateRepositoryInterface;
 use Magento\TestFramework\Helper\Bootstrap;
@@ -19,13 +20,15 @@ class TaxRateFixturePoolTest extends TestCase
 {
     private TaxRateFixturePool $taxRateFixtures;
     private TaxRateRepositoryInterface $taxRateRepository;
+    private ?ObjectManagerInterface $objectManager = null;
 
     protected function setUp(): void
     {
         parent::setUp();
 
+        $this->objectManager = Bootstrap::getObjectManager();
         $this->taxRateFixtures = new TaxRateFixturePool();
-        $this->taxRateRepository = Bootstrap::getObjectManager()->create(type: TaxRateRepositoryInterface::class);
+        $this->taxRateRepository = $this->objectManager->create(type: TaxRateRepositoryInterface::class);
     }
 
     public function testLastTaxRateFixtureReturnedByDefault(): void
@@ -115,7 +118,7 @@ class TaxRateFixturePoolTest extends TestCase
     {
         static $nextId = 1;
         /** @var TaxRateInterface $taxRate */
-        $taxRate = Bootstrap::getObjectManager()->create(type: TaxRateInterface::class);
+        $taxRate = $this->objectManager->create(type: TaxRateInterface::class);
         $taxRate->setId($nextId++);
 
         return $taxRate;

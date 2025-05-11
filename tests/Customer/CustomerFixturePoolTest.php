@@ -8,6 +8,7 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\ObjectManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
 
@@ -19,11 +20,15 @@ class CustomerFixturePoolTest extends TestCase
 {
     private CustomerFixturePool $customerFixtures;
     private CustomerRepositoryInterface $customerRepository;
+    private ?ObjectManagerInterface $objectManager = null;
 
     protected function setUp(): void
     {
+        parent::setUp();
+
+        $this->objectManager = Bootstrap::getObjectManager();
         $this->customerFixtures = new CustomerFixturePool();
-        $this->customerRepository = Bootstrap::getObjectManager()->create(CustomerRepositoryInterface::class);
+        $this->customerRepository = $this->objectManager->create(CustomerRepositoryInterface::class);
     }
 
     public function testLastCustomerFixtureReturnedByDefault(): void
@@ -92,7 +97,7 @@ class CustomerFixturePoolTest extends TestCase
     {
         static $nextId = 1;
         /** @var CustomerInterface $customer */
-        $customer = Bootstrap::getObjectManager()->create(CustomerInterface::class);
+        $customer = $this->objectManager->create(CustomerInterface::class);
         $customer->setId($nextId++);
 
         return $customer;

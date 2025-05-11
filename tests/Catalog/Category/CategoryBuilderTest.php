@@ -36,6 +36,8 @@ class CategoryBuilderTest extends TestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $objectManager = Bootstrap::getObjectManager();
         $this->categoryRepository = $objectManager->create(type: CategoryRepositoryInterface::class);
         $this->categories = [];

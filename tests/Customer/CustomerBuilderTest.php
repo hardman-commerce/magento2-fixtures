@@ -27,6 +27,8 @@ class CustomerBuilderTest extends TestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $this->objectManager = Bootstrap::getObjectManager();
         $this->customerRepository = $this->objectManager->create(CustomerRepositoryInterface::class);
         $this->customers = [];
@@ -44,7 +46,7 @@ class CustomerBuilderTest extends TestCase
     public function testDefaultCustomer(): void
     {
         $customerFixture = new CustomerFixture(
-            CustomerBuilder::aCustomer()->build()
+            CustomerBuilder::aCustomer()->build(),
         );
         $this->customers[] = $customerFixture;
         $customer = $this->customerRepository->getById($customerFixture->getId());
@@ -60,8 +62,8 @@ class CustomerBuilderTest extends TestCase
             CustomerBuilder::aCustomer()
                 ->withAddresses(
                     AddressBuilder::anAddress()->asDefaultShipping(),
-                    AddressBuilder::anAddress()->asDefaultBilling()
-                )->build()
+                    AddressBuilder::anAddress()->asDefaultBilling(),
+                )->build(),
         );
         $this->customers[] = $customerFixture;
         $customer = $this->customerRepository->getById($customerFixture->getId());
@@ -69,12 +71,12 @@ class CustomerBuilderTest extends TestCase
         $this->assertCount(
             2,
             $customer->getAddresses(),
-            'Customer should have two addresses'
+            'Customer should have two addresses',
         );
         $this->assertNotEquals(
             $customer->getDefaultBilling(),
             $customer->getDefaultShipping(),
-            'Default shipping address should be different from default billing address'
+            'Default shipping address should be different from default billing address',
         );
     }
 
@@ -97,7 +99,7 @@ class CustomerBuilderTest extends TestCase
                 ->withLastname('Bond')
                 ->withSuffix('007')
                 ->withTaxvat('7')
-                ->build()
+                ->build(),
         );
         $this->customers[] = $customerFixture;
         $customer = $this->customerRepository->getById((int)$customerFixture->getId());
@@ -131,8 +133,8 @@ class CustomerBuilderTest extends TestCase
                         ->withPostcode('52078')
                         ->withCity('Aachen')
                         ->asDefaultShipping()
-                        ->asDefaultBilling()
-                )->build()
+                        ->asDefaultBilling(),
+                )->build(),
         );
         $this->customers[] = $customerFixture;
         $customer = $this->customerRepository->getById($customerFixture->getId());
@@ -159,8 +161,8 @@ class CustomerBuilderTest extends TestCase
         $customerFixture = new CustomerFixture(
             CustomerBuilder::aCustomer()->withAddresses(
                 AddressBuilder::anAddress('de_DE')->asDefaultBilling(),
-                AddressBuilder::anAddress('en_US')->asDefaultShipping()
-            )->build()
+                AddressBuilder::anAddress('en_US')->asDefaultShipping(),
+            )->build(),
         );
 
         foreach ($this->customerRepository->getById($customerFixture->getId())->getAddresses() as $address) {
@@ -176,8 +178,8 @@ class CustomerBuilderTest extends TestCase
         $vatId = '1112223334';
         $customerFixture = new CustomerFixture(
             CustomerBuilder::aCustomer()->withAddresses(
-                AddressBuilder::aCompanyAddress('de_DE', $vatId)->asDefaultBilling()
-            )->build()
+                AddressBuilder::aCompanyAddress('de_DE', $vatId)->asDefaultBilling(),
+            )->build(),
         );
 
         $addresses = $this->customerRepository->getById($customerFixture->getId())->getAddresses();

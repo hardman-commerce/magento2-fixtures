@@ -19,13 +19,15 @@ class CustomerFixtureRollbackTest extends TestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $this->customerRepository = Bootstrap::getObjectManager()->create(CustomerRepositoryInterface::class);
     }
 
     public function testRollbackSingleCustomerFixture(): void
     {
         $customerFixture = new CustomerFixture(
-            CustomerBuilder::aCustomer()->build()
+            CustomerBuilder::aCustomer()->build(),
         );
         CustomerFixtureRollback::create()->execute($customerFixture);
         $this->expectException(NoSuchEntityException::class);
@@ -35,10 +37,10 @@ class CustomerFixtureRollbackTest extends TestCase
     public function testRollbackMultipleCustomerFixtures(): void
     {
         $customerFixture = new CustomerFixture(
-            CustomerBuilder::aCustomer()->build()
+            CustomerBuilder::aCustomer()->build(),
         );
         $otherCustomerFixture = new CustomerFixture(
-            CustomerBuilder::aCustomer()->build()
+            CustomerBuilder::aCustomer()->build(),
         );
         CustomerFixtureRollback::create()->execute($customerFixture, $otherCustomerFixture);
         $customerDeleted = false;

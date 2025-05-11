@@ -32,8 +32,9 @@ class AttributeBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $objectManager = Bootstrap::getObjectManager();
+        parent::setUp();
 
+        $objectManager = Bootstrap::getObjectManager();
         $this->storeFixturePool = $objectManager->get(type: StoreFixturePool::class);
         $this->attributeRepository = $objectManager->get(type: AttributeRepositoryInterface::class);
         $this->attributes = [];

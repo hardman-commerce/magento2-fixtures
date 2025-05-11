@@ -20,6 +20,8 @@ class ProductFixtureRollbackTest extends TestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $this->productRepository = Bootstrap::getObjectManager()->create(ProductRepositoryInterface::class);
     }
 

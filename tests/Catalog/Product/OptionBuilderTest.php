@@ -24,6 +24,8 @@ class OptionBuilderTest extends TestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $objectManager = Bootstrap::getObjectManager();
         $this->optionManagement = $objectManager->get(AttributeOptionManagementInterface::class);
         $this->optionFactory = $objectManager->get(OptionFactory::class);

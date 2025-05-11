@@ -7,6 +7,7 @@ namespace TddWizard\Fixtures\Catalog\Product;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\ObjectManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
 
@@ -19,11 +20,15 @@ class ProductFixturePoolTest extends TestCase
 {
     private ProductFixturePool $productFixtures;
     private ProductRepositoryInterface $productRepository;
+    private ?ObjectManagerInterface $objectManager = null;
 
     protected function setUp(): void
     {
+        parent::setUp();
+
+        $this->objectManager = Bootstrap::getObjectManager();
         $this->productFixtures = new ProductFixturePool();
-        $this->productRepository = Bootstrap::getObjectManager()->create(ProductRepositoryInterface::class);
+        $this->productRepository = $this->objectManager->create(ProductRepositoryInterface::class);
     }
 
     /**
@@ -124,7 +129,7 @@ class ProductFixturePoolTest extends TestCase
     {
         static $nextId = 1;
         /** @var ProductInterface $product */
-        $product = Bootstrap::getObjectManager()->create(ProductInterface::class);
+        $product = $this->objectManager->create(ProductInterface::class);
         $product->setSku('product-' . $nextId);
         $product->setId($nextId++);
 

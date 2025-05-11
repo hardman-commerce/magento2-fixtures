@@ -26,9 +26,12 @@ class OptionFixturePoolTest extends TestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
+
+        $objectManager = Bootstrap::getObjectManager();
         $this->optionFixtures = new OptionFixturePool();
-        $this->optionFactory = Bootstrap::getObjectManager()->get(AttributeOptionFactory::class);
-        $this->optionResourceModel = Bootstrap::getObjectManager()->get(OptionResource::class);
+        $this->optionFactory = $objectManager->get(AttributeOptionFactory::class);
+        $this->optionResourceModel = $objectManager->get(OptionResource::class);
     }
 
     public function testLastOptionFixtureReturnedByDefault(): void
