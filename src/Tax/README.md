@@ -216,7 +216,7 @@ class SomeTest extends TestCase
     public function testSomething_withCustomTaxRuleValues(): void
     {
         $this->createTaxClass([
-            'key' => 'tdd_product_tax_class'
+            'key' => 'tdd_product_tax_class',
             'class_name' => 'tdd_product_tax_class',
         ]);
         $productTaxClassFixture = $this->taxClassFixturePool->get('tdd_product_tax_class');
@@ -232,7 +232,7 @@ class SomeTest extends TestCase
         $taxRateFixture = $this->taxRateFixturePool->get('tdd_tax_rate');
         
         $this->createTaxRule([
-           'key' => 'some_tax_rule'
+           'key' => 'some_tax_rule',
            'tax_rate_ids' => [$taxRateFixture->getId()],
            'customer_tax_class_ids' => [$customerTaxClassFixture->getId()],
            'product_tax_class_ids' => [$productTaxClassFixture->getid()],
