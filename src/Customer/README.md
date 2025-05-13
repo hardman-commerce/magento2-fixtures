@@ -191,7 +191,7 @@ class SomeTest extends TestCase
             'email' => 'test.customer@example.com',
             'group_id' => $customerGroupFixture->getId(),
             'store_id' => $storeFixture->getId(),
-            'website_id' => $websiteFixture->getid(),
+            'website_id' => $websiteFixture->getId(),
             'first_name' => 'Test',
             'middle_name' => 'A',
             'last_name' => 'Customer',
