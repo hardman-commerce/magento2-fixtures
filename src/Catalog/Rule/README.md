@@ -8,14 +8,14 @@
     'name' => 'TDD Catalog Rule',
     'is_active' => true,
     'stop_rules' => true,
+    'sort_order' => 1,
     'website_ids' => [1],
     'customer_group_ids' => [Group::NOT_LOGGED_IN_ID],
-    'from_date' =>  time() - (3600 * 24),
-    'to_date' => time() + (3600 * 24),
     'discount_amount' => 10.00,
     'is_percent' => true,
-    'sort_order' => 1,
-    'conditions' => null,
+    'from_date' => time() - (3600 * 24),
+    'to_date' => time() + (3600 * 24),
+    'conditions' => [],
     'condition_type' => 'all',
 ]
 ```
@@ -23,7 +23,7 @@
 ## Build With Trait
 
 ```php
-use Magento\Catalog\Api\Data\ProductInterface:;
+use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Framework\ObjectManagerInterface;
 use PHPUnit\Framework\TestCase;
 use TddWizard\Fixtures\Catalog\Rule\CatalogRuleFixturesPool;
@@ -59,7 +59,7 @@ class SomeTest extends TestCase
     public function testSomething_withDefaultCatalogRuleValues(): void
     {
         $this->createCatalogRule();
-        $categoryFixture = $this->catalogRuleFixturePool->get('tdd_catalog_rule');
+        $catalogRuleFixture = $this->catalogRuleFixturePool->get('tdd_catalog_rule');
         ...
     }
     
@@ -78,8 +78,8 @@ class SomeTest extends TestCase
             'stop_rules' => false,
             'website_ids' => [$websiteFixture->getId()],
             'customer_group_ids' => [$customerGroupFixture->getId()],
-            'from_date' =>  date('y-m-d h:i:s', time() - (3600 * 48)),
-            'to_date' => date('y-m-d h:i:s', time() + (3600 * 72)),
+            'from_date' =>  date('Y-m-d H:i:s', time() - (3600 * 48)),
+            'to_date' => date('Y-m-d H:i:s', time() + (3600 * 72)),
             'discount_amount' => 25.00,
             'is_percent' => false,
             'sort_order' => 3,
@@ -87,7 +87,7 @@ class SomeTest extends TestCase
                 [
                     'attribute' => \ProductInterface::SKU,
                     'operator' => '{}', // @see \Magento\CatalogRule\Model\Rule\Condition\ConditionsToSearchCriteriaMapper::mapRuleOperatorToSQLCondition
-                    'value' => '1'
+                    'value' => 'SKU_ABC_'
                 ],
                 [
                     'attribute' => ProductInterface::PRICE,
@@ -97,21 +97,21 @@ class SomeTest extends TestCase
             ],
             'condition_type' => 'any',
         ]);
-        $categoryFixture = $this->catalogRuleFixturePool->get('some_key');
+        $catalogRuleFixture = $this->catalogRuleFixturePool->get('some_key');
         ...
     }
     
     public function testSomething_withMultipleCatalogRules(): void
     {
         $this->createCatalogRule();
-        $categoryFixture1 = $this->catalogRuleFixturePool->get('tdd_catalog_rule');
+        $catalogRuleFixture1 = $this->catalogRuleFixturePool->get('tdd_catalog_rule');
         
          $this->createCatalogRule([
             'key' => 'tdd_catalog_rule_2',
             'name' => 'TDD Catalog Rule 2',
             ...
         ]);
-        $categoryFixture2 = $this->catalogRuleFixturePool->get('tdd_catalog_rule_2');
+        $catalogRuleFixture2 = $this->catalogRuleFixturePool->get('tdd_catalog_rule_2');
         ...
     }
 }
