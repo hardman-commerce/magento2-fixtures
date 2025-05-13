@@ -39,6 +39,6 @@ class CustomerGroupFixture
      */
     public function rollback(): void
     {
-        CustomerGroupFixtureRollback::create()->execute($this);
+        CustomerGroupFixtureRollback::create()->execute(customerGroupFixtures: $this);
     }
 }

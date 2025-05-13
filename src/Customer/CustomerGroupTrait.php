@@ -17,7 +17,6 @@ trait CustomerGroupTrait
     /**
      * @param array<string, mixed> $customerGroupData
      *
-     * @return void
      * @throws \Exception
      */
     public function createCustomerGroup(array $customerGroupData = []): void

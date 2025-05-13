@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TddWizard\Fixtures\Customer;
 
 use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Api\Data\AddressInterface;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Framework\Encryption\EncryptorInterface as Encryptor;
 use Magento\Framework\Exception\LocalizedException;
@@ -38,7 +39,7 @@ class CustomerBuilder
         $this->addressBuilders = $addressBuilders;
     }
 
-    public function __clone()
+    public function __clone(): void
     {
         $this->customer = clone $this->customer;
     }
@@ -47,24 +48,24 @@ class CustomerBuilder
     {
         $objectManager = Bootstrap::getObjectManager();
         /** @var CustomerInterface $customer */
-        $customer = $objectManager->create(CustomerInterface::class);
-        $customer->setWebsiteId(1)
-            ->setGroupId(1)
-            ->setStoreId(1)
-            ->setPrefix('Mr.')
-            ->setFirstname('John')
-            ->setMiddlename('A')
-            ->setLastname('Smith')
-            ->setSuffix('Esq.')
-            ->setTaxvat('12')
-            ->setGender(0);
+        $customer = $objectManager->create(type: CustomerInterface::class);
+        $customer->setWebsiteId(websiteId: 1);
+        $customer->setGroupId(groupId: 1);
+        $customer->setStoreId(storeId: 1);
+        $customer->setPrefix(prefix: 'Mr.');
+        $customer->setFirstname(firstname: 'John');
+        $customer->setMiddlename(middlename: 'A');
+        $customer->setLastname(lastname: 'Smith');
+        $customer->setSuffix(suffix: 'Esq.');
+        $customer->setTaxvat(taxvat: '12');
+        $customer->setGender(gender: 1);
         $password = 'Test#123';
 
         return new self(
-            $objectManager->create(CustomerRepositoryInterface::class),
-            $customer,
-            $objectManager->create(Encryptor::class),
-            $password,
+            customerRepository: $objectManager->create(type: CustomerRepositoryInterface::class),
+            customer: $customer,
+            encryptor: $objectManager->create(type: Encryptor::class),
+            password: $password,
         );
     }
 
@@ -79,7 +80,7 @@ class CustomerBuilder
     public function withEmail(string $email): CustomerBuilder
     {
         $builder = clone $this;
-        $builder->customer->setEmail($email);
+        $builder->customer->setEmail(email: $email);
 
         return $builder;
     }
@@ -87,7 +88,7 @@ class CustomerBuilder
     public function withGroupId(int $groupId): CustomerBuilder
     {
         $builder = clone $this;
-        $builder->customer->setGroupId($groupId);
+        $builder->customer->setGroupId(groupId: $groupId);
 
         return $builder;
     }
@@ -95,7 +96,7 @@ class CustomerBuilder
     public function withStoreId(int $storeId): CustomerBuilder
     {
         $builder = clone $this;
-        $builder->customer->setStoreId($storeId);
+        $builder->customer->setStoreId(storeId: $storeId);
 
         return $builder;
     }
@@ -103,7 +104,7 @@ class CustomerBuilder
     public function withWebsiteId(int $websiteId): CustomerBuilder
     {
         $builder = clone $this;
-        $builder->customer->setWebsiteId($websiteId);
+        $builder->customer->setWebsiteId(websiteId: $websiteId);
 
         return $builder;
     }
@@ -111,7 +112,7 @@ class CustomerBuilder
     public function withPrefix(string $prefix): CustomerBuilder
     {
         $builder = clone $this;
-        $builder->customer->setPrefix($prefix);
+        $builder->customer->setPrefix(prefix: $prefix);
 
         return $builder;
     }
@@ -119,7 +120,7 @@ class CustomerBuilder
     public function withFirstname(string $firstname): CustomerBuilder
     {
         $builder = clone $this;
-        $builder->customer->setFirstname($firstname);
+        $builder->customer->setFirstname(firstname: $firstname);
 
         return $builder;
     }
@@ -127,7 +128,7 @@ class CustomerBuilder
     public function withMiddlename(string $middlename): CustomerBuilder
     {
         $builder = clone $this;
-        $builder->customer->setMiddlename($middlename);
+        $builder->customer->setMiddlename(middlename: $middlename);
 
         return $builder;
     }
@@ -135,7 +136,7 @@ class CustomerBuilder
     public function withLastname(string $lastname): CustomerBuilder
     {
         $builder = clone $this;
-        $builder->customer->setLastname($lastname);
+        $builder->customer->setLastname(lastname: $lastname);
 
         return $builder;
     }
@@ -143,7 +144,7 @@ class CustomerBuilder
     public function withSuffix(string $suffix): CustomerBuilder
     {
         $builder = clone $this;
-        $builder->customer->setSuffix($suffix);
+        $builder->customer->setSuffix(suffix: $suffix);
 
         return $builder;
     }
@@ -151,7 +152,7 @@ class CustomerBuilder
     public function withTaxvat(string $taxvat): CustomerBuilder
     {
         $builder = clone $this;
-        $builder->customer->setTaxvat($taxvat);
+        $builder->customer->setTaxvat(taxvat: $taxvat);
 
         return $builder;
     }
@@ -159,7 +160,7 @@ class CustomerBuilder
     public function withDob(string $dob): CustomerBuilder
     {
         $builder = clone $this;
-        $builder->customer->setDob($dob);
+        $builder->customer->setDob(dob: $dob);
 
         return $builder;
     }
@@ -173,7 +174,10 @@ class CustomerBuilder
     {
         $builder = clone $this;
         foreach ($values as $code => $value) {
-            $builder->customer->setCustomAttribute($code, $value);
+            $builder->customer->setCustomAttribute(
+                attributeCode: $code,
+                attributeValue: $value,
+            );
         }
 
         return $builder;
@@ -182,45 +186,46 @@ class CustomerBuilder
     public function withConfirmation(string $confirmation): CustomerBuilder
     {
         $builder = clone $this;
-        $builder->customer->setConfirmation($confirmation);
+        $builder->customer->setConfirmation(confirmation: $confirmation);
 
         return $builder;
     }
 
     /**
-     * @return CustomerInterface
      * @throws LocalizedException
      */
     public function build(): CustomerInterface
     {
         $builder = clone $this;
         if (!$builder->customer->getEmail()) {
-            $builder->customer->setEmail(sha1(uniqid('', true)) . '@example.com');
+            $builder->customer->setEmail(
+                email: sha1(uniqid(prefix: '', more_entropy: true)) . '@example.com',
+            );
         }
         $addresses = array_map(
-            function (AddressBuilder $addressBuilder) {
-                return $addressBuilder->buildWithoutSave();
-            },
-            $builder->addressBuilders,
+            callback: static fn (AddressBuilder $addressBuilder): AddressInterface => $addressBuilder->buildWithoutSave(),
+            array: $builder->addressBuilders,
         );
-        $builder->customer->setAddresses($addresses);
+        $builder->customer->setAddresses(addresses: $addresses);
         $customer = $builder->saveNewCustomer();
         /*
          * Magento automatically sets random confirmation key for new account with password.
          * We need to save again with our own confirmation (null for confirmed customer)
          */
-        $customer->setConfirmation((string)$builder->customer->getConfirmation());
+        $customer->setConfirmation(confirmation: (string)$builder->customer->getConfirmation());
 
-        return $builder->customerRepository->save($customer);
+        return $builder->customerRepository->save(customer: $customer);
     }
 
     /**
      * @SuppressWarnings(PHPMD.UnusedPrivateMethod) False positive: the method is used in build() on the cloned builder
-     * @return CustomerInterface
      * @throws LocalizedException
      */
     private function saveNewCustomer(): CustomerInterface
     {
-        return $this->customerRepository->save($this->customer, $this->encryptor->getHash($this->password, true));
+        return $this->customerRepository->save(
+            customer: $this->customer,
+            passwordHash: $this->encryptor->getHash(password: $this->password, salt: true),
+        );
     }
 }

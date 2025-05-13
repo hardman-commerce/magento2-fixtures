@@ -28,8 +28,8 @@ class CustomerFixtureRollback
         $objectManager = Bootstrap::getObjectManager();
 
         return new self(
-            $objectManager->get(Registry::class),
-            $objectManager->get(CustomerRepositoryInterface::class),
+            registry: $objectManager->get(type: Registry::class),
+            customerRepository: $objectManager->get(type: CustomerRepositoryInterface::class),
         );
     }
 
@@ -38,13 +38,13 @@ class CustomerFixtureRollback
      */
     public function execute(CustomerFixture ...$customerFixtures): void
     {
-        $this->registry->unregister('isSecureArea');
-        $this->registry->register('isSecureArea', true);
+        $this->registry->unregister(key: 'isSecureArea');
+        $this->registry->register(key: 'isSecureArea', value: true);
 
         foreach ($customerFixtures as $customerFixture) {
-            $this->customerRepository->deleteById($customerFixture->getId());
+            $this->customerRepository->deleteById(customerId: $customerFixture->getId());
         }
 
-        $this->registry->unregister('isSecureArea');
+        $this->registry->unregister(key: 'isSecureArea');
     }
 }

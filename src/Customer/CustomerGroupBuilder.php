@@ -55,16 +55,21 @@ class CustomerGroupBuilder
         $this->groupExcludedWebsiteFactory = $groupExcludedWebsiteFactory;
     }
 
+    public function __clone(): void
+    {
+        $this->customerGroup = clone $this->customerGroup;
+    }
+
     public static function addCustomerGroup(): CustomerGroupBuilder //phpcs:ignore Magento2.Functions.StaticFunction.StaticFunction, Generic.Files.LineLength.TooLong
     {
         $objectManager = Bootstrap::getObjectManager();
 
         return new self(
-            $objectManager->create(type: GroupInterface::class),
-            $objectManager->create(type: GroupRepositoryInterface::class),
-            $objectManager->create(type: CustomerTaxClassSource::class),
-            $objectManager->create(type: GroupExcludedWebsiteRepositoryInterface::class),
-            $objectManager->create(type: GroupExcludedWebsiteInterfaceFactory::class),
+            customerGroup: $objectManager->create(type: GroupInterface::class),
+            customerGroupRepository: $objectManager->create(type: GroupRepositoryInterface::class),
+            customerTaxClassSource: $objectManager->create(type: CustomerTaxClassSource::class),
+            groupExcludedWebsiteRepository: $objectManager->create(type: GroupExcludedWebsiteRepositoryInterface::class),
+            groupExcludedWebsiteFactory: $objectManager->create(type: GroupExcludedWebsiteInterfaceFactory::class),
         );
     }
 

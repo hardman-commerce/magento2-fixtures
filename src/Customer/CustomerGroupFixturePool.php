@@ -20,9 +20,9 @@ class CustomerGroupFixturePool
     public function add(GroupInterface $customerGroup, ?string $key = null): void
     {
         if ($key === null) {
-            $this->customerGroupFixtures[] = new CustomerGroupFixture($customerGroup);
+            $this->customerGroupFixtures[] = new CustomerGroupFixture(group: $customerGroup);
         } else {
-            $this->customerGroupFixtures[$key] = new CustomerGroupFixture($customerGroup);
+            $this->customerGroupFixtures[$key] = new CustomerGroupFixture(group: $customerGroup);
         }
     }
 
@@ -48,7 +48,7 @@ class CustomerGroupFixturePool
      */
     public function rollback(): void
     {
-        CustomerGroupFixtureRollback::create()->execute(...array_values($this->customerGroupFixtures));
+        CustomerGroupFixtureRollback::create()->execute(...array_values(array: $this->customerGroupFixtures));
         $this->customerGroupFixtures = [];
     }
 }

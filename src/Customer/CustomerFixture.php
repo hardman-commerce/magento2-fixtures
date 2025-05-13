@@ -47,7 +47,7 @@ class CustomerFixture
     public function getNonDefaultAddressIds(): array
     {
         return array_values(
-            array_diff(
+            array: array_diff(
                 $this->getAllAddressIds(),
                 [$this->getDefaultBillingAddressId(), $this->getDefaultShippingAddressId()],
             ),
@@ -60,10 +60,8 @@ class CustomerFixture
     public function getAllAddressIds(): array
     {
         return array_map(
-            function (AddressInterface $address): int {
-                return (int)$address->getId();
-            },
-            (array)$this->customer->getAddresses(),
+            callback: static fn (AddressInterface $address): int => (int)$address->getId(),
+            array: (array)$this->customer->getAddresses(),
         );
     }
 
@@ -86,24 +84,27 @@ class CustomerFixture
     {
         if ($session === null) {
             $objectManager = Bootstrap::getObjectManager();
-            $objectManager->removeSharedInstance(Session::class);
-            $session = $objectManager->get(Session::class);
+            $objectManager->removeSharedInstance(className: Session::class);
+            $session = $objectManager->get(type: Session::class);
         }
-        $session->setCustomerId($this->getId());
+        $session->setCustomerId(id: $this->getId());
     }
 
     public function logout(Session $session = null): void
     {
         if ($session === null) {
             $objectManager = Bootstrap::getObjectManager();
-            $session = $objectManager->get(Session::class);
+            $session = $objectManager->get(type: Session::class);
         }
 
         $session->logout();
     }
 
+    /**
+     * @throws \Exception
+     */
     public function rollback(): void
     {
-        CustomerFixtureRollback::create()->execute($this);
+        CustomerFixtureRollback::create()->execute(customerFixtures: $this);
     }
 }

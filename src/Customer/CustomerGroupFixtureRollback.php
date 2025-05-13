@@ -33,8 +33,8 @@ class CustomerGroupFixtureRollback
         $objectManager = Bootstrap::getObjectManager();
 
         return new self(
-            $objectManager->get(type: Registry::class),
-            $objectManager->get(type: GroupRepositoryInterface::class),
+            registry: $objectManager->get(type: Registry::class),
+            customerGroupRepository: $objectManager->get(type: GroupRepositoryInterface::class),
         );
     }
 
