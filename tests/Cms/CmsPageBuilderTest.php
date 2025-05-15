@@ -63,6 +63,7 @@ class CmsPageBuilderTest extends TestCase
         $this->assertSame(expected: 'Heading - Tdd Page', actual: $cmsPage->getContentHeading());
         $this->assertSame(expected: 'Content - Tdd Page', actual: $cmsPage->getContent());
         $this->assertSame(expected: 'Meta Description - Tdd Page', actual: $cmsPage->getMetaDescription());
+        $this->assertSame(expected: 'Meta Title - Tdd Page', actual: $cmsPage->getMetaTitle());
         $this->assertSame(expected: '1column', actual: $cmsPage->getPageLayout());
         $this->assertTrue(condition: $cmsPage->isActive());
         $stores = $cmsPage->getData(key: 'store_id');

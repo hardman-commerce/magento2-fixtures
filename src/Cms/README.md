@@ -16,6 +16,7 @@
         'content' => 'Content - Tdd Page Title',
         'content_heading' => 'Heading - Tdd Page Title',
         'meta_description' => 'Meta Description - Tdd Page Title',
+        'meta_title' => 'Meta Title - Tdd Page Title',
         'page_layout' => '1column',
     ], 
 ]

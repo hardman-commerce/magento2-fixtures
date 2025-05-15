@@ -42,7 +42,7 @@ class CmsPageFixtureRollback
             try {
                 $this->pageRepository->deleteById(pageId: $pageFixture->getId());
             } catch (LocalizedException) { // phpcs:ignore Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
-                // store has already been removed
+                // CMS page has already been removed
             }
         }
 

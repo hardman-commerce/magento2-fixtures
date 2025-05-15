@@ -150,6 +150,11 @@ class CmsPageBuilder
                 metaDescription: 'Meta Description - ' . $builder->page->getTitle(),
             );
         }
+        if (!$builder->page->getMetaTitle()) {
+            $builder->page->setMetaTitle(
+                metaTitle: 'Meta Title - ' . $builder->page->getTitle(),
+            );
+        }
         if (!$builder->page->getPageLayout()) {
             $builder->page->setPageLayout(pageLayout: '1column');
         }
