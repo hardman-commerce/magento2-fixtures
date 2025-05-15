@@ -13,13 +13,10 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class ProductFixtureRollback
 {
-    private Registry $registry;
-    private ProductRepositoryInterface $productRepository;
-
-    public function __construct(Registry $registry, ProductRepositoryInterface $productRepository)
-    {
-        $this->registry = $registry;
-        $this->productRepository = $productRepository;
+    public function __construct(
+        private readonly Registry $registry,
+        private readonly ProductRepositoryInterface $productRepository,
+    ) {
     }
 
     public static function create(): ProductFixtureRollback
@@ -27,24 +24,24 @@ class ProductFixtureRollback
         $objectManager = Bootstrap::getObjectManager();
 
         return new self(
-            $objectManager->get(Registry::class),
-            $objectManager->get(ProductRepositoryInterface::class),
+            registry: $objectManager->get(type: Registry::class),
+            productRepository: $objectManager->get(type: ProductRepositoryInterface::class),
         );
     }
 
     public function execute(ProductFixture ...$productFixtures): void
     {
-        $this->registry->unregister('isSecureArea');
-        $this->registry->register('isSecureArea', true);
+        $this->registry->unregister(key: 'isSecureArea');
+        $this->registry->register(key: 'isSecureArea', value: true);
 
         foreach ($productFixtures as $productFixture) {
             try {
-                $this->productRepository->deleteById($productFixture->getSku());
+                $this->productRepository->deleteById(sku: $productFixture->getSku());
             } catch (\Exception) {
                 // this is fine, products has already been removed
             }
         }
 
-        $this->registry->unregister('isSecureArea');
+        $this->registry->unregister(key: 'isSecureArea');
     }
 }

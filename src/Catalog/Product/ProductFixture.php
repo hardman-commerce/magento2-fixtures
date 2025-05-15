@@ -8,11 +8,9 @@ use Magento\Catalog\Api\Data\ProductInterface;
 
 class ProductFixture
 {
-    private ProductInterface $product;
-
-    public function __construct(ProductInterface $product)
-    {
-        $this->product = $product;
+    public function __construct(
+        private readonly ProductInterface $product,
+    ) {
     }
 
     public function getProduct(): ProductInterface
@@ -32,6 +30,6 @@ class ProductFixture
 
     public function rollback(): void
     {
-        ProductFixtureRollback::create()->execute($this);
+        ProductFixtureRollback::create()->execute(productFixtures: $this);
     }
 }

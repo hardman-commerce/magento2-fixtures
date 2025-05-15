@@ -17,15 +17,10 @@ use Magento\TestFramework\Helper\Bootstrap;
 
 class CustomerGroupFixtureRollback
 {
-    private Registry $registry;
-    private GroupRepositoryInterface $customerGroupRepository;
-
     public function __construct(
-        Registry $registry,
-        GroupRepositoryInterface $customerGroupRepository,
+        private readonly Registry $registry,
+        private readonly GroupRepositoryInterface $customerGroupRepository,
     ) {
-        $this->registry = $registry;
-        $this->customerGroupRepository = $customerGroupRepository;
     }
 
     public static function create(): CustomerGroupFixtureRollback //phpcs:ignore Magento2.Functions.StaticFunction.StaticFunction, Generic.Files.LineLength.TooLong

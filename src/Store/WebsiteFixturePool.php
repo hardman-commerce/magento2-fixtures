@@ -48,7 +48,9 @@ class WebsiteFixturePool
      */
     public function rollback(): void
     {
-        WebsiteFixtureRollback::create()->execute(...array_values(array: $this->websiteFixtures));
+        WebsiteFixtureRollback::create()->execute(
+            ...array_values(array: $this->websiteFixtures),
+        );
         $this->websiteFixtures = [];
     }
 }

@@ -23,7 +23,7 @@ class OrderBuilder
     private array $productBuilders;
     private ?string $paymentMethod = null;
 
-    final public function __construct()
+    public function __construct()
     {
     }
 
@@ -88,21 +88,23 @@ class OrderBuilder
 
         // create products
         $products = array_map(
-            static function (ProductBuilder $productBuilder) {
+            callback: static function (ProductBuilder $productBuilder) {
                 return $productBuilder->build();
             },
-            $builder->productBuilders,
+            array: $builder->productBuilders,
         );
 
         if (empty($builder->customerBuilder)) {
             // init customer
             $builder->customerBuilder = CustomerBuilder::aCustomer()
-                ->withAddresses(AddressBuilder::anAddress()->asDefaultBilling()->asDefaultShipping());
+                ->withAddresses(
+                    addressBuilders: AddressBuilder::anAddress()->asDefaultBilling()->asDefaultShipping(),
+                );
         }
 
         // log customer in
         $customer = $builder->customerBuilder->build();
-        $customerFixture = new CustomerFixture($customer);
+        $customerFixture = new CustomerFixture(customer: $customer);
         $customerFixture->login();
 
         if (empty($builder->cartBuilder)) {
@@ -110,22 +112,22 @@ class OrderBuilder
             $builder->cartBuilder = CartBuilder::forCurrentSession();
             foreach ($products as $product) {
                 $qty = 1;
-                $builder->cartBuilder = $builder->cartBuilder->withSimpleProduct($product->getSku(), $qty);
+                $builder->cartBuilder = $builder->cartBuilder->withSimpleProduct(sku: $product->getSku(), qty: $qty);
             }
         }
 
         // check out, place order
-        $checkout = CustomerCheckout::fromCart($builder->cartBuilder->build());
+        $checkout = CustomerCheckout::fromCart(
+            cart: $builder->cartBuilder->build(),
+        );
         if ($builder->shippingMethod) {
-            $checkout = $checkout->withShippingMethodCode($builder->shippingMethod);
+            $checkout = $checkout->withShippingMethodCode(code: $builder->shippingMethod);
         }
 
         if ($builder->paymentMethod) {
-            $checkout = $checkout->withPaymentMethodCode($builder->paymentMethod);
+            $checkout = $checkout->withPaymentMethodCode(code: $builder->paymentMethod);
         }
-
         $order = $checkout->placeOrder();
-
         $customerFixture->logout();
 
         return $order;

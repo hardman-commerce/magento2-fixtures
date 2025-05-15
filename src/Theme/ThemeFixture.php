@@ -13,14 +13,13 @@ use Magento\Theme\Model\Theme\Registration;
  */
 class ThemeFixture
 {
-
     /**
      * Register new themes from the `@magentoComponentsDir` fixture in the database
      */
     public static function registerTestThemes(): void
     {
         /** @var Registration $registration */
-        $registration = Bootstrap::getObjectManager()->get(Registration::class);
+        $registration = Bootstrap::getObjectManager()->get(type: Registration::class);
         $registration->register();
     }
 
@@ -32,7 +31,7 @@ class ThemeFixture
     public static function setCurrentTheme(string $themePath): void
     {
         /** @var DesignInterface $design */
-        $design = Bootstrap::getObjectManager()->get(DesignInterface::class);
-        $design->setDesignTheme($themePath);
+        $design = Bootstrap::getObjectManager()->get(type: DesignInterface::class);
+        $design->setDesignTheme(theme: $themePath);
     }
 }

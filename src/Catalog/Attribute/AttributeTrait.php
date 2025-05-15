@@ -10,6 +10,7 @@ namespace TddWizard\Fixtures\Catalog\Attribute;
 
 use Magento\Catalog\Api\Data\CategoryAttributeInterface;
 use Magento\Catalog\Api\Data\ProductAttributeInterface;
+use TddWizard\Fixtures\Exception\FixturePoolMissingException;
 
 trait AttributeTrait
 {
@@ -18,10 +19,16 @@ trait AttributeTrait
     /**
      * @param array<string, mixed> $attributeData
      *
+     * @throws FixturePoolMissingException
      * @throws \Exception
      */
-    public function createAttribute(?array $attributeData = []): void
+    public function createAttribute(array $attributeData = []): void
     {
+        if (null === $this->attributeFixturePool) {
+            throw new FixturePoolMissingException(
+                message: 'attributeFixturePool has not been created in your test setUp method.',
+            );
+        }
         if (null === ($attributeData['attribute_type'] ?? null)) {
             $attributeData['attribute_type'] = 'text';
         }

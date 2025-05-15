@@ -20,21 +20,12 @@ class TaxRuleBuilder
 {
     use IsTransactionExceptionTrait;
 
-    private TaxRuleInterface $taxRule;
-    private TaxRuleRepositoryInterface $taxRuleRepository;
-    private TaxCalculation $taxCalculation;
-    private TaxHelper $taxHelper;
-
     public function __construct(
-        TaxRuleInterface $taxRule,
-        TaxRuleRepositoryInterface $taxRuleRepository,
-        TaxCalculation $taxCalculation,
-        TaxHelper $taxHelper,
+        private readonly TaxRuleInterface $taxRule,
+        private readonly TaxRuleRepositoryInterface $taxRuleRepository,
+        private readonly TaxCalculation $taxCalculation,
+        private readonly TaxHelper $taxHelper,
     ) {
-        $this->taxRule = $taxRule;
-        $this->taxRuleRepository = $taxRuleRepository;
-        $this->taxCalculation = $taxCalculation;
-        $this->taxHelper = $taxHelper;
     }
 
     public static function addTaxRule(): TaxRuleBuilder

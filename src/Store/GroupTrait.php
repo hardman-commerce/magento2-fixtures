@@ -11,16 +11,16 @@ trait GroupTrait
     private ?GroupFixturePool $storeGroupFixturePool = null;
 
     /**
-     * @param mixed[]|null $groupData
+     * @param array<string, mixed> $groupData
      *
      * @throws FixturePoolMissingException
      * @throws \Exception
      */
-    private function createStoreGroup(?array $groupData = []): void
+    private function createStoreGroup(array $groupData = []): void
     {
         if (null === $this->storeGroupFixturePool) {
             throw new FixturePoolMissingException(
-                'storeGroupFixturePool has not been created in your test setUp method.',
+                message: 'storeGroupFixturePool has not been created in your test setUp method.',
             );
         }
         $storeGroupBuilder = GroupBuilder::addGroup();

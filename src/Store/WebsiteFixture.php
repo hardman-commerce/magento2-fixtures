@@ -12,11 +12,9 @@ use Magento\Store\Api\Data\WebsiteInterface;
 
 class WebsiteFixture
 {
-    private WebsiteInterface $website;
-
-    public function __construct(WebsiteInterface $website)
-    {
-        $this->website = $website;
+    public function __construct(
+        private readonly WebsiteInterface $website,
+    ) {
     }
 
     public function get(): WebsiteInterface
@@ -49,6 +47,6 @@ class WebsiteFixture
      */
     public function rollback(): void
     {
-        WebsiteFixtureRollback::create()->execute($this);
+        WebsiteFixtureRollback::create()->execute(websiteFixtures: $this);
     }
 }

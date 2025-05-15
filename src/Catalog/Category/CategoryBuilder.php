@@ -9,6 +9,7 @@ use Magento\Catalog\Api\CategoryListInterface;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\Catalog\Api\Data\CategoryInterface;
 use Magento\Catalog\Api\Data\CategoryProductLinkInterfaceFactory;
+use Magento\Catalog\Model\AbstractModel;
 use Magento\Catalog\Model\Category;
 use Magento\Catalog\Model\ImageUploader;
 use Magento\Catalog\Model\ResourceModel\Category as CategoryResource;
@@ -17,45 +18,28 @@ use Magento\Framework\Api\Search\FilterGroup;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\Api\SortOrder;
 use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\Exception\InputException;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Module\Dir as Directory;
 use Magento\MediaStorage\Helper\File\Storage\Database;
 use Magento\Store\Model\Store;
 use Magento\TestFramework\Helper\Bootstrap;
+use TddWizard\Fixtures\Exception\InvalidModelException;
 
 class CategoryBuilder
 {
-    private CategoryResource $categoryResource;
-    private CategoryLinkRepositoryInterface $categoryLinkRepository;
-    private CategoryProductLinkInterfaceFactory $productLinkFactory;
-    private Category $category;
     /**
-     * @var string[]
-     */
-    private array $skus;
-    /**
-     * @var mixed[][]
-     */
-    private array $storeSpecificValues;
-
-    /**
-     * @param string[] $skus
-     * @param mixed[][] $storeSpecificValues
+     * @param array<int, string> $skus
+     * @param array<int, array<string, mixed>> $storeSpecificValues
      */
     public function __construct(
-        CategoryResource $categoryResource,
-        CategoryLinkRepositoryInterface $categoryLinkRepository,
-        CategoryProductLinkInterfaceFactory $productLinkFactory,
-        Category $category,
-        array $skus,
-        array $storeSpecificValues,
+        private readonly CategoryResource $categoryResource,
+        private readonly CategoryLinkRepositoryInterface $categoryLinkRepository,
+        private readonly CategoryProductLinkInterfaceFactory $productLinkFactory,
+        private CategoryInterface & AbstractModel $category,
+        private array $skus,
+        private array $storeSpecificValues,
     ) {
-        $this->categoryResource = $categoryResource;
-        $this->categoryLinkRepository = $categoryLinkRepository;
-        $this->productLinkFactory = $productLinkFactory;
-        $this->category = $category;
-        $this->skus = $skus;
-        $this->storeSpecificValues = $storeSpecificValues;
     }
 
     public static function rootCategory(): CategoryBuilder
@@ -64,17 +48,17 @@ class CategoryBuilder
 
         // use interface to reflect DI configuration but assume instance of the real model because we need its methods
         /** @var Category $category */
-        $category = $objectManager->create(CategoryInterface::class);
+        $category = $objectManager->create(type: CategoryInterface::class);
 
-        $category->setName('Root Category');
-        $category->setIsActive(true);
-        $category->setPath('1');
-        $category->setParentId(1);
+        $category->setName(name: 'Root Category');
+        $category->setIsActive(isActive: true);
+        $category->setPath(path: '1');
+        $category->setParentId(parentId: 1);
 
         return new self(
-            categoryResource: $objectManager->create(CategoryResource::class),
-            categoryLinkRepository: $objectManager->create(CategoryLinkRepositoryInterface::class),
-            productLinkFactory: $objectManager->create(CategoryProductLinkInterfaceFactory::class),
+            categoryResource: $objectManager->create(type: CategoryResource::class),
+            categoryLinkRepository: $objectManager->create(type: CategoryLinkRepositoryInterface::class),
+            productLinkFactory: $objectManager->create(type: CategoryProductLinkInterfaceFactory::class),
             category: $category,
             skus: [],
             storeSpecificValues: [],
@@ -88,17 +72,17 @@ class CategoryBuilder
 
         // use interface to reflect DI configuration but assume instance of the real model because we need its methods
         /** @var Category $category */
-        $category = $objectManager->create(CategoryInterface::class);
+        $category = $objectManager->create(type: CategoryInterface::class);
 
-        $category->setName('Top Level Category');
-        $category->setIsActive(true);
-        $category->setPath('1/' . $rootCategoryId);
-        $category->setParentId($rootCategoryId);
+        $category->setName(name: 'Top Level Category');
+        $category->setIsActive(isActive: true);
+        $category->setPath(path: '1/' . $rootCategoryId);
+        $category->setParentId(parentId: $rootCategoryId);
 
         return new self(
-            categoryResource: $objectManager->create(CategoryResource::class),
-            categoryLinkRepository: $objectManager->create(CategoryLinkRepositoryInterface::class),
-            productLinkFactory: $objectManager->create(CategoryProductLinkInterfaceFactory::class),
+            categoryResource: $objectManager->create(type: CategoryResource::class),
+            categoryLinkRepository: $objectManager->create(type: CategoryLinkRepositoryInterface::class),
+            productLinkFactory: $objectManager->create(type: CategoryProductLinkInterfaceFactory::class),
             category: $category,
             skus: [],
             storeSpecificValues: [],
@@ -111,16 +95,16 @@ class CategoryBuilder
         $objectManager = Bootstrap::getObjectManager();
         // use interface to reflect DI configuration but assume instance of the real model because we need its methods
         /** @var Category $category */
-        $category = $objectManager->create(CategoryInterface::class);
+        $category = $objectManager->create(type: CategoryInterface::class);
 
-        $category->setName('Child Category');
-        $category->setIsActive(true);
-        $category->setPath((string)$parent->getPath());
+        $category->setName(name: 'Child Category');
+        $category->setIsActive(isActive: true);
+        $category->setPath(path: (string)$parent->getPath());
 
         return new self(
-            categoryResource: $objectManager->create(CategoryResource::class),
-            categoryLinkRepository: $objectManager->create(CategoryLinkRepositoryInterface::class),
-            productLinkFactory: $objectManager->create(CategoryProductLinkInterfaceFactory::class),
+            categoryResource: $objectManager->create(type: CategoryResource::class),
+            categoryLinkRepository: $objectManager->create(type: CategoryLinkRepositoryInterface::class),
+            productLinkFactory: $objectManager->create(type: CategoryProductLinkInterfaceFactory::class),
             category: $category,
             skus: [],
             storeSpecificValues: [],
@@ -129,11 +113,15 @@ class CategoryBuilder
 
     /**
      * Assigns products by sku. The keys of the array will be used for the sort position
+     *
+     * @param array<int, string> $skus
      */
     public function withProducts(array $skus): CategoryBuilder
     {
         $builder = clone $this;
-        $builder->skus = $skus;
+        foreach ($skus as $position => $sku) {
+            $builder->skus[(int)$position] = (string)$sku;
+        }
 
         return $builder;
     }
@@ -144,7 +132,7 @@ class CategoryBuilder
         if ($storeId) {
             $builder->storeSpecificValues[$storeId]['description'] = $description;
         } else {
-            $builder->category->setCustomAttribute('description', $description);
+            $builder->category->setCustomAttribute(attributeCode: 'description', attributeValue: $description);
         }
 
         return $builder;
@@ -156,7 +144,7 @@ class CategoryBuilder
         if ($storeId) {
             $builder->storeSpecificValues[$storeId][CategoryInterface::KEY_NAME] = $name;
         } else {
-            $builder->category->setName($name);
+            $builder->category->setName(name: $name);
         }
 
         return $builder;
@@ -168,7 +156,7 @@ class CategoryBuilder
         if ($storeId) {
             $builder->storeSpecificValues[$storeId]['url_key'] = $urlKey;
         } else {
-            $builder->category->setData('url_key', $urlKey);
+            $builder->category->setData(key: 'url_key', value: $urlKey);
         }
 
         return $builder;
@@ -180,7 +168,7 @@ class CategoryBuilder
         if ($storeId) {
             $builder->storeSpecificValues[$storeId][CategoryInterface::KEY_IS_ACTIVE] = $isActive;
         } else {
-            $builder->category->setIsActive($isActive);
+            $builder->category->setIsActive(isActive: $isActive);
         }
 
         return $builder;
@@ -189,7 +177,7 @@ class CategoryBuilder
     public function withIsAnchor(bool $isAnchor): CategoryBuilder
     {
         $builder = clone $this;
-        $builder->category->setData('is_anchor', $isAnchor);
+        $builder->category->setData(key: 'is_anchor', value: $isAnchor);
 
         return $builder;
     }
@@ -197,7 +185,7 @@ class CategoryBuilder
     public function withDisplayMode(string $displayMode): CategoryBuilder
     {
         $builder = clone $this;
-        $builder->category->setData('display_mode', $displayMode);
+        $builder->category->setData(key: 'display_mode', value: $displayMode);
 
         return $builder;
     }
@@ -205,11 +193,14 @@ class CategoryBuilder
     public function withStoreId(int $storeId): CategoryBuilder
     {
         $builder = clone $this;
-        $builder->category->setData('store_id', $storeId);
+        $builder->category->setData(key: 'store_id', value: $storeId);
 
         return $builder;
     }
 
+    /**
+     * @param array<string, mixed> $values
+     */
     public function withCustomAttributes(array $values, ?int $storeId = null): CategoryBuilder
     {
         $builder = clone $this;
@@ -217,7 +208,7 @@ class CategoryBuilder
             if ($storeId) {
                 $builder->storeSpecificValues[$storeId][$code] = $value;
             } else {
-                $builder->category->setCustomAttribute($code, $value);
+                $builder->category->setCustomAttribute(attributeCode: $code, attributeValue: $value);
             }
         }
 
@@ -232,13 +223,13 @@ class CategoryBuilder
         $builder = clone $this;
 
         $objectManager = Bootstrap::getObjectManager();
-        $dbStorage = $objectManager->create(Database::class);
-        $filesystem = $objectManager->get(Filesystem::class);
-        $tmpDirectory = $filesystem->getDirectoryWrite(DirectoryList::SYS_TMP);
-        $directory = $objectManager->get(Directory::class);
+        $dbStorage = $objectManager->create(type: Database::class);
+        $filesystem = $objectManager->get(type: Filesystem::class);
+        $tmpDirectory = $filesystem->getDirectoryWrite(directoryCode: DirectoryList::SYS_TMP);
+        $directory = $objectManager->get(type: Directory::class);
         $imageUploader = $objectManager->create(
-            ImageUploader::class,
-            [
+            type: ImageUploader::class,
+            arguments: [
                 'baseTmpPath' => 'catalog/tmp/category',
                 'basePath' => 'media/catalog/category',
                 'coreFileStorageDatabase' => $dbStorage,
@@ -255,7 +246,7 @@ class CategoryBuilder
         }
         $fixtureImagePath = $imagePath . DIRECTORY_SEPARATOR . $fileName;
 
-        $tmpFilePath = $tmpDirectory->getAbsolutePath($fileName);
+        $tmpFilePath = $tmpDirectory->getAbsolutePath(path: $fileName);
         // phpcs:ignore Magento2.Functions.DiscouragedFunction.DiscouragedWithAlternative
         copy(from: $fixtureImagePath, to: $tmpFilePath);
         // phpcs:ignore Magento2.Security.Superglobal.SuperglobalUsageError, SlevomatCodingStandard.Variables.DisallowSuperGlobalVariable.DisallowedSuperGlobalVariable
@@ -269,7 +260,7 @@ class CategoryBuilder
         $imageUploader->saveFileToTmpDir(fileId: 'image');
         $imagePath = $imageUploader->moveFileFromTmp(imageName: $fileName, returnRelativePath: false);
 
-        $builder->category->setData('image', $imagePath);
+        $builder->category->setData(key: 'image', value: $imagePath);
 
         return $builder;
     }
@@ -280,10 +271,9 @@ class CategoryBuilder
     }
 
     /**
-     * @return Category
      * @throws \Exception
      */
-    public function build(): Category
+    public function build(): CategoryInterface & AbstractModel
     {
         $builder = clone $this;
 
@@ -293,21 +283,26 @@ class CategoryBuilder
 
         // Save with global scope if not specified otherwise
         if (!$builder->category->hasData(key: 'store_id')) {
+            if (!method_exists(object_or_class: $builder->category, method: 'setStoreId')) {
+                throw new InvalidModelException(message: '$builder->category is missing method setStoreId.');
+            }
             $builder->category->setStoreId(storeId: Store::DEFAULT_STORE_ID);
         }
-        /** @var Category $category */
         $category = $builder->category;
         $builder->categoryResource->save(object: $category);
 
         foreach ($builder->skus as $position => $sku) {
             $productLink = $builder->productLinkFactory->create();
-            $productLink->setSku(sku: $sku);
-            $productLink->setPosition(position: $position);
+            $productLink->setSku(sku: (string)$sku);
+            $productLink->setPosition(position: (int)$position);
             $productLink->setCategoryId(categoryId: $builder->category->getId());
             $builder->categoryLinkRepository->save(productLink: $productLink);
         }
         foreach ($builder->storeSpecificValues as $storeId => $values) {
             $storeCategory = clone $category;
+            if (!method_exists(object_or_class: $storeCategory, method: 'setStoreId')) {
+                throw new InvalidModelException(message: '$storeCategory is missing method setStoreId.');
+            }
             $storeCategory->setStoreId(storeId: $storeId);
             $storeCategory->addData($values);
             $builder->categoryResource->save(object: $storeCategory);
@@ -322,10 +317,13 @@ class CategoryBuilder
     private function clearCategoryRepositoryCache(): void
     {
         $objectManager = Bootstrap::getObjectManager();
-        $categoryRepository = $objectManager->get(CategoryRepositoryInterface::class);
+        $categoryRepository = $objectManager->get(type: CategoryRepositoryInterface::class);
         $categoryRepository->_resetState();
     }
 
+    /**
+     * @throws InputException
+     */
     private static function getLowestRootCategoryId(): int
     {
         $objectManager = Bootstrap::getObjectManager();
@@ -334,10 +332,10 @@ class CategoryBuilder
         $filter->setField(field: CategoryInterface::KEY_PARENT_ID);
         $filter->setValue(value: 1);
 
-        $filterGroup = $objectManager->create(FilterGroup::class);
+        $filterGroup = $objectManager->create(type: FilterGroup::class);
         $filterGroup->setFilters(filters: [$filter]);
 
-        $sortOrder = $objectManager->get(SortOrder::class);
+        $sortOrder = $objectManager->get(type: SortOrder::class);
         $sortOrder->setField(field: 'category_id');
         $sortOrder->setDirection(direction: SortOrder::SORT_ASC);
 
@@ -347,7 +345,7 @@ class CategoryBuilder
         $searchCriteria->setPageSize(pageSize: 1);
         $searchCriteria->setCurrentPage(currentPage: 1);
 
-        $categoryList = $objectManager->create(CategoryListInterface::class);
+        $categoryList = $objectManager->create(type: CategoryListInterface::class);
         $categoryListSearchResult = $categoryList->getList(searchCriteria: $searchCriteria);
         $categories = $categoryListSearchResult->getItems();
         $category = array_shift(array: $categories);

@@ -13,13 +13,13 @@ use Magento\Catalog\Api\Data\ProductTierPriceInterfaceFactory;
 use Magento\Catalog\Api\Data\ProductWebsiteLinkInterfaceFactory;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Api\ProductWebsiteLinkRepositoryInterface;
+use Magento\Catalog\Model\AbstractModel;
 use Magento\Catalog\Model\ImageUploader;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Catalog\Model\Product\Visibility;
 use Magento\CatalogInventory\Api\Data\StockItemInterface;
-use Magento\CatalogInventory\Api\StockItemRepositoryInterface;
 use Magento\ConfigurableProduct\Helper\Product\Options\Factory as ConfigurableOptionsFactory;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Customer\Model\Group as CustomerGroup;
@@ -56,31 +56,10 @@ class ProductBuilder
 {
     use IsTransactionExceptionTrait;
 
-    private ProductRepositoryInterface $productRepository;
-    private StockItemRepositoryInterface $stockItemRepository;
-    private ProductWebsiteLinkRepositoryInterface $websiteLinkRepository;
-    private ProductWebsiteLinkInterfaceFactory $websiteLinkFactory;
-    private IndexerFactory $indexerFactory;
-    private DownloadableLinkRepositoryInterface $downloadLinkRepository;
-    private DownloadableLinkInterfaceFactory $downloadLinkFactory;
-    private DomainManagerInterface $domainManager;
-    private ProductTierPriceInterfaceFactory $tierPriceFactory;
-    private ConfigurableOptionsFactory $configurableOptionsFactory;
-    private ProductLinkInterfaceFactory $productLinkFactory;
-    protected ProductInterface $product;
-    /**
-     * @var int[]
-     */
-    private array $websiteIds;
-    /**
-     * @var mixed[][]
-     */
-    private array $storeSpecificValues;
     /**
      * @var int[]
      */
     private array $categoryIds = [];
-    private ?string $downloadableLinkDomain;
     /**
      * @var AttributeInterface[]
      */
@@ -96,38 +75,24 @@ class ProductBuilder
 
     /**
      * @param int[] $websiteIds
-     * @param mixed[] $storeSpecificValues
+     * @param array<int, array<string, mixed>> $storeSpecificValues
      */
     public function __construct(
-        ProductRepositoryInterface $productRepository,
-        ProductWebsiteLinkRepositoryInterface $websiteLinkRepository,
-        ProductWebsiteLinkInterfaceFactory $websiteLinkFactory,
-        IndexerFactory $indexerFactory,
-        DownloadableLinkRepositoryInterface $downloadLinkRepository,
-        DownloadableLinkInterfaceFactory $downloadLinkFactory,
-        DomainManagerInterface $domainManager,
-        ProductTierPriceInterfaceFactory $tierPriceFactory,
-        ConfigurableOptionsFactory $configurableOptionsFactory,
-        ProductLinkInterfaceFactory $productLinkFactory,
-        Product $product,
-        array $websiteIds,
-        array $storeSpecificValues,
-        ?string $downloadableLinkDomain = 'https://magento.test/',
+        private readonly ProductRepositoryInterface $productRepository,
+        private readonly ProductWebsiteLinkRepositoryInterface $websiteLinkRepository,
+        private readonly ProductWebsiteLinkInterfaceFactory $websiteLinkFactory,
+        private readonly IndexerFactory $indexerFactory,
+        private readonly DownloadableLinkRepositoryInterface $downloadLinkRepository,
+        private readonly DownloadableLinkInterfaceFactory $downloadLinkFactory,
+        private readonly DomainManagerInterface $domainManager,
+        private readonly ProductTierPriceInterfaceFactory $tierPriceFactory,
+        private readonly ConfigurableOptionsFactory $configurableOptionsFactory,
+        private readonly ProductLinkInterfaceFactory $productLinkFactory,
+        private ProductInterface & AbstractModel $product,
+        private array $websiteIds,
+        private array $storeSpecificValues,
+        private readonly ?string $downloadableLinkDomain = 'https://magento.test/',
     ) {
-        $this->productRepository = $productRepository;
-        $this->websiteLinkRepository = $websiteLinkRepository;
-        $this->websiteLinkFactory = $websiteLinkFactory;
-        $this->indexerFactory = $indexerFactory;
-        $this->downloadLinkRepository = $downloadLinkRepository;
-        $this->downloadLinkFactory = $downloadLinkFactory;
-        $this->domainManager = $domainManager;
-        $this->tierPriceFactory = $tierPriceFactory;
-        $this->configurableOptionsFactory = $configurableOptionsFactory;
-        $this->productLinkFactory = $productLinkFactory;
-        $this->product = $product;
-        $this->websiteIds = $websiteIds;
-        $this->storeSpecificValues = $storeSpecificValues;
-        $this->downloadableLinkDomain = $downloadableLinkDomain;
     }
 
     public function __clone(): void
@@ -155,7 +120,7 @@ class ProductBuilder
             'small_image' => 'no_selection',
             'thumbnail' => 'no_selection',
         ]);
-        $product->setStockData([
+        $product->setStockData(stockData: [
             'manage_stock' => 1,
             'is_in_stock' => 1,
             'qty' => 100,
@@ -173,16 +138,16 @@ class ProductBuilder
         }
 
         return new static(
-            productRepository: $objectManager->create(ProductRepositoryInterface::class),
-            websiteLinkRepository: $objectManager->create(ProductWebsiteLinkRepositoryInterface::class),
-            websiteLinkFactory: $objectManager->create(ProductWebsiteLinkInterfaceFactory::class),
-            indexerFactory: $objectManager->create(IndexerFactory::class),
-            downloadLinkRepository: $objectManager->create(DownloadableLinkRepositoryInterface::class),
-            downloadLinkFactory: $objectManager->create(DownloadableLinkInterfaceFactory::class),
-            domainManager: $objectManager->create(DomainManagerInterface::class),
-            tierPriceFactory: $objectManager->create(ProductTierPriceInterfaceFactory::class),
-            configurableOptionsFactory: $objectManager->create(ConfigurableOptionsFactory::class),
-            productLinkFactory: $objectManager->create(ProductLinkInterfaceFactory::class),
+            productRepository: $objectManager->create(type: ProductRepositoryInterface::class),
+            websiteLinkRepository: $objectManager->create(type: ProductWebsiteLinkRepositoryInterface::class),
+            websiteLinkFactory: $objectManager->create(type: ProductWebsiteLinkInterfaceFactory::class),
+            indexerFactory: $objectManager->create(type: IndexerFactory::class),
+            downloadLinkRepository: $objectManager->create(type: DownloadableLinkRepositoryInterface::class),
+            downloadLinkFactory: $objectManager->create(type: DownloadableLinkInterfaceFactory::class),
+            domainManager: $objectManager->create(type: DomainManagerInterface::class),
+            tierPriceFactory: $objectManager->create(type: ProductTierPriceInterfaceFactory::class),
+            configurableOptionsFactory: $objectManager->create(type: ConfigurableOptionsFactory::class),
+            productLinkFactory: $objectManager->create(type: ProductLinkInterfaceFactory::class),
             product: $product,
             websiteIds: [1],
             storeSpecificValues: [],
@@ -357,14 +322,15 @@ class ProductBuilder
             $tierPrice->setQty(qty: $tierPriceData['qty'] ?? 1);
             /** @var ProductTierPriceExtensionInterface|null $extensionAttributes */
             $extensionAttributes = $tierPrice->getExtensionAttributes();
+            $objectManager = Bootstrap::getObjectManager();
             if (($tierPriceData['website_id'] ?? null)) {
                 $extensionAttributes = $extensionAttributes
-                                       ?? ObjectManager::getInstance()->get(ProductTierPriceExtensionInterface::class);
+                                       ?? $objectManager->get(type: ProductTierPriceExtensionInterface::class);
                 $extensionAttributes->setWebsiteId($tierPriceData['website_id']);
             }
             if (($tierPriceData['price_type'] ?? null)) {
                 $extensionAttributes = $extensionAttributes
-                                       ?? ObjectManager::getInstance()->get(ProductTierPriceExtensionInterface::class);
+                                       ?? $objectManager->get(type: ProductTierPriceExtensionInterface::class);
                 $extensionAttributes->setPercentageValue($tierPriceData['price']);
             }
             $tierPrice->setExtensionAttributes(extensionAttributes: $extensionAttributes);
@@ -389,9 +355,14 @@ class ProductBuilder
     public function withIsInStock(bool $inStock): ProductBuilder
     {
         $builder = clone $this;
-        $stockData = $builder->product->getStockData();
+        $stockData = [];
+        if (method_exists(object_or_class: $builder->product, method: 'getStockData')) {
+            $stockData = $builder->product->getStockData();
+        }
         $stockData['is_in_stock'] = $inStock;
-        $builder->product->setStockData($stockData);
+        if (method_exists(object_or_class: $builder->product, method: 'setStockData')) {
+            $builder->product->setStockData(stockData: $stockData);
+        }
 
         $extensionAttributes = $builder->product->getExtensionAttributes();
         if (method_exists(object_or_class: $extensionAttributes, method: 'getData')) {
@@ -404,13 +375,18 @@ class ProductBuilder
     public function withStockQty(int|float $qty): ProductBuilder
     {
         $builder = clone $this;
-        $stockData = $builder->product->getStockData();
+        $stockData = [];
+        if (method_exists(object_or_class: $builder->product, method: 'getStockData')) {
+            $stockData = $builder->product->getStockData();
+        }
         $stockData['qty'] = $qty;
-        $builder->product->setStockData($stockData);
+        if (method_exists(object_or_class: $builder->product, method: 'setStockData')) {
+            $builder->product->setStockData(stockData: $stockData);
+        }
 
         $extensionAttributes = $builder->product->getExtensionAttributes();
         if (method_exists(object_or_class: $extensionAttributes, method: 'getData')) {
-            $extensionAttributes->getData('stock_item')?->setQty($qty);
+            $extensionAttributes->getData('stock_item')?->setQty(qty: $qty);
         }
 
         return $builder;
@@ -419,10 +395,14 @@ class ProductBuilder
     public function withBackorders(int $backorders): ProductBuilder
     {
         $builder = clone $this;
-        $stockData = $builder->product->getStockData();
+        $stockData = [];
+        if (method_exists(object_or_class: $builder->product, method: 'getStockData')) {
+            $stockData = $builder->product->getStockData();
+        }
         $stockData['backorders'] = $backorders;
-        $builder->product->setStockData($stockData);
-
+        if (method_exists(object_or_class: $builder->product, method: 'setStockData')) {
+            $builder->product->setStockData(stockData: $stockData);
+        }
         $extensionAttributes = $builder->product->getExtensionAttributes();
         if (method_exists(object_or_class: $extensionAttributes, method: 'getData')) {
             $extensionAttributes->getData('stock_item')?->setBackorders($backorders);
@@ -434,10 +414,14 @@ class ProductBuilder
     public function withManageStock(bool $manageStock): ProductBuilder
     {
         $builder = clone $this;
-        $stockData = $builder->product->getStockData();
+        $stockData = [];
+        if (method_exists(object_or_class: $builder->product, method: 'getStockData')) {
+            $stockData = $builder->product->getStockData();
+        }
         $stockData['manage_stock'] = $manageStock;
-        $builder->product->setStockData($stockData);
-
+        if (method_exists(object_or_class: $builder->product, method: 'setStockData')) {
+            $builder->product->setStockData(stockData: $stockData);
+        }
         $extensionAttributes = $builder->product->getExtensionAttributes();
         if (method_exists(object_or_class: $extensionAttributes, method: 'getData')) {
             $extensionAttributes->getData('stock_item')?->setManageStock($manageStock);
@@ -449,10 +433,14 @@ class ProductBuilder
     public function withIsQtyDecimal(bool $isQtyDecimal): ProductBuilder
     {
         $builder = clone $this;
-        $stockData = $builder->product->getStockData();
+        $stockData = [];
+        if (method_exists(object_or_class: $builder->product, method: 'getStockData')) {
+            $stockData = $builder->product->getStockData();
+        }
         $stockData['is_qty_decimal'] = $isQtyDecimal;
-        $builder->product->setStockData($stockData);
-
+        if (method_exists(object_or_class: $builder->product, method: 'setStockData')) {
+            $builder->product->setStockData(stockData: $stockData);
+        }
         $extensionAttributes = $builder->product->getExtensionAttributes();
         if (method_exists(object_or_class: $extensionAttributes, method: 'getData')) {
             $extensionAttributes->getData('stock_item')?->setIsQtyDecimal($isQtyDecimal);

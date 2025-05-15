@@ -10,6 +10,7 @@ namespace TddWizard\Fixtures\Catalog\Rule;
 
 use Magento\Customer\Model\Group;
 use Magento\SalesRule\Model\Rule;
+use TddWizard\Fixtures\Exception\FixturePoolMissingException;
 
 trait CatalogRuleTrait
 {
@@ -36,8 +37,13 @@ trait CatalogRuleTrait
      *
      * @throws \Exception
      */
-    public function createCatalogRule(?array $ruleData = []): void
+    public function createCatalogRule(array $ruleData = []): void
     {
+        if (null === $this->ruleFixturePool) {
+            throw new FixturePoolMissingException(
+                message: 'ruleFixturePool has not been created in your test setUp method.',
+            );
+        }
         $ruleBuilder = CatalogRuleBuilder::aCatalogRule();
 
         $ruleBuilder = $ruleBuilder->withName(

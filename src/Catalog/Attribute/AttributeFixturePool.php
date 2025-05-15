@@ -13,16 +13,16 @@ use Magento\Eav\Api\Data\AttributeInterface;
 class AttributeFixturePool
 {
     /**
-     * @var AttributeFixture[]
+     * @var array<int|string, AttributeFixture>
      */
     private array $attributeFixtures = [];
 
     public function add(AttributeInterface $attribute, ?string $key = null): void
     {
         if ($key === null) {
-            $this->attributeFixtures[] = new AttributeFixture($attribute);
+            $this->attributeFixtures[] = new AttributeFixture(attribute: $attribute);
         } else {
-            $this->attributeFixtures[$key] = new AttributeFixture($attribute);
+            $this->attributeFixtures[$key] = new AttributeFixture(attribute: $attribute);
         }
     }
 
@@ -48,7 +48,9 @@ class AttributeFixturePool
      */
     public function rollback(): void
     {
-        AttributeFixtureRollback::create()->execute(...array_values($this->attributeFixtures));
+        AttributeFixtureRollback::create()->execute(
+            ...array_values(array: $this->attributeFixtures),
+        );
         $this->attributeFixtures = [];
     }
 }

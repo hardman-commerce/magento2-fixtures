@@ -38,36 +38,17 @@ class AttributeBuilder
 
     private const ENTITY_TYPE = 'entity_type';
 
-    private EavConfig $eavConfig;
-    private EavSetup $eavSetup;
-    private AttributeRepositoryInterface $attributeRepository;
-    private AttributeOptionInterfaceFactory $attributeOptionFactory;
-    private Attribute $attribute;
-    private string $attributeCode;
-    private string $attributeType;
-    private string|int|null $attributeSetId;
-    private string|int|null $attributeGroupId;
-
     public function __construct(
-        EavConfig $eavConfig,
-        EavSetup $eavSetup,
-        AttributeRepositoryInterface $attributeRepository,
-        AttributeOptionInterfaceFactory $attributeOptionFactory,
-        Attribute $attribute,
-        string $attributeCode = '',
-        string $attributeType = '',
-        string|int|null $attributeSetId = null,
-        string|int|null $attributeGroupId = null,
+        private readonly EavConfig $eavConfig,
+        private readonly EavSetup $eavSetup,
+        private readonly AttributeRepositoryInterface $attributeRepository,
+        private readonly AttributeOptionInterfaceFactory $attributeOptionFactory,
+        private Attribute $attribute,
+        private readonly string $attributeCode = '',
+        private readonly string $attributeType = '',
+        private readonly string|int|null $attributeSetId = null,
+        private readonly string|int|null $attributeGroupId = null,
     ) {
-        $this->eavConfig = $eavConfig;
-        $this->eavSetup = $eavSetup;
-        $this->attributeRepository = $attributeRepository;
-        $this->attributeOptionFactory = $attributeOptionFactory;
-        $this->attribute = $attribute;
-        $this->attributeCode = $attributeCode;
-        $this->attributeType = $attributeType;
-        $this->attributeSetId = $attributeSetId;
-        $this->attributeGroupId = $attributeGroupId;
     }
 
     public function __clone(): void

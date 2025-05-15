@@ -12,11 +12,9 @@ use Magento\Tax\Api\Data\TaxRuleInterface;
 
 class TaxRuleFixture
 {
-    private TaxRuleInterface $taxRule;
-
-    public function __construct(TaxRuleInterface $taxRule)
-    {
-        $this->taxRule = $taxRule;
+    public function __construct(
+        private readonly TaxRuleInterface $taxRule,
+    ) {
     }
 
     public function getTaxRule(): TaxRuleInterface
@@ -34,6 +32,6 @@ class TaxRuleFixture
      */
     public function rollback(): void
     {
-        TaxRuleFixtureRollback::create()->execute($this);
+        TaxRuleFixtureRollback::create()->execute(taxRuleFixtures: $this);
     }
 }

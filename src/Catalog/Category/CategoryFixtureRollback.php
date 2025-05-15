@@ -15,15 +15,11 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class CategoryFixtureRollback
 {
-    private readonly Registry $registry;
-    private readonly CategoryRepositoryInterface $categoryRepository;
 
     public function __construct(
-        Registry $registry,
-        CategoryRepositoryInterface $categoryRepository,
+        private readonly Registry $registry,
+        private readonly CategoryRepositoryInterface $categoryRepository,
     ) {
-        $this->registry = $registry;
-        $this->categoryRepository = $categoryRepository;
     }
 
     public static function create(): CategoryFixtureRollback
@@ -31,8 +27,8 @@ class CategoryFixtureRollback
         $objectManager = Bootstrap::getObjectManager();
 
         return new self(
-            $objectManager->get(Registry::class),
-            $objectManager->get(CategoryRepositoryInterface::class),
+            registry: $objectManager->get(type: Registry::class),
+            categoryRepository: $objectManager->get(type: CategoryRepositoryInterface::class),
         );
     }
 
@@ -41,17 +37,17 @@ class CategoryFixtureRollback
      */
     public function execute(CategoryFixture ...$categoryFixtures): void
     {
-        $this->registry->unregister('isSecureArea');
-        $this->registry->register('isSecureArea', true);
+        $this->registry->unregister(key: 'isSecureArea');
+        $this->registry->register(key: 'isSecureArea', value: true);
 
         foreach ($categoryFixtures as $categoryFixture) {
             try {
-                $this->categoryRepository->deleteByIdentifier($categoryFixture->getId());
+                $this->categoryRepository->deleteByIdentifier(categoryId: $categoryFixture->getId());
             } catch (NoSuchEntityException) {
                 // this is fine, category has already been removed
             }
         }
 
-        $this->registry->unregister('isSecureArea');
+        $this->registry->unregister(key: 'isSecureArea');
     }
 }

@@ -25,18 +25,11 @@ class GroupBuilder
 
     public const DEFAULT_CODE = 'tdd_store_group';
 
-    private GroupInterface & AbstractModel $group;
-    private WebsiteRepositoryInterface $websiteRepository;
-    private CategoryCollectionFactory $categoryCollectionFactory;
-
     public function __construct(
-        GroupInterface & AbstractModel $group,
-        WebsiteRepositoryInterface $websiteRepository,
-        CategoryCollectionFactory $categoryCollectionFactory,
+        private readonly GroupInterface & AbstractModel $group,
+        private readonly WebsiteRepositoryInterface $websiteRepository,
+        private readonly CategoryCollectionFactory $categoryCollectionFactory,
     ) {
-        $this->group = $group;
-        $this->websiteRepository = $websiteRepository;
-        $this->categoryCollectionFactory = $categoryCollectionFactory;
     }
 
     public static function addGroup(): GroupBuilder //phpcs:ignore Magento2.Functions.StaticFunction.StaticFunction
@@ -44,9 +37,9 @@ class GroupBuilder
         $objectManager = Bootstrap::getObjectManager();
 
         return new self(
-            $objectManager->create(type: GroupInterface::class),
-            $objectManager->get(type: WebsiteRepositoryInterface::class),
-            $objectManager->get(type: CategoryCollectionFactory::class),
+            group: $objectManager->create(type: GroupInterface::class),
+            websiteRepository: $objectManager->get(type: WebsiteRepositoryInterface::class),
+            categoryCollectionFactory: $objectManager->get(type: CategoryCollectionFactory::class),
         );
     }
 

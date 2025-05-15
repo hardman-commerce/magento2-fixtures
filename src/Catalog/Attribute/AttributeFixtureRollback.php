@@ -14,15 +14,10 @@ use Magento\TestFramework\Helper\Bootstrap;
 
 class AttributeFixtureRollback
 {
-    private Registry $registry;
-    private AttributeRepositoryInterface $attributeRepository;
-
     public function __construct(
-        Registry $registry,
-        AttributeRepositoryInterface $attributeRepository,
+        private readonly Registry $registry,
+        private readonly AttributeRepositoryInterface $attributeRepository,
     ) {
-        $this->registry = $registry;
-        $this->attributeRepository = $attributeRepository;
     }
 
     public static function create(): AttributeFixtureRollback //phpcs:ignore Magento2.Functions.StaticFunction.StaticFunction, Generic.Files.LineLength.TooLong

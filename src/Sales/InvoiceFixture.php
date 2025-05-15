@@ -8,11 +8,9 @@ use Magento\Sales\Api\Data\InvoiceInterface;
 
 class InvoiceFixture
 {
-    private InvoiceInterface $invoice;
-
-    public function __construct(InvoiceInterface $shipment)
-    {
-        $this->invoice = $shipment;
+    public function __construct(
+        private readonly InvoiceInterface $invoice,
+    ) {
     }
 
     public function getInvoice(): InvoiceInterface

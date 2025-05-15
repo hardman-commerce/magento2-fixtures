@@ -8,11 +8,9 @@ use Magento\Sales\Api\Data\CreditmemoInterface;
 
 class CreditmemoFixture
 {
-    private CreditmemoInterface $creditmemo;
-
-    public function __construct(CreditmemoInterface $creditmemo)
-    {
-        $this->creditmemo = $creditmemo;
+    public function __construct(
+        private readonly CreditmemoInterface $creditmemo,
+    ) {
     }
 
     public function getCreditmemo(): CreditmemoInterface

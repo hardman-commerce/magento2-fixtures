@@ -12,11 +12,9 @@ use Magento\Store\Api\Data\StoreInterface;
 
 class StoreFixture
 {
-    private StoreInterface $store;
-
-    public function __construct(StoreInterface $store)
-    {
-        $this->store = $store;
+    public function __construct(
+        private readonly StoreInterface $store,
+    ) {
     }
 
     public function getStore(): StoreInterface
@@ -59,6 +57,6 @@ class StoreFixture
      */
     public function rollback(): void
     {
-        StoreFixtureRollback::create()->execute($this);
+        StoreFixtureRollback::create()->execute(storeFixtures: $this);
     }
 }

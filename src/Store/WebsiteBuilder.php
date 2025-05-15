@@ -22,12 +22,9 @@ class WebsiteBuilder
 
     public const DEFAULT_CODE = 'tdd_website';
 
-    private WebsiteInterface & AbstractModel $website;
-
     public function __construct(
-        WebsiteInterface & AbstractModel $website,
+        private readonly WebsiteInterface & AbstractModel $website,
     ) {
-        $this->website = $website;
     }
 
     public static function addWebsite(): WebsiteBuilder //phpcs:ignore Magento2.Functions.StaticFunction.StaticFunction

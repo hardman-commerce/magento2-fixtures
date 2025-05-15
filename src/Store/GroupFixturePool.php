@@ -48,7 +48,9 @@ class GroupFixturePool
      */
     public function rollback(): void
     {
-        GroupFixtureRollback::create()->execute(...array_values(array: $this->groupFixtures));
+        GroupFixtureRollback::create()->execute(
+            ...array_values(array: $this->groupFixtures),
+        );
         $this->groupFixtures = [];
     }
 }

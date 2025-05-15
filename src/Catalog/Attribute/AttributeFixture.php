@@ -12,11 +12,9 @@ use Magento\Eav\Api\Data\AttributeInterface;
 
 class AttributeFixture
 {
-    private AttributeInterface $attribute;
-
-    public function __construct(AttributeInterface $attribute)
-    {
-        $this->attribute = $attribute;
+    public function __construct(
+        private readonly AttributeInterface $attribute,
+    ) {
     }
 
     public function getAttribute(): AttributeInterface

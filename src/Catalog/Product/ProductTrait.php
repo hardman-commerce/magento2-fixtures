@@ -55,7 +55,7 @@ trait ProductTrait
      *   ],
      * );
      *
-     * @param mixed[] $productData
+     * @param array<string, mixed> $productData
      *
      * @throws \Exception
      */

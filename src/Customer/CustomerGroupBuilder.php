@@ -27,11 +27,6 @@ class CustomerGroupBuilder
 {
     use IsTransactionExceptionTrait;
 
-    private GroupInterface $customerGroup;
-    private GroupRepositoryInterface $customerGroupRepository;
-    private CustomerTaxClassSource $customerTaxClassSource;
-    private GroupExcludedWebsiteRepositoryInterface $groupExcludedWebsiteRepository;
-    private GroupExcludedWebsiteInterfaceFactory $groupExcludedWebsiteFactory;
     /**
      * @var array<int, array<string, string|int|null>>|null
      */
@@ -42,17 +37,12 @@ class CustomerGroupBuilder
     private array $excludedWebsiteIds = [];
 
     public function __construct(
-        GroupInterface $customerGroup,
-        GroupRepositoryInterface $customerGroupRepository,
-        CustomerTaxClassSource $customerTaxClassSource,
-        GroupExcludedWebsiteRepositoryInterface $groupExcludedWebsiteRepository,
-        GroupExcludedWebsiteInterfaceFactory $groupExcludedWebsiteFactory,
+        private GroupInterface $customerGroup,
+        private readonly GroupRepositoryInterface $customerGroupRepository,
+        private readonly CustomerTaxClassSource $customerTaxClassSource,
+        private readonly GroupExcludedWebsiteRepositoryInterface $groupExcludedWebsiteRepository,
+        private readonly GroupExcludedWebsiteInterfaceFactory $groupExcludedWebsiteFactory,
     ) {
-        $this->customerGroup = $customerGroup;
-        $this->customerGroupRepository = $customerGroupRepository;
-        $this->customerTaxClassSource = $customerTaxClassSource;
-        $this->groupExcludedWebsiteRepository = $groupExcludedWebsiteRepository;
-        $this->groupExcludedWebsiteFactory = $groupExcludedWebsiteFactory;
     }
 
     public function __clone(): void

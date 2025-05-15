@@ -12,11 +12,9 @@ use Magento\Store\Api\Data\GroupInterface;
 
 class GroupFixture
 {
-    private GroupInterface $group;
-
-    public function __construct(GroupInterface $group)
-    {
-        $this->group = $group;
+    public function __construct(
+        private readonly GroupInterface $group,
+    ) {
     }
 
     public function get(): GroupInterface
@@ -59,6 +57,6 @@ class GroupFixture
      */
     public function rollback(): void
     {
-        GroupFixtureRollback::create()->execute($this);
+        GroupFixtureRollback::create()->execute(groupFixtures: $this);
     }
 }

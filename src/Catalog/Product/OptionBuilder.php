@@ -13,6 +13,7 @@ use Magento\Eav\Model\Entity\Attribute\Source\TableFactory;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Exception\StateException;
+use Magento\Store\Model\Store;
 use Magento\TestFramework\Helper\Bootstrap;
 
 /**
@@ -21,21 +22,13 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class OptionBuilder
 {
-    private AttributeOptionManagementInterface $optionManagement;
-    private AttributeOption $option;
-    private AttributeOptionLabelInterface $optionLabel;
-    private string $attributeCode;
 
     public function __construct(
-        AttributeOptionManagementInterface $optionManagement,
-        AttributeOption $option,
-        AttributeOptionLabelInterface $optionLabel,
-        string $attributeCode,
+        private readonly AttributeOptionManagementInterface $optionManagement,
+        private AttributeOption $option,
+        private readonly AttributeOptionLabelInterface $optionLabel,
+        private readonly string $attributeCode,
     ) {
-        $this->optionManagement = $optionManagement;
-        $this->option = $option;
-        $this->optionLabel = $optionLabel;
-        $this->attributeCode = $attributeCode;
     }
 
     public function __clone()
@@ -53,36 +46,36 @@ class OptionBuilder
     {
         $objectManager = Bootstrap::getObjectManager();
         /** @var AttributeOptionManagementInterface $optionManagement */
-        $optionManagement = $objectManager->create(AttributeOptionManagementInterface::class);
-        $items = $optionManagement->getItems(Product::ENTITY, $attributeCode);
+        $optionManagement = $objectManager->create(type: AttributeOptionManagementInterface::class);
+        $items = $optionManagement->getItems(entityType: Product::ENTITY, attributeCode: $attributeCode);
 
         /** @var AttributeOptionLabelInterface $optionLabel */
-        $optionLabel = $objectManager->create(AttributeOptionLabelInterface::class);
-        $label = uniqid('Name ', true);
-        $optionLabel->setStoreId(0);
-        $optionLabel->setLabel($label);
+        $optionLabel = $objectManager->create(type: AttributeOptionLabelInterface::class);
+        $label = uniqid(prefix: 'Name ', more_entropy: true);
+        $optionLabel->setStoreId(storeId: Store::DEFAULT_STORE_ID);
+        $optionLabel->setLabel(label: $label);
 
         /** @var AttributeOption $option */
-        $option = $objectManager->create(AttributeOption::class);
-        $option->setLabel($label);
-        $option->setStoreLabels([$optionLabel]);
-        $option->setSortOrder(count($items) + 1);
-        $option->setIsDefault(false);
+        $option = $objectManager->create(type: AttributeOption::class);
+        $option->setLabel(label: $label);
+        $option->setStoreLabels(storeLabels: [$optionLabel]);
+        $option->setSortOrder(sortOrder: count($items) + 1);
+        $option->setIsDefault(isDefault: false);
 
         return new static(
-            $optionManagement,
-            $option,
-            $optionLabel,
-            $attributeCode,
+            optionManagement: $optionManagement,
+            option: $option,
+            optionLabel: $optionLabel,
+            attributeCode: $attributeCode,
         );
     }
 
     public function withLabel(string $label): OptionBuilder
     {
         $builder = clone $this;
-        $builder->optionLabel->setLabel($label);
-        $builder->option->setStoreLabels([$builder->optionLabel]);
-        $builder->option->setLabel($label);
+        $builder->optionLabel->setLabel(label: $label);
+        $builder->option->setStoreLabels(storeLabels: [$builder->optionLabel]);
+        $builder->option->setLabel(label: $label);
 
         return $builder;
     }
@@ -90,7 +83,7 @@ class OptionBuilder
     public function withSortOrder(int $sortOrder): OptionBuilder
     {
         $builder = clone $this;
-        $builder->option->setSortOrder($sortOrder);
+        $builder->option->setSortOrder(sortOrder: $sortOrder);
 
         return $builder;
     }
@@ -98,7 +91,7 @@ class OptionBuilder
     public function withIsDefault(bool $isDefault): OptionBuilder
     {
         $builder = clone $this;
-        $builder->option->setIsDefault($isDefault);
+        $builder->option->setIsDefault(isDefault: $isDefault);
 
         return $builder;
     }
@@ -106,7 +99,7 @@ class OptionBuilder
     public function withStoreId(int $storeId): OptionBuilder
     {
         $builder = clone $this;
-        $builder->optionLabel->setStoreId($storeId);
+        $builder->optionLabel->setStoreId(storeId: $storeId);
 
         return $builder;
     }
@@ -116,6 +109,7 @@ class OptionBuilder
      *
      * @throws InputException
      * @throws StateException
+     * @throws NoSuchEntityException
      */
     public function build(): AttributeOption
     {
@@ -123,9 +117,9 @@ class OptionBuilder
 
         // add the option
         $this->optionManagement->add(
-            Product::ENTITY,
-            $builder->attributeCode,
-            $builder->option,
+            entityType: Product::ENTITY,
+            attributeCode: $builder->attributeCode,
+            option: $builder->option,
         );
 
         $optionId = $this->getOptionId();
@@ -141,13 +135,13 @@ class OptionBuilder
     {
         $objectManager = Bootstrap::getObjectManager();
         // the add option above does not return the option, so we need to retrieve it
-        $attributeRepository = $objectManager->get(ProductAttributeRepositoryInterface::class);
-        $attribute = $attributeRepository->get($this->attributeCode);
+        $attributeRepository = $objectManager->get(type: ProductAttributeRepositoryInterface::class);
+        $attribute = $attributeRepository->get(attributeCode: $this->attributeCode);
         $attributeValues[$attribute->getAttributeId()] = [];
 
         // We have to generate a new sourceModel instance each time through to prevent it from
         // referencing its _options cache. No other way to get it to pick up newly-added values.
-        $tableFactory = $objectManager->get(TableFactory::class);
+        $tableFactory = $objectManager->get(type: TableFactory::class);
         $sourceModel = $tableFactory->create();
         $sourceModel->setAttribute($attribute);
         foreach ($sourceModel->getAllOptions() as $option) {
@@ -157,6 +151,6 @@ class OptionBuilder
             return (int)$attributeValues[$attribute->getAttributeId()][$this->optionLabel->getLabel()];
         }
 
-        throw new \RuntimeException('Error building option');
+        throw new \RuntimeException(message: 'Error building option');
     }
 }

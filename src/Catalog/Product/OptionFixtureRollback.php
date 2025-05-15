@@ -19,19 +19,10 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class OptionFixtureRollback
 {
-    private Registry $registry;
-    private AttributeOptionManagementInterface $optionManagement;
-
-    /**
-     * OptionFixtureRollback constructor.
-     *
-     * @param Registry $registry
-     * @param AttributeOptionManagementInterface $optionManagement
-     */
-    public function __construct(Registry $registry, AttributeOptionManagementInterface $optionManagement)
-    {
-        $this->registry = $registry;
-        $this->optionManagement = $optionManagement;
+    public function __construct(
+        private readonly Registry $registry,
+        private readonly AttributeOptionManagementInterface $optionManagement,
+    ) {
     }
 
     public static function create(): OptionFixtureRollback
@@ -39,8 +30,8 @@ class OptionFixtureRollback
         $objectManager = Bootstrap::getObjectManager();
 
         return new self(
-            $objectManager->get(Registry::class),
-            $objectManager->get(AttributeOptionManagementInterface::class),
+            registry: $objectManager->get(type: Registry::class),
+            optionManagement: $objectManager->get(type: AttributeOptionManagementInterface::class),
         );
     }
 
@@ -53,17 +44,17 @@ class OptionFixtureRollback
      */
     public function execute(OptionFixture ...$optionFixtures): void
     {
-        $this->registry->unregister('isSecureArea');
-        $this->registry->register('isSecureArea', true);
+        $this->registry->unregister(key: 'isSecureArea');
+        $this->registry->register(key: 'isSecureArea', value: true);
 
         foreach ($optionFixtures as $optionFixture) {
             $this->optionManagement->delete(
-                Product::ENTITY,
-                $optionFixture->getAttributeCode(),
-                $optionFixture->getOption()->getId(),
+                entityType: Product::ENTITY,
+                attributeCode: $optionFixture->getAttributeCode(),
+                optionId: $optionFixture->getOption()->getId(),
             );
         }
 
-        $this->registry->unregister('isSecureArea');
+        $this->registry->unregister(key: 'isSecureArea');
     }
 }

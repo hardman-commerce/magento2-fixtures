@@ -13,11 +13,10 @@ use Magento\TestFramework\Helper\Bootstrap;
 class FulltextIndex
 {
     private static bool $created = false;
-    private IndexerFactory $indexerFactory;
 
-    public function __construct(IndexerFactory $indexerFactory)
-    {
-        $this->indexerFactory = $indexerFactory;
+    public function __construct(
+        private IndexerFactory $indexerFactory,
+    ) {
     }
 
     /**

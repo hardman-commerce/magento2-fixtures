@@ -17,26 +17,17 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class InvoiceBuilder
 {
-    private InvoiceItemCreationInterfaceFactory $itemFactory;
-    private InvoiceOrderInterface $invoiceOrder;
-    private InvoiceRepositoryInterface $invoiceRepository;
-    private Order $order;
     /**
      * @var int[]
      */
     private array $orderItems;
 
-    final public function __construct(
-        InvoiceItemCreationInterfaceFactory $itemFactory,
-        InvoiceOrderInterface $invoiceOrder,
-        InvoiceRepositoryInterface $invoiceRepository,
-        Order $order,
+    public function __construct(
+        private readonly InvoiceItemCreationInterfaceFactory $itemFactory,
+        private readonly InvoiceOrderInterface $invoiceOrder,
+        private readonly InvoiceRepositoryInterface $invoiceRepository,
+        private readonly Order $order,
     ) {
-        $this->itemFactory = $itemFactory;
-        $this->invoiceOrder = $invoiceOrder;
-        $this->invoiceRepository = $invoiceRepository;
-        $this->order = $order;
-
         $this->orderItems = [];
     }
 
@@ -46,17 +37,16 @@ class InvoiceBuilder
         $objectManager = Bootstrap::getObjectManager();
 
         return new static(
-            $objectManager->create(InvoiceItemCreationInterfaceFactory::class),
-            $objectManager->create(InvoiceOrderInterface::class),
-            $objectManager->create(InvoiceRepositoryInterface::class),
-            $order,
+            itemFactory: $objectManager->create(type: InvoiceItemCreationInterfaceFactory::class),
+            invoiceOrder: $objectManager->create(type: InvoiceOrderInterface::class),
+            invoiceRepository: $objectManager->create(type: InvoiceRepositoryInterface::class),
+            order: $order,
         );
     }
 
     public function withItem(int $orderItemId, int $qty): InvoiceBuilder
     {
         $builder = clone $this;
-
         $builder->orderItems[$orderItemId] = $qty;
 
         return $builder;
@@ -65,10 +55,12 @@ class InvoiceBuilder
     public function build(): InvoiceInterface
     {
         $invoiceItems = $this->buildInvoiceItems();
+        $invoiceId = $this->invoiceOrder->execute(
+            orderId: $this->order->getEntityId(),
+            items: $invoiceItems,
+        );
 
-        $invoiceId = $this->invoiceOrder->execute($this->order->getEntityId(), false, $invoiceItems);
-
-        return $this->invoiceRepository->get($invoiceId);
+        return $this->invoiceRepository->get(id: $invoiceId);
     }
 
     /**
@@ -77,11 +69,11 @@ class InvoiceBuilder
     private function buildInvoiceItems(): array
     {
         $invoiceItems = [];
-
         foreach ($this->orderItems as $orderItemId => $qty) {
+            /** @var InvoiceItemCreationInterface $invoiceItem */
             $invoiceItem = $this->itemFactory->create();
             $invoiceItem->setOrderItemId($orderItemId);
-            $invoiceItem->setQty($qty);
+            $invoiceItem->setQty(qty: $qty);
             $invoiceItems[] = $invoiceItem;
         }
 

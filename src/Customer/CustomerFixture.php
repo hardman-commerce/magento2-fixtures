@@ -14,11 +14,9 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class CustomerFixture
 {
-    private CustomerInterface $customer;
-
-    public function __construct(CustomerInterface $customer)
-    {
-        $this->customer = $customer;
+    public function __construct(
+        private readonly CustomerInterface $customer,
+    ) {
     }
 
     public function getCustomer(): CustomerInterface

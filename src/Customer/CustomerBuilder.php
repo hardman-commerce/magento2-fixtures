@@ -16,26 +16,18 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class CustomerBuilder
 {
-    private CustomerInterface $customer;
-    private string $password;
-    private CustomerRepositoryInterface $customerRepository;
-    private Encryptor $encryptor;
     /**
      * @var AddressBuilder[]
      */
     private array $addressBuilders;
 
     public function __construct(
-        CustomerRepositoryInterface $customerRepository,
-        CustomerInterface $customer,
-        Encryptor $encryptor,
-        string $password,
+        private readonly CustomerRepositoryInterface $customerRepository,
+        private CustomerInterface $customer,
+        private readonly Encryptor $encryptor,
+        private readonly string $password,
         AddressBuilder ...$addressBuilders
     ) {
-        $this->customerRepository = $customerRepository;
-        $this->customer = $customer;
-        $this->encryptor = $encryptor;
-        $this->password = $password;
         $this->addressBuilders = $addressBuilders;
     }
 

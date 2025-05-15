@@ -19,11 +19,6 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class ShipmentBuilder
 {
-    private ShipmentItemCreationInterfaceFactory $itemFactory;
-    private ShipmentTrackCreationInterfaceFactory $trackFactory;
-    private ShipOrderInterface $shipOrder;
-    private ShipmentRepositoryInterface $shipmentRepository;
-    private Order $order;
     /**
      * @var int[]
      */
@@ -34,18 +29,12 @@ class ShipmentBuilder
     private array $trackingNumbers;
 
     final public function __construct(
-        ShipmentItemCreationInterfaceFactory $itemFactory,
-        ShipmentTrackCreationInterfaceFactory $trackFactory,
-        ShipOrderInterface $shipOrder,
-        ShipmentRepositoryInterface $shipmentRepository,
-        Order $order,
+        private readonly ShipmentItemCreationInterfaceFactory $itemFactory,
+        private readonly ShipmentTrackCreationInterfaceFactory $trackFactory,
+        private readonly ShipOrderInterface $shipOrder,
+        private readonly ShipmentRepositoryInterface $shipmentRepository,
+        private readonly Order $order,
     ) {
-        $this->itemFactory = $itemFactory;
-        $this->trackFactory = $trackFactory;
-        $this->shipOrder = $shipOrder;
-        $this->shipmentRepository = $shipmentRepository;
-        $this->order = $order;
-
         $this->orderItems = [];
         $this->trackingNumbers = [];
     }
@@ -56,11 +45,11 @@ class ShipmentBuilder
         $objectManager = Bootstrap::getObjectManager();
 
         return new static(
-            $objectManager->create(ShipmentItemCreationInterfaceFactory::class),
-            $objectManager->create(ShipmentTrackCreationInterfaceFactory::class),
-            $objectManager->create(ShipOrderInterface::class),
-            $objectManager->create(ShipmentRepositoryInterface::class),
-            $order,
+            itemFactory: $objectManager->create(type: ShipmentItemCreationInterfaceFactory::class),
+            trackFactory: $objectManager->create(type: ShipmentTrackCreationInterfaceFactory::class),
+            shipOrder: $objectManager->create(type: ShipOrderInterface::class),
+            shipmentRepository: $objectManager->create(type: ShipmentRepositoryInterface::class),
+            order: $order,
         );
     }
 
@@ -86,18 +75,15 @@ class ShipmentBuilder
         $tracks = $this->buildTracks();
 
         $shipmentId = $this->shipOrder->execute(
-            $this->order->getEntityId(),
-            $shipmentItems,
-            false,
-            false,
-            null,
-            $tracks,
+            orderId: $this->order->getEntityId(),
+            items: $shipmentItems,
+            tracks: $tracks,
         );
 
-        $shipment = $this->shipmentRepository->get($shipmentId);
+        $shipment = $this->shipmentRepository->get(id: $shipmentId);
         if (!empty($this->trackingNumbers)) {
             $shipment->setShippingLabel('%PDF-1.4');
-            $this->shipmentRepository->save($shipment);
+            $this->shipmentRepository->save(entity: $shipment);
         }
 
         return $shipment;
@@ -109,16 +95,16 @@ class ShipmentBuilder
     private function buildTracks(): array
     {
         return array_map(
-            function (string $trackingNumber): ShipmentTrackCreationInterface {
-                $carrierCode = strtok((string)$this->order->getShippingMethod(), '_');
+            callback: function (string $trackingNumber): ShipmentTrackCreationInterface {
+                $carrierCode = strtok(string: (string)$this->order->getShippingMethod(), token: '_');
                 $track = $this->trackFactory->create();
                 $track->setCarrierCode($carrierCode);
-                $track->setTitle($carrierCode);
-                $track->setTrackNumber($trackingNumber);
+                $track->setTitle(title: $carrierCode);
+                $track->setTrackNumber(trackNumber: $trackingNumber);
 
                 return $track;
             },
-            $this->trackingNumbers,
+            array: $this->trackingNumbers,
         );
     }
 
@@ -132,7 +118,7 @@ class ShipmentBuilder
         foreach ($this->orderItems as $orderItemId => $qty) {
             $shipmentItem = $this->itemFactory->create();
             $shipmentItem->setOrderItemId($orderItemId);
-            $shipmentItem->setQty($qty);
+            $shipmentItem->setQty(qty: $qty);
             $shipmentItems[] = $shipmentItem;
         }
 

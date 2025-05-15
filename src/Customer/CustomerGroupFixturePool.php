@@ -48,7 +48,9 @@ class CustomerGroupFixturePool
      */
     public function rollback(): void
     {
-        CustomerGroupFixtureRollback::create()->execute(...array_values(array: $this->customerGroupFixtures));
+        CustomerGroupFixtureRollback::create()->execute(
+            ...array_values(array: $this->customerGroupFixtures),
+        );
         $this->customerGroupFixtures = [];
     }
 }

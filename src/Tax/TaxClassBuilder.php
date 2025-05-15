@@ -19,15 +19,10 @@ class TaxClassBuilder
 {
     use IsTransactionExceptionTrait;
 
-    private TaxClassInterface $taxClass;
-    private TaxClassRepositoryInterface $taxClassRepository;
-
     public function __construct(
-        TaxClassInterface $taxClass,
-        TaxClassRepositoryInterface $taxClassRepository,
+        private readonly TaxClassInterface $taxClass,
+        private readonly TaxClassRepositoryInterface $taxClassRepository,
     ) {
-        $this->taxClass = $taxClass;
-        $this->taxClassRepository = $taxClassRepository;
     }
 
     public static function addTaxClass(): TaxClassBuilder

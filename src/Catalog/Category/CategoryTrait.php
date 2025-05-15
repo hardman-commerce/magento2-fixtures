@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Catalog\Category;
 
+use TddWizard\Fixtures\Exception\FixturePoolMissingException;
+
 trait CategoryTrait
 {
     private ?CategoryFixturePool $categoryFixturePool = null;
@@ -28,12 +30,18 @@ trait CategoryTrait
      *   ],
      * );
      *
-     * @param mixed[] $categoryData
+     * @param array<string, mixed> $categoryData
      *
+     * @throws FixturePoolMissingException
      * @throws \Exception
      */
-    public function createCategory(?array $categoryData = []): void
+    public function createCategory(array $categoryData = []): void
     {
+        if (null === $this->categoryFixturePool) {
+            throw new FixturePoolMissingException(
+                message: 'categoryFixturePool has not been created in your test setUp method.',
+            );
+        }
         if ($categoryData['parent'] ?? null) {
             $categoryBuilder = CategoryBuilder::childCategoryOf(parent: $categoryData['parent']);
         } else {

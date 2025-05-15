@@ -8,11 +8,9 @@ use Magento\Sales\Model\Order;
 
 class OrderFixture
 {
-    private Order $order;
-
-    public function __construct(Order $order)
-    {
-        $this->order = $order;
+    public function __construct(
+        private readonly Order $order,
+    ) {
     }
 
     public function getOrder(): Order
@@ -54,7 +52,7 @@ class OrderFixture
     {
         $payment = $this->order->getPayment();
         if ($payment === null) {
-            throw new \RuntimeException('Order does not have any payment information');
+            throw new \RuntimeException(message: 'Order does not have any payment information');
         }
 
         return (string)$payment->getMethod();
@@ -67,6 +65,6 @@ class OrderFixture
 
     public function rollback(): void
     {
-        OrderFixtureRollback::create()->execute($this);
+        OrderFixtureRollback::create()->execute(orderFixtures: $this);
     }
 }

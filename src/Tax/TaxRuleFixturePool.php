@@ -46,7 +46,9 @@ class TaxRuleFixturePool
      */
     public function rollback(): void
     {
-        TaxRuleFixtureRollback::create()->execute(...array_values($this->taxRuleFixtures));
+        TaxRuleFixtureRollback::create()->execute(
+            ...array_values($this->taxRuleFixtures),
+        );
         $this->taxRuleFixtures = [];
     }
 }

@@ -15,36 +15,17 @@ use Magento\TestFramework\Helper\Bootstrap;
 
 class CustomerCheckout
 {
-    private AddressRepositoryInterface $addressRepository;
-    private CartRepositoryInterface $quoteRepository;
-    private QuoteManagement $quoteManagement;
-    private PaymentConfig $paymentConfig;
-    private Cart $cart;
-    private ?int $shippingAddressId;
-    private ?int $billingAddressId;
-    private ?string $shippingMethodCode;
-    private ?string $paymentMethodCode;
-
     final public function __construct(
-        AddressRepositoryInterface $addressRepository,
-        CartRepositoryInterface $quoteRepository,
-        QuoteManagement $quoteManagement,
-        PaymentConfig $paymentConfig,
-        Cart $cart,
-        int $shippingAddressId = null,
-        int $billingAddressId = null,
-        string $shippingMethodCode = null,
-        string $paymentMethodCode = null,
+        private readonly AddressRepositoryInterface $addressRepository,
+        private readonly CartRepositoryInterface $quoteRepository,
+        private readonly QuoteManagement $quoteManagement,
+        private readonly PaymentConfig $paymentConfig,
+        private readonly Cart $cart,
+        private ?int $shippingAddressId = null,
+        private ?int $billingAddressId = null,
+        private ?string $shippingMethodCode = null,
+        private ?string $paymentMethodCode = null,
     ) {
-        $this->addressRepository = $addressRepository;
-        $this->quoteRepository = $quoteRepository;
-        $this->quoteManagement = $quoteManagement;
-        $this->paymentConfig = $paymentConfig;
-        $this->cart = $cart;
-        $this->shippingAddressId = $shippingAddressId;
-        $this->billingAddressId = $billingAddressId;
-        $this->shippingMethodCode = $shippingMethodCode;
-        $this->paymentMethodCode = $paymentMethodCode;
     }
 
     public static function fromCart(Cart $cart): CustomerCheckout
@@ -52,11 +33,11 @@ class CustomerCheckout
         $objectManager = Bootstrap::getObjectManager();
 
         return new static(
-            $objectManager->create(AddressRepositoryInterface::class),
-            $objectManager->create(CartRepositoryInterface::class),
-            $objectManager->create(QuoteManagement::class),
-            $objectManager->create(PaymentConfig::class),
-            $cart,
+            addressRepository: $objectManager->create(type: AddressRepositoryInterface::class),
+            quoteRepository: $objectManager->create(type: CartRepositoryInterface::class),
+            quoteManagement: $objectManager->create(type: QuoteManagement::class),
+            paymentConfig: $objectManager->create(type: PaymentConfig::class),
+            cart: $cart,
         );
     }
 
@@ -124,7 +105,8 @@ class CustomerCheckout
      */
     private function getPaymentMethodCode(): string
     {
-        return $this->paymentMethodCode ?? array_values($this->paymentConfig->getActiveMethods())[0]->getCode();
+        return $this->paymentMethodCode
+               ?? array_values(array: $this->paymentConfig->getActiveMethods())[0]->getCode();
     }
 
     /**
@@ -136,13 +118,13 @@ class CustomerCheckout
         $this->saveShipping();
         $this->savePayment();
         /** @var Quote $reloadedQuote */
-        $reloadedQuote = $this->quoteRepository->get($this->cart->getQuote()->getId());
+        $reloadedQuote = $this->quoteRepository->get(cartId: $this->cart->getQuote()->getId());
         // Collect missing totals, like shipping
         $reloadedQuote->collectTotals();
-        $order = $this->quoteManagement->submit($reloadedQuote);
+        $order = $this->quoteManagement->submit(quote: $reloadedQuote);
         if (!$order instanceof Order) {
             $returnType = is_object($order) ? get_class($order) : gettype($order);
-            throw new \RuntimeException('QuoteManagement::submit() returned ' . $returnType . ' instead of Order');
+            throw new \RuntimeException(message: 'QuoteManagement::submit() returned ' . $returnType . ' instead of Order');
         }
         $this->cart->getCheckoutSession()->clearQuote();
 
@@ -156,7 +138,7 @@ class CustomerCheckout
     {
         $billingAddress = $this->cart->getQuote()->getBillingAddress();
         $billingAddress->importCustomerAddressData(
-            $this->addressRepository->getById($this->getCustomerBillingAddressId()),
+            $this->addressRepository->getById(addressId: $this->getCustomerBillingAddressId()),
         );
         $billingAddress->save();
     }
@@ -168,7 +150,7 @@ class CustomerCheckout
     {
         $shippingAddress = $this->cart->getQuote()->getShippingAddress();
         $shippingAddress->importCustomerAddressData(
-            $this->addressRepository->getById($this->getCustomerShippingAddressId()),
+            $this->addressRepository->getById(addressId: $this->getCustomerShippingAddressId()),
         );
         $shippingAddress->setCollectShippingRates(true);
         $shippingAddress->collectShippingRates();
@@ -182,7 +164,7 @@ class CustomerCheckout
     private function savePayment(): void
     {
         $payment = $this->cart->getQuote()->getPayment();
-        $payment->setMethod($this->getPaymentMethodCode());
+        $payment->setMethod(method: $this->getPaymentMethodCode());
         $payment->save();
     }
 }

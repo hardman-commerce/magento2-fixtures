@@ -18,15 +18,10 @@ class TaxRateBuilder
 {
     use IsTransactionExceptionTrait;
 
-    private TaxRateInterface $taxRate;
-    private TaxRateRepositoryInterface $taxRateRepository;
-
     public function __construct(
-        TaxRateInterface $taxRate,
-        TaxRateRepositoryInterface $taxRateRepository,
+        private readonly TaxRateInterface $taxRate,
+        private readonly TaxRateRepositoryInterface $taxRateRepository,
     ) {
-        $this->taxRate = $taxRate;
-        $this->taxRateRepository = $taxRateRepository;
     }
 
     public static function addTaxRate(): TaxRateBuilder

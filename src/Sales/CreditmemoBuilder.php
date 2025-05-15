@@ -17,26 +17,17 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class CreditmemoBuilder
 {
-    private CreditmemoItemCreationInterfaceFactory $itemFactory;
-    private RefundOrderInterface $refundOrder;
-    private CreditmemoRepositoryInterface $creditmemoRepository;
-    private Order $order;
     /**
      * @var float[]
      */
     private array $orderItems;
 
-    final public function __construct(
-        CreditmemoItemCreationInterfaceFactory $itemFactory,
-        RefundOrderInterface $refundOrder,
-        CreditmemoRepositoryInterface $creditmemoRepository,
-        Order $order,
+    public function __construct(
+        private readonly CreditmemoItemCreationInterfaceFactory $itemFactory,
+        private readonly RefundOrderInterface $refundOrder,
+        private readonly CreditmemoRepositoryInterface $creditmemoRepository,
+        private readonly Order $order,
     ) {
-        $this->itemFactory = $itemFactory;
-        $this->refundOrder = $refundOrder;
-        $this->creditmemoRepository = $creditmemoRepository;
-        $this->order = $order;
-
         $this->orderItems = [];
     }
 
@@ -46,10 +37,10 @@ class CreditmemoBuilder
         $objectManager = Bootstrap::getObjectManager();
 
         return new static(
-            $objectManager->create(CreditmemoItemCreationInterfaceFactory::class),
-            $objectManager->create(RefundOrderInterface::class),
-            $objectManager->create(CreditmemoRepositoryInterface::class),
-            $order,
+            itemFactory: $objectManager->create(type: CreditmemoItemCreationInterfaceFactory::class),
+            refundOrder: $objectManager->create(type: RefundOrderInterface::class),
+            creditmemoRepository: $objectManager->create(type: CreditmemoRepositoryInterface::class),
+            order: $order,
         );
     }
 
@@ -66,7 +57,7 @@ class CreditmemoBuilder
     {
         // order must be invoiced before a refund can be created.
         if ($this->order->canInvoice()) {
-            InvoiceBuilder::forOrder($this->order)->build();
+            InvoiceBuilder::forOrder(order: $this->order)->build();
         }
 
         // refund items must be explicitly set
@@ -76,7 +67,7 @@ class CreditmemoBuilder
             }
         }
         $creditmemoItems = $this->buildCreditmemoItems();
-        $creditmemoId = $this->refundOrder->execute($this->order->getEntityId(), $creditmemoItems);
+        $creditmemoId = $this->refundOrder->execute(orderId: $this->order->getEntityId(), items: $creditmemoItems);
 
         return $this->creditmemoRepository->get($creditmemoId);
     }
@@ -88,9 +79,10 @@ class CreditmemoBuilder
     {
         $creditmemoItems = [];
         foreach ($this->orderItems as $orderItemId => $qty) {
+            /** @var CreditmemoItemCreationInterface $creditmemoItem */
             $creditmemoItem = $this->itemFactory->create();
             $creditmemoItem->setOrderItemId($orderItemId);
-            $creditmemoItem->setQty($qty);
+            $creditmemoItem->setQty(qty: $qty);
             $creditmemoItems[] = $creditmemoItem;
         }
 

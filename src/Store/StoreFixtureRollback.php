@@ -19,15 +19,10 @@ use TddWizard\Fixtures\Exception\InvalidModelException;
 
 class StoreFixtureRollback
 {
-    private Registry $registry;
-    private StoreRepositoryInterface $storeRepository;
-
     public function __construct(
-        Registry $registry,
-        StoreRepositoryInterface $storeRepository,
+        private readonly Registry $registry,
+        private readonly StoreRepositoryInterface $storeRepository,
     ) {
-        $this->registry = $registry;
-        $this->storeRepository = $storeRepository;
     }
 
     public static function create(): StoreFixtureRollback //phpcs:ignore Magento2.Functions.StaticFunction.StaticFunction, Generic.Files.LineLength.TooLong
@@ -35,8 +30,8 @@ class StoreFixtureRollback
         $objectManager = Bootstrap::getObjectManager();
 
         return new self(
-            $objectManager->get(type: Registry::class),
-            $objectManager->get(type: StoreRepositoryInterface::class),
+            registry: $objectManager->get(type: Registry::class),
+            storeRepository: $objectManager->get(type: StoreRepositoryInterface::class),
         );
     }
 

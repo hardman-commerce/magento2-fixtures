@@ -12,11 +12,9 @@ use Magento\Customer\Api\Data\GroupInterface;
 
 class CustomerGroupFixture
 {
-    private GroupInterface $group;
-
-    public function __construct(GroupInterface $group)
-    {
-        $this->group = $group;
+    public function __construct(
+        private readonly GroupInterface $group,
+    ) {
     }
 
     public function getCustomerGroup(): GroupInterface

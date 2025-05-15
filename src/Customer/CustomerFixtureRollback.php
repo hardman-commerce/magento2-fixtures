@@ -14,13 +14,10 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class CustomerFixtureRollback
 {
-    private Registry $registry;
-    private CustomerRepositoryInterface $customerRepository;
-
-    public function __construct(Registry $registry, CustomerRepositoryInterface $customerRepository)
-    {
-        $this->registry = $registry;
-        $this->customerRepository = $customerRepository;
+    public function __construct(
+        private readonly Registry $registry,
+        private readonly CustomerRepositoryInterface $customerRepository,
+    ) {
     }
 
     public static function create(): CustomerFixtureRollback

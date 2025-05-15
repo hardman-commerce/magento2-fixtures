@@ -9,13 +9,10 @@ use Magento\Framework\Exception\LocalizedException;
 
 class OptionFixture
 {
-    private string $attributeCode;
-    private AttributeOption $option;
-
-    public function __construct(AttributeOption $option, string $attributeCode)
-    {
-        $this->attributeCode = $attributeCode;
-        $this->option = $option;
+    public function __construct(
+        private readonly AttributeOption $option,
+        private readonly string $attributeCode,
+    ) {
     }
 
     public function getAttributeCode(): string
@@ -33,6 +30,6 @@ class OptionFixture
      */
     public function rollback(): void
     {
-        OptionFixtureRollback::create()->execute($this);
+        OptionFixtureRollback::create()->execute(optionFixtures: $this);
     }
 }

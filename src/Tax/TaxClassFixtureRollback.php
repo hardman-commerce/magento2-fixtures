@@ -16,13 +16,10 @@ use Magento\TestFramework\Helper\Bootstrap;
 
 class TaxClassFixtureRollback
 {
-    private Registry $registry;
-    private TaxClassRepositoryInterface $taxClassRepository;
-
-    public function __construct(Registry $registry, TaxClassRepositoryInterface $taxClassRepository)
-    {
-        $this->registry = $registry;
-        $this->taxClassRepository = $taxClassRepository;
+    public function __construct(
+        private readonly Registry $registry,
+        private readonly TaxClassRepositoryInterface $taxClassRepository,
+    ) {
     }
 
     public static function create(): TaxClassFixtureRollback //phpcs:ignore Magento2.Functions.StaticFunction.StaticFunction, Generic.Files.LineLength.TooLong

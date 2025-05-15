@@ -19,17 +19,15 @@ use TddWizard\Fixtures\Checkout\CartBuilder as TddCartBuilder;
 
 class CartBuilder
 {
-    private ProductRepositoryInterface $productRepository;
-    private Cart $cart;
     /**
      * @var DataObject[][] Array in the form [sku => [buyRequest]] (multiple requests per sku are possible)
      */
     private array $addToCartRequests;
 
-    final public function __construct(ProductRepositoryInterface $productRepository, Cart $cart)
-    {
-        $this->productRepository = $productRepository;
-        $this->cart = $cart;
+    final public function __construct(
+        private readonly ProductRepositoryInterface $productRepository,
+        private readonly Cart $cart,
+    ) {
         $this->addToCartRequests = [];
     }
 
@@ -38,15 +36,15 @@ class CartBuilder
         $objectManager = Bootstrap::getObjectManager();
 
         return new static(
-            $objectManager->create(ProductRepositoryInterface::class),
-            $objectManager->create(Cart::class),
+            productRepository: $objectManager->create(type: ProductRepositoryInterface::class),
+            cart: $objectManager->create(type: Cart::class),
         );
     }
 
     public function withSimpleProduct(string $sku, float $qty = 1): CartBuilder
     {
         $result = clone $this;
-        $result->addToCartRequests[$sku][] = new DataObject(['qty' => $qty]);
+        $result->addToCartRequests[$sku][] = new DataObject(data: ['qty' => $qty]);
 
         return $result;
     }
@@ -82,7 +80,7 @@ class CartBuilder
     public function withReservedOrderId(string $orderId): CartBuilder
     {
         $result = clone $this;
-        $result->cart->getQuote()->setReservedOrderId($orderId);
+        $result->cart->getQuote()->setReservedOrderId(reservedOrderId: $orderId);
 
         return $result;
     }
@@ -90,83 +88,84 @@ class CartBuilder
     /**
      * Lower-level API to support arbitrary products
      *
-     * @param string $sku
-     * @param int $qty
      * @param mixed[] $request
-     *
-     * @return CartBuilder
      */
-    public function withProductRequest($sku, $qty = 1, $request = []): CartBuilder
+    public function withProductRequest(string $sku, float|int $qty = 1, array $request = []): CartBuilder
     {
         $result = clone $this;
         $requestInfo = array_merge(['qty' => $qty], $request);
-        $result->addToCartRequests[$sku][] = new DataObject($requestInfo);
+        $result->addToCartRequests[$sku][] = new DataObject(data: $requestInfo);
 
         return $result;
     }
 
     /**
-     * @return Cart
      * @throws LocalizedException
      */
     public function build(): Cart
     {
         foreach ($this->addToCartRequests as $sku => $requests) {
             /** @var Product $product */
-            $product = $this->productRepository->get($sku);
+            $product = $this->productRepository->get(sku: $sku);
 
             // @todo Remove and resolve stock issues with configurables
             ObjectManager::getInstance()
-                ->get(\Magento\Catalog\Helper\Product::class)
-                ->setSkipSaleableCheck(true);
+                ->get(type: \Magento\Catalog\Helper\Product::class)
+                ->setSkipSaleableCheck(skipSaleableCheck: true);
 
             foreach ($requests as $requestInfo) {
                 switch ($product->getTypeId()) {
                     case Grouped::TYPE_CODE:
-                        $requestOptions = $requestInfo->getData('options') ?: [];
-                        $requestInfo->unsetData('options');
+                        $requestOptions = $requestInfo->getData(key: 'options') ?: [];
+                        $requestInfo->unsetData(key: 'options');
 
                         /** @var \Magento\GroupedProduct\Model\Product\Type\Grouped $typeInstance */
                         $typeInstance = $product->getTypeInstance();
                         /** @var ProductInterface[] $associatedProducts */
-                        $associatedProducts = $typeInstance->getAssociatedProducts($product);
+                        $associatedProducts = $typeInstance->getAssociatedProducts(product: $product);
 
-                        $requestInfo->setData('product', $product->getId());
-                        $requestInfo->setData('item', $product->getId());
+                        $requestInfo->setData(key: 'product', value: $product->getId());
+                        $requestInfo->setData(key: 'item', value: $product->getId());
                         // @todo Replace with child id => qty
                         $superGroup = [];
                         foreach ($requestOptions as $associatedSku => $qtyOrdered) {
                             /** @var ProductInterface $childProduct */
-                            $childProduct = current(array_filter(
-                                $associatedProducts,
-                                static fn(ProductInterface $associatedProduct): bool => (
-                                    $associatedSku === $associatedProduct->getSku()
+                            $childProduct = current(
+                                array_filter(
+                                    array: $associatedProducts,
+                                    callback: static fn (ProductInterface $associatedProduct): bool => (
+                                        $associatedSku === $associatedProduct->getSku()
+                                    ),
                                 ),
-                            ));
+                            );
                             if (!$childProduct) {
                                 continue;
                             }
 
                             $superGroup[(int)$childProduct->getId()] = $qtyOrdered;
                         }
-                        $requestInfo->setData('super_group', $superGroup);
+                        $requestInfo->setData(key: 'super_group', value: $superGroup);
                         break;
 
                     case Configurable::TYPE_CODE:
-                        $requestOptions = $requestInfo->getData('options') ?: [];
-                        $requestInfo->unsetData('options');
-                        $requestInfo->setData('product', $product->getId());
+                        $requestOptions = $requestInfo->getData(key: 'options') ?: [];
+                        $requestInfo->unsetData(key: 'options');
+                        $requestInfo->setData(key: 'product', value: $product->getId());
 
                         $superAttribute = [];
                         /** @var \Magento\ConfigurableProduct\Model\Product\Type\Configurable $typeInstance */
                         $typeInstance = $product->getTypeInstance();
-                        $configurableAttributes = $typeInstance->getConfigurableAttributesAsArray($product);
+                        $configurableAttributes = $typeInstance->getConfigurableAttributesAsArray(product: $product);
                         foreach ($requestOptions as $attributeCode => $value) {
                             /** @var Attribute $configurableAttribute */
-                            $configurableAttribute = current(array_filter(
-                                $configurableAttributes,
-                                static fn(array $attribute): bool => ($attributeCode === $attribute['attribute_code']),
-                            ));
+                            $configurableAttribute = current(
+                                array_filter(
+                                    array: $configurableAttributes,
+                                    callback: static fn (array $attribute): bool => (
+                                        $attributeCode === $attribute['attribute_code']
+                                    ),
+                                ),
+                            );
 
                             if (!$configurableAttribute) {
                                 continue;
@@ -174,15 +173,15 @@ class CartBuilder
 
                             $superAttribute[$configurableAttribute['attribute_id']] = current(
                                 array_column(
-                                    array_filter(
-                                        $configurableAttribute['options'],
-                                        static fn(array $option): bool => $option['label'] === $value,
+                                    array: array_filter(
+                                        array: $configurableAttribute['options'],
+                                        callback: static fn (array $option): bool => $option['label'] === $value,
                                     ),
-                                    'value',
+                                    column_key: 'value',
                                 ),
                             );
                         }
-                        $requestInfo->setData('super_attribute', $superAttribute);
+                        $requestInfo->setData(key: 'super_attribute', value: $superAttribute);
                         break;
                 }
 

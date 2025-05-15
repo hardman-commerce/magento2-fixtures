@@ -16,26 +16,22 @@ class ShipmentFixturePool
     public function add(ShipmentInterface $shipment, string $key = null): void
     {
         if ($key === null) {
-            $this->shipmentFixtures[] = new ShipmentFixture($shipment);
+            $this->shipmentFixtures[] = new ShipmentFixture(shipment: $shipment);
         } else {
-            $this->shipmentFixtures[$key] = new ShipmentFixture($shipment);
+            $this->shipmentFixtures[$key] = new ShipmentFixture(shipment: $shipment);
         }
     }
 
     /**
      * Returns shipment fixture by key, or last added if key not specified
-     *
-     * @param string|null $key
-     *
-     * @return ShipmentFixture
      */
-    public function get(string $key = null): ShipmentFixture
+    public function get(string|int|null $key = null): ShipmentFixture
     {
         if ($key === null) {
-            $key = \array_key_last($this->shipmentFixtures);
+            $key = \array_key_last(array: $this->shipmentFixtures);
         }
-        if ($key === null || !array_key_exists($key, $this->shipmentFixtures)) {
-            throw new \OutOfBoundsException('No matching shipment found in fixture pool');
+        if ($key === null || !array_key_exists(key: $key, array: $this->shipmentFixtures)) {
+            throw new \OutOfBoundsException(message: 'No matching shipment found in fixture pool');
         }
 
         return $this->shipmentFixtures[$key];

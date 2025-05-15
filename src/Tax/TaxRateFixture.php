@@ -12,11 +12,9 @@ use Magento\Tax\Api\Data\TaxRateInterface;
 
 class TaxRateFixture
 {
-    private TaxRateInterface $taxRate;
-
-    public function __construct(TaxRateInterface $taxRate)
-    {
-        $this->taxRate = $taxRate;
+    public function __construct(
+        private readonly TaxRateInterface $taxRate,
+    ) {
     }
 
     public function getTaxRate(): TaxRateInterface
@@ -34,6 +32,6 @@ class TaxRateFixture
      */
     public function rollback(): void
     {
-        TaxRateFixtureRollback::create()->execute($this);
+        TaxRateFixtureRollback::create()->execute(taxRateFixtures: $this);
     }
 }

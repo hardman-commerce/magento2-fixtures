@@ -15,13 +15,10 @@ use Magento\TestFramework\Helper\Bootstrap;
 
 class TaxRateFixtureRollback
 {
-    private Registry $registry;
-    private TaxRateRepositoryInterface $taxRateRepository;
-
-    public function __construct(Registry $registry, TaxRateRepositoryInterface $taxRateRepository)
-    {
-        $this->registry = $registry;
-        $this->taxRateRepository = $taxRateRepository;
+    public function __construct(
+        private readonly Registry $registry,
+        private readonly TaxRateRepositoryInterface $taxRateRepository,
+    ) {
     }
 
     public static function create(): TaxRateFixtureRollback //phpcs:ignore Magento2.Functions.StaticFunction.StaticFunction, Generic.Files.LineLength.TooLong
@@ -29,8 +26,8 @@ class TaxRateFixtureRollback
         $objectManager = Bootstrap::getObjectManager();
 
         return new self(
-            registry: $objectManager->get(Registry::class),
-            taxRateRepository: $objectManager->get(TaxRateRepositoryInterface::class),
+            registry: $objectManager->get(type: Registry::class),
+            taxRateRepository: $objectManager->get(type: TaxRateRepositoryInterface::class),
         );
     }
 

@@ -46,7 +46,9 @@ class TaxRateFixturePool
      */
     public function rollback(): void
     {
-        TaxRateFixtureRollback::create()->execute(...array_values($this->taxRateFixtures));
+        TaxRateFixtureRollback::create()->execute(
+            ...array_values($this->taxRateFixtures),
+        );
         $this->taxRateFixtures = [];
     }
 }

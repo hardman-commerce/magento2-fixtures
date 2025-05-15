@@ -48,7 +48,9 @@ class StoreFixturePool
      */
     public function rollback(): void
     {
-        StoreFixtureRollback::create()->execute(...array_values(array: $this->storeFixtures));
+        StoreFixtureRollback::create()->execute(
+            ...array_values(array: $this->storeFixtures),
+        );
         $this->storeFixtures = [];
     }
 }

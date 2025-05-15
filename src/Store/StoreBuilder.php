@@ -28,28 +28,16 @@ class StoreBuilder
 
     public const DEFAULT_CODE = 'tdd_store';
 
-    private StoreInterface & AbstractModel $store;
-    private ResourceConnection $resourceConnection;
-    private DdlSequence $ddlSequence;
-    private SalesSequenceEntityPool $salesSequenceEntityPool;
-    private WebsiteRepositoryInterface $websiteRepository;
     private bool $withSequence = false;
-    private GroupRepositoryInterface $groupRepository;
 
     public function __construct(
-        StoreInterface & AbstractModel $store,
-        ResourceConnection $resourceConnection,
-        DdlSequence $ddlSequence,
-        SalesSequenceEntityPool $salesSequenceEntityPool,
-        WebsiteRepositoryInterface $websiteRepository,
-        GroupRepositoryInterface $groupRepository,
+        private readonly StoreInterface & AbstractModel $store,
+        private readonly ResourceConnection $resourceConnection,
+        private readonly DdlSequence $ddlSequence,
+        private readonly SalesSequenceEntityPool $salesSequenceEntityPool,
+        private readonly WebsiteRepositoryInterface $websiteRepository,
+        private readonly GroupRepositoryInterface $groupRepository,
     ) {
-        $this->store = $store;
-        $this->resourceConnection = $resourceConnection;
-        $this->ddlSequence = $ddlSequence;
-        $this->salesSequenceEntityPool = $salesSequenceEntityPool;
-        $this->websiteRepository = $websiteRepository;
-        $this->groupRepository = $groupRepository;
     }
 
     public static function addStore(): StoreBuilder //phpcs:ignore Magento2.Functions.StaticFunction.StaticFunction

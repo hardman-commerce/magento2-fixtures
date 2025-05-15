@@ -15,16 +15,16 @@ trait WebsiteTrait
     private ?WebsiteFixturePool $websiteFixturePool = null;
 
     /**
-     * @param mixed[]|null $websiteData
+     * @param array<string, mixed> $websiteData
      *
      * @throws FixturePoolMissingException
      * @throws \Exception
      */
-    public function createWebsite(?array $websiteData = []): void
+    public function createWebsite(array $websiteData = []): void
     {
         if (null === $this->websiteFixturePool) {
             throw new FixturePoolMissingException(
-                'websiteFixturePool has not been created in your test setUp method.',
+                message: 'websiteFixturePool has not been created in your test setUp method.',
             );
         }
         $this->removeExistingWebsiteWithSameCode(websiteData: $websiteData);

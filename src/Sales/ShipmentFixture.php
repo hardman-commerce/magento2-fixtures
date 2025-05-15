@@ -9,11 +9,9 @@ use Magento\Sales\Api\Data\ShipmentTrackInterface;
 
 class ShipmentFixture
 {
-    private ShipmentInterface $shipment;
-
-    public function __construct(ShipmentInterface $shipment)
-    {
-        $this->shipment = $shipment;
+    public function __construct(
+        private readonly ShipmentInterface $shipment,
+    ) {
     }
 
     public function getShipment(): ShipmentInterface

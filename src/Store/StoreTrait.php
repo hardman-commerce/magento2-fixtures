@@ -15,16 +15,16 @@ trait StoreTrait
     private ?StoreFixturePool $storeFixturePool = null;
 
     /**
-     * @param mixed[]|null $storeData
+     * @param array<string, mixed> $storeData
      *
      * @throws FixturePoolMissingException
      * @throws \Exception
      */
-    private function createStore(?array $storeData = []): void
+    private function createStore(array $storeData = []): void
     {
         if (null === $this->storeFixturePool) {
             throw new FixturePoolMissingException(
-                'storeFixturePool has not been created in your test setUp method.',
+                message: 'storeFixturePool has not been created in your test setUp method.',
             );
         }
         $storeBuilder = StoreBuilder::addStore();

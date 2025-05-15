@@ -18,13 +18,10 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class AddressBuilder
 {
-    private AddressInterface $address;
-    private AddressRepositoryInterface $addressRepository;
-
-    public function __construct(AddressRepositoryInterface $addressRepository, AddressInterface $address)
-    {
-        $this->address = $address;
-        $this->addressRepository = $addressRepository;
+    public function __construct(
+        private readonly AddressRepositoryInterface $addressRepository,
+        private AddressInterface $address,
+    ) {
     }
 
     public function __clone()
