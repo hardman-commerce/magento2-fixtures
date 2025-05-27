@@ -112,7 +112,7 @@ class TaxRateFixturePoolTest extends TestCase
     }
 
     /**
-     * Creates dummy tax class object
+     * Creates dummy tax rate object
      */
     private function createTaxRate(): TaxRateInterface
     {
@@ -125,7 +125,7 @@ class TaxRateFixturePoolTest extends TestCase
     }
 
     /**
-     * Creates category using builder
+     * Creates tax rate using builder
      *
      * @throws \Exception
      */

@@ -319,3 +319,32 @@ class SomeTest extends TestCase
         ...
     }
 ```
+
+### Build Without Trait
+
+```php
+protected function setUp(): void
+{
+  $this->productFixture = new ProductFixture(
+    ProductBuilder::aSimpleProduct()
+      ->withPrice(10)
+      ->withCustomAttributes(
+        [
+          'my_custom_attribute' => 42
+        ]
+      )
+      ->build()
+  );
+}
+protected function tearDown(): void
+{
+  $this->productFixture->rollback();
+}
+```
+
+The SKU is randomly generated and can be accessed through `ProductFixture`, just as the ID:
+
+```php
+$this->productFixture->getSku();
+$this->productFixture->getId();
+```

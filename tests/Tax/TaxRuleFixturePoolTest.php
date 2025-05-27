@@ -127,7 +127,7 @@ class TaxRuleFixturePoolTest extends TestCase
     }
 
     /**
-     * Creates dummy tax class object
+     * Creates dummy tax rule object
      */
     private function createTaxRule(): TaxRuleInterface
     {
@@ -140,7 +140,7 @@ class TaxRuleFixturePoolTest extends TestCase
     }
 
     /**
-     * Creates category using builder
+     * Creates tax rule using builder
      *
      * @throws \Exception
      */

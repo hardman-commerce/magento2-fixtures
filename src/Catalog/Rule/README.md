@@ -85,7 +85,7 @@ class SomeTest extends TestCase
             'sort_order' => 3,
             'conditions' => [
                 [
-                    'attribute' => \ProductInterface::SKU,
+                    'attribute' => ProductInterface::SKU,
                     'operator' => '{}', // @see \Magento\CatalogRule\Model\Rule\Condition\ConditionsToSearchCriteriaMapper::mapRuleOperatorToSQLCondition
                     'value' => 'SKU_ABC_'
                 ],

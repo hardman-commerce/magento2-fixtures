@@ -107,7 +107,7 @@ class CmsPageFixturePoolTest extends TestCase
     }
 
     /**
-     * Creates dummy tax class object
+     * Creates dummy page object
      */
     private function createCmsPage(): PageInterface
     {
@@ -120,7 +120,7 @@ class CmsPageFixturePoolTest extends TestCase
     }
 
     /**
-     * Creates category using builder
+     * Creates page using builder
      *
      * @throws \Exception
      */

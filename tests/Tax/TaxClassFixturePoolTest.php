@@ -125,7 +125,7 @@ class TaxClassFixturePoolTest extends TestCase
     }
 
     /**
-     * Creates category using builder
+     * Creates tax class using builder
      *
      * @throws \Exception
      */
