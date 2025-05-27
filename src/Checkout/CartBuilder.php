@@ -65,7 +65,7 @@ class CartBuilder
         $result->cart->setIsMultiShipping(value: 0);
         $result->cart->setIsActive(isActive: true);
         $result->cart->setCheckoutMethod(checkoutMethod: OnePage::METHOD_GUEST);
-        $result->cart->setDataUsingMethod(key: 'email', args: 'customer@example.com.com');
+        $result->cart->setDataUsingMethod(key: 'email', args: 'customer@example.com');
 
         return $result;
     }
