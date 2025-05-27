@@ -54,7 +54,11 @@ class OrderFixtureRollback
             $orderItems = $this->orderRepository->get(id: $orderFixture->getId())->getItems();
 
             $this->orderRepository->deleteById(id: $orderFixture->getId());
-            $this->customerRepository->deleteById(customerId: $orderFixture->getCustomerId());
+            try {
+                $this->customerRepository->deleteById(customerId: $orderFixture->getCustomerId());
+            } catch (\Exception) {
+                // customer already deleted or guest
+            }
             array_walk(
                 array: $orderItems,
                 callback: function (OrderItemInterface $orderItem) {

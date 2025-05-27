@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace TddWizard\Fixtures\Customer;
 
 use Magento\Customer\Api\CustomerRepositoryInterface;
-use Magento\Customer\Api\Data\AddressInterface;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Framework\Encryption\EncryptorInterface as Encryptor;
 use Magento\Framework\Exception\LocalizedException;
@@ -194,12 +193,27 @@ class CustomerBuilder
                 email: sha1(uniqid(prefix: '', more_entropy: true)) . '@example.com',
             );
         }
-        $addresses = array_map(
-            callback: static fn (AddressBuilder $addressBuilder): AddressInterface => $addressBuilder->buildWithoutSave(),
-            array: $builder->addressBuilders,
-        );
-        $builder->customer->setAddresses(addresses: $addresses);
         $customer = $builder->saveNewCustomer();
+        // To save the customer addresses, the customer must exist first
+        $addresses = [];
+        foreach ($this->addressBuilders as $addressBuilder) {
+            if ($customer->getId()) {
+                $addressBuilder = $addressBuilder->withCustomerId(customerId: (int)$customer->getId());
+            }
+            $setAsDefaultBilling = $addressBuilder->isDefaultBilling();
+            $setAsDefaultShipping = $addressBuilder->isDefaultShipping();
+            $address = $addressBuilder->build();
+            $addresses[] = $address;
+            if ($setAsDefaultBilling) {
+                $defaultBillingId = $address->getId();
+            }
+            if ($setAsDefaultShipping) {
+                $defaultShippingId = $address->getId();
+            }
+        }
+        $customer->setDefaultBilling(defaultBilling: $defaultBillingId ?? null);
+        $customer->setDefaultShipping(defaultShipping: $defaultShippingId ?? null);
+        $customer->setAddresses(addresses: $addresses);
         /*
          * Magento automatically sets random confirmation key for new account with password.
          * We need to save again with our own confirmation (null for confirmed customer)

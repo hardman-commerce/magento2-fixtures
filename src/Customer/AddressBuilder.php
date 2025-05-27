@@ -65,10 +65,32 @@ class AddressBuilder
         return $builder;
     }
 
+    public function isDefaultShipping(): ?bool
+    {
+        $builder = clone $this;
+
+        return $builder->address->isDefaultShipping();
+    }
+
     public function asDefaultBilling(): AddressBuilder
     {
         $builder = clone $this;
         $builder->address->setIsDefaultBilling(isDefaultBilling: true);
+
+        return $builder;
+    }
+
+    public function isDefaultBilling(): ?bool
+    {
+        $builder = clone $this;
+
+        return $builder->address->isDefaultBilling();
+    }
+
+    public function withCustomerId(int $customerId): AddressBuilder
+    {
+        $builder = clone $this;
+        $builder->address->setCustomerId(customerId: $customerId);
 
         return $builder;
     }
@@ -215,7 +237,7 @@ class AddressBuilder
         $address = $objectManager->create(type: AddressInterface::class);
         $phoneNumberArray = explode(separator: 'x', string: $faker->phoneNumber());
         $address->setTelephone(
-            telephone: str_replace(search: '.', replace: '-', subject: $phoneNumberArray[0]),
+            telephone: trim(string: str_replace(search: '.', replace: '-', subject: $phoneNumberArray[0])),
         );
         $address->setPostcode(postcode: $faker->postcode());
         $address->setCountryId(countryId: $countryCode);

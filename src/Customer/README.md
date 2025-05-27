@@ -225,3 +225,86 @@ class SomeTest extends TestCase
     }
 }
 ```
+
+### Build Without Trait
+
+If you need a customer without specific data, this is all:
+
+```php
+protected function setUp(): void
+{
+  $this->customerFixture = new CustomerFixture(
+    CustomerBuilder::aCustomer()->build()
+  );
+}
+protected function tearDown(): void
+{
+  $this->customerFixture->rollback();
+}
+```
+
+It uses default sample data and a random email address. If you need the ID or email address in the tests, the
+`CustomerFixture` gives you access:
+
+```php
+$this->customerFixture->getId();
+$this->customerFixture->getEmail();
+```
+
+You can configure the builder with attributes:
+
+```php
+CustomerBuilder::aCustomer()
+  ->withEmail('test@example.com')
+  ->withCustomAttributes(
+    [
+      'my_custom_attribute' => 42
+    ]
+  )
+  ->build()
+```
+
+You can add addresses to the customer:
+
+```php
+CustomerBuilder::aCustomer()
+  ->withAddresses(
+    AddressBuilder::anAddress()->asDefaultBilling(),
+    AddressBuilder::anAddress()->asDefaultShipping(),
+    AddressBuilder::anAddress()
+  )
+  ->build()
+```
+
+Or just one:
+
+```php
+CustomerBuilder::aCustomer()
+  ->withAddresses(
+    AddressBuilder::anAddress()->asDefaultBilling()->asDefaultShipping()
+  )
+  ->build()
+```
+
+The `CustomerFixture` also has a shortcut to create a customer session:
+
+```php
+$this->customerFixture->login();
+```
+
+### Addresses
+
+Similar to the customer builder you can also configure the address builder with custom attributes:
+
+```php
+AddressBuilder::anAddress()
+  ->withCountryId('DE')
+  ->withCity('Aachen')
+  ->withPostcode('52078')
+  ->withCustomAttributes(
+    [
+      'my_custom_attribute' => 42
+    ]
+  )
+  ->asDefaultShipping()
+```

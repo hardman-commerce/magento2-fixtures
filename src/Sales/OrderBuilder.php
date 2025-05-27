@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace TddWizard\Fixtures\Sales;
 
+use Magento\Customer\Api\Data\AddressInterface;
+use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Sales\Model\Order;
 use TddWizard\Fixtures\Catalog\Product\ProductBuilder;
 use TddWizard\Fixtures\Checkout\CartBuilder;
@@ -18,7 +20,7 @@ use TddWizard\Fixtures\Customer\CustomerFixture;
 class OrderBuilder
 {
     private CartBuilder $cartBuilder;
-    private CustomerBuilder $customerBuilder;
+    private CustomerInterface $customer;
     private ?string $shippingMethod = null;
     private array $productBuilders;
     private ?string $paymentMethod = null;
@@ -40,10 +42,10 @@ class OrderBuilder
         return $builder;
     }
 
-    public function withCustomer(CustomerBuilder $customerBuilder): OrderBuilder
+    public function withCustomer(CustomerInterface $customer): OrderBuilder
     {
         $builder = clone $this;
-        $builder->customerBuilder = $customerBuilder;
+        $builder->customer = $customer;
 
         return $builder;
     }
@@ -94,16 +96,16 @@ class OrderBuilder
             array: $builder->productBuilders,
         );
 
-        if (empty($builder->customerBuilder)) {
+        if (empty($builder->customer)) {
             // init customer
-            $builder->customerBuilder = CustomerBuilder::aCustomer()
+            $builder->customer = CustomerBuilder::aCustomer()
                 ->withAddresses(
                     addressBuilders: AddressBuilder::anAddress()->asDefaultBilling()->asDefaultShipping(),
-                );
+                )->build();
         }
 
         // log customer in
-        $customer = $builder->customerBuilder->build();
+        $customer = $builder->customer;
         $customerFixture = new CustomerFixture(customer: $customer);
         $customerFixture->login();
 
@@ -115,6 +117,28 @@ class OrderBuilder
                 $builder->cartBuilder = $builder->cartBuilder->withSimpleProduct(sku: $product->getSku(), qty: $qty);
             }
         }
+        $addresses = $customerFixture->getCustomer()->getAddresses();
+        $shippingAddress = array_filter(
+            array: $addresses,
+            callback: static fn (AddressInterface $address): bool => (
+                $address->getId() === $customerFixture->getDefaultShippingAddressId()
+            ),
+        );
+        if (!count($shippingAddress)) {
+            $shippingAddress = $addresses;
+        }
+        $billingAddress = array_filter(
+            array: $addresses,
+            callback: static fn (AddressInterface $address): bool => (
+                $address->getId() === $customerFixture->getDefaultBillingAddressId()
+            ),
+        );
+        if (!count($billingAddress)) {
+            $billingAddress = $addresses;
+        }
+        $builder->cartBuilder->withCustomer(customer: $customerFixture->getCustomer());
+        $builder->cartBuilder->withAddress(address: array_shift($shippingAddress), isBillingAddress: false);
+        $builder->cartBuilder->withAddress(address: array_shift($billingAddress), isShippingAddress: false);
 
         // check out, place order
         $checkout = CustomerCheckout::fromCart(

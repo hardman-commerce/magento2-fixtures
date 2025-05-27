@@ -96,8 +96,11 @@ class OrderBuilderTest extends TestCase
         );
         $this->orderFixtures[] = $orderFixture;
 
-        self::assertInstanceOf(OrderInterface::class, $this->orderRepository->get($orderFixture->getId()));
-        self::assertCount(2, $orderFixture->getOrderItemQtys());
+        self::assertInstanceOf(
+            expected: OrderInterface::class,
+            actual: $this->orderRepository->get($orderFixture->getId()),
+        );
+        self::assertCount(expectedCount: 2, haystack: $orderFixture->getOrderItemQtys());
     }
 
     /**
@@ -110,18 +113,22 @@ class OrderBuilderTest extends TestCase
     public function createOrderWithCustomer(): void
     {
         $customerEmail = 'test@example.com';
-        $customerBuilder = CustomerBuilder::aCustomer()
+        $customer = CustomerBuilder::aCustomer()
             ->withEmail($customerEmail)
-            ->withAddresses(AddressBuilder::anAddress()->asDefaultBilling()->asDefaultShipping());
+            ->withAddresses(AddressBuilder::anAddress()->asDefaultBilling()->asDefaultShipping())
+            ->build();
 
         $orderFixture = new OrderFixture(
-            OrderBuilder::anOrder()->withCustomer($customerBuilder)->build(),
+            OrderBuilder::anOrder()->withCustomer(customer: $customer)->build(),
         );
         $this->orderFixtures[] = $orderFixture;
 
-        self::assertInstanceOf(OrderInterface::class, $this->orderRepository->get($orderFixture->getId()));
-        self::assertSame($customerEmail, $orderFixture->getCustomerEmail());
-        self::assertNotEmpty($orderFixture->getOrderItemQtys());
+        self::assertInstanceOf(
+            expected: OrderInterface::class,
+            actual: $this->orderRepository->get(id: $orderFixture->getId()),
+        );
+        self::assertSame(expected: $customerEmail, actual: $orderFixture->getCustomerEmail());
+        self::assertNotEmpty(actual: $orderFixture->getOrderItemQtys());
     }
 
     /**
@@ -144,34 +151,37 @@ class OrderBuilderTest extends TestCase
 
         $productBuilders = [];
         foreach ($cartItems as $sku => $qty) {
-            $productBuilders[] = ProductBuilder::aSimpleProduct()->withSku($sku);
+            $productBuilders[] = ProductBuilder::aSimpleProduct()->withSku(sku: $sku);
         }
 
         $customerBuilder = CustomerBuilder::aCustomer();
         $customerBuilder = $customerBuilder
-            ->withEmail($customerEmail)
-            ->withAddresses(AddressBuilder::anAddress()->asDefaultBilling()->asDefaultShipping());
+            ->withEmail(email: $customerEmail)
+            ->withAddresses(addressBuilders: AddressBuilder::anAddress()->asDefaultBilling()->asDefaultShipping());
 
+        $customer = $customerBuilder->build();
         $cartBuilder = CartBuilder::forCurrentSession();
+        $cartBuilder->withCustomer(customer: $customer);
         foreach ($cartItems as $sku => $qty) {
-            $cartBuilder = $cartBuilder->withSimpleProduct($sku, $qty);
+            $cartBuilder = $cartBuilder->withSimpleProduct(sku: $sku, qty: $qty);
         }
 
         $orderFixture = new OrderFixture(
             OrderBuilder::anOrder()
                 ->withProducts(...$productBuilders)
-                ->withCustomer($customerBuilder)
-                ->withCart($cartBuilder)
-                ->withPaymentMethod($paymentMethod)->withShippingMethod($shippingMethod)
+                ->withCustomer(customer: $customer)
+                ->withCart(cartBuilder: $cartBuilder)
+                ->withPaymentMethod(paymentMethod: $paymentMethod)
+                ->withShippingMethod(shippingMethod: $shippingMethod)
                 ->build(),
         );
         $this->orderFixtures[] = $orderFixture;
 
-        self::assertInstanceOf(OrderInterface::class, $this->orderRepository->get($orderFixture->getId()));
-        self::assertSame($customerEmail, $orderFixture->getCustomerEmail());
-        self::assertEmpty(array_diff($cartItems, $orderFixture->getOrderItemQtys()));
-        self::assertSame($paymentMethod, $orderFixture->getPaymentMethod());
-        self::assertSame($shippingMethod, $orderFixture->getShippingMethod());
+        self::assertInstanceOf(expected: OrderInterface::class, actual: $this->orderRepository->get($orderFixture->getId()));
+        self::assertSame(expected: $customerEmail, actual: $orderFixture->getCustomerEmail());
+        self::assertEmpty(actual: array_diff($cartItems, $orderFixture->getOrderItemQtys()));
+        self::assertSame(expected: $paymentMethod, actual: $orderFixture->getPaymentMethod());
+        self::assertSame(expected: $shippingMethod, actual: $orderFixture->getShippingMethod());
     }
 
     /**
@@ -213,7 +223,8 @@ class OrderBuilderTest extends TestCase
                             AddressBuilder::anAddress('de_AT')
                                 ->asDefaultBilling()
                                 ->asDefaultShipping(),
-                        ),
+                        )
+                        ->build(),
                 )
                 ->build(),
         );
@@ -242,7 +253,7 @@ class OrderBuilderTest extends TestCase
             ->withCustomer(
                 CustomerBuilder::aCustomer()->withAddresses(
                     AddressBuilder::anAddress($atLocale)->asDefaultBilling()->asDefaultShipping(),
-                ),
+                )->build(),
             )
             ->build();
         $this->orderFixtures[] = new OrderFixture($atOrder);
@@ -252,7 +263,7 @@ class OrderBuilderTest extends TestCase
             ->withCustomer(
                 CustomerBuilder::aCustomer()->withAddresses(
                     AddressBuilder::anAddress($usLocale)->asDefaultBilling()->asDefaultShipping(),
-                ),
+                )->build(),
             )
             ->build();
         $this->orderFixtures[] = new OrderFixture($usOrder);
@@ -262,7 +273,7 @@ class OrderBuilderTest extends TestCase
             ->withCustomer(
                 CustomerBuilder::aCustomer()->withAddresses(
                     AddressBuilder::anAddress($caLocale)->asDefaultBilling()->asDefaultShipping(),
-                ),
+                )->build(),
             )
             ->build();
         $this->orderFixtures[] = new OrderFixture($caOrder);
