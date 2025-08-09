@@ -22,7 +22,7 @@ It aims to be:
 
 Install it into your Magento 2 project with composer:
 
-    composer require --dev hardmanCommerce/magento2-fixtures
+    composer require --dev hardman-commerce/magento2-fixtures
 
 ## Requirements
 
@@ -176,15 +176,15 @@ public function testSomethingWithMultipleProducts()
 
 The MIT License (MIT). Please see [License File](LICENSE.txt) for more information.
 
-[ico-version]: https://img.shields.io/packagist/v/hardmanCommerce/magento2-fixtures.svg?style=flat-square
+[ico-version]: https://img.shields.io/packagist/v/hardman-commerce/magento2-fixtures.svg?style=flat-square
 
 [ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
 
-[link-packagist]: https://packagist.org/packages/hardmanCommerce/magento2-fixtures
+[link-packagist]: https://packagist.org/packages/hardman-commerce/magento2-fixtures
 
 [link-author-fs]: https://github.com/schmengler
 
-[link-author-rm]: https://github.com/hardmanCommerce/
+[link-author-rm]: https://github.com/hardman-commerce/
 
 [link-contributors]: ../../contributors
 
