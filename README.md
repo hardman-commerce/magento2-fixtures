@@ -2,15 +2,11 @@
 
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Software License][ico-license]](LICENSE.md)
-[![Build Status][ico-travis]][link-travis]
-[![Coverage Status][ico-scrutinizer]][link-scrutinizer]
-[![Quality Score][ico-code-quality]][link-code-quality]
-[![Code Climate](https://img.shields.io/codeclimate/maintainability/tddwizard/magento2-fixtures?style=flat-square)](https://codeclimate.com/github/tddwizard/magento2-fixtures)
 
 ---
 
-Forked from [Magento 2 Fixtures by Fabian Schmengler](https://tddwizard.com/).  
-Updated with code from [Klevu Test Fixtures](https://github.com/klevu/module-m2-test-fixtures)
+Forked from [Magento 2 Fixtures by Fabian Schmengler](https://github.com/tddwizard/magento2-fixtures).  
+Updated with code from [Klevu Test Fixtures](https://github.com/klevu/module-m2-test-fixtures).
 
 ## What is it?
 
@@ -26,7 +22,7 @@ It aims to be:
 
 Install it into your Magento 2 project with composer:
 
-    composer require --dev hardman-commerce/magento2-fixtures
+    composer require --dev hardmanCommerce/magento2-fixtures
 
 ## Requirements
 
@@ -49,7 +45,7 @@ Fixtures and Traits to build categories, including store scope settings.
 ### [Catalog/Product](./src/Catalog/Product/README.md)
 
 Fixtures and Traits to build products, including store scope settings.  
-Extended TDDWizard fixtures to add
+Extended TDDWizard product fixtures to add
 
 * Tier Prices
 * Images
@@ -81,9 +77,16 @@ Add the following product types to the cart:
 * Configurable
 * Grouped
 
+Todo:
+
+* Bundle
+* Gift Card
+
 ### [CMS](./src/Cms/README.md)
 
-Fixtures and Traits to build CMS pages.
+Fixtures and Traits to build:
+
+* Pages
 
 Todo:
 
@@ -103,6 +106,17 @@ Fixtures and Traits to build:
 * Customer Groups
 
 ### [Sales](./src/Sales/README.md)
+
+Fixtures to build:
+
+* Credit memos
+* Invoices
+* Orders
+* Shipments
+
+Todo:
+
+* Create traits
 
 ### [Store](./src/Store/README.md)
 
@@ -154,32 +168,23 @@ public function testSomethingWithMultipleProducts()
 
 ## Credits
 
-- [Fabian Schmengler][link-author]
+- [Fabian Schmengler][link-author-fs]
+- [Richard Hardman][link-author-rm]
 - [All Contributors][link-contributors]
 
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.txt) for more information.
 
-[ico-version]: https://img.shields.io/packagist/v/tddwizard/magento2-fixtures.svg?style=flat-square
+[ico-version]: https://img.shields.io/packagist/v/hardmanCommerce/magento2-fixtures.svg?style=flat-square
 
 [ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
 
-[ico-travis]: https://img.shields.io/travis/tddwizard/magento2-fixtures/master.svg?style=flat-square
+[link-packagist]: https://packagist.org/packages/hardmanCommerce/magento2-fixtures
 
-[ico-scrutinizer]: https://img.shields.io/scrutinizer/coverage/g/tddwizard/magento2-fixtures?style=flat-square
+[link-author-fs]: https://github.com/schmengler
 
-[ico-code-quality]: https://img.shields.io/scrutinizer/g/tddwizard/magento2-fixtures.svg?style=flat-square
-
-[link-packagist]: https://packagist.org/packages/tddwizard/magento2-fixtures
-
-[link-travis]: https://travis-ci.org/tddwizard/magento2-fixtures
-
-[link-scrutinizer]: https://scrutinizer-ci.com/g/tddwizard/magento2-fixtures/code-structure
-
-[link-code-quality]: https://scrutinizer-ci.com/g/tddwizard/magento2-fixtures
-
-[link-author]: https://github.com/schmengler
+[link-author-rm]: https://github.com/hardmanCommerce/
 
 [link-contributors]: ../../contributors
 
