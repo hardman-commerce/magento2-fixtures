@@ -1,23 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TddWizard\Fixtures\Checkout;
 
+use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Quote\Model\Quote\Item;
+use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
-use TddWizard\Fixtures\Catalog\ProductBuilder;
-use TddWizard\Fixtures\Catalog\ProductFixture;
+use TddWizard\Fixtures\Catalog\Product\ProductBuilder;
+use TddWizard\Fixtures\Catalog\Product\ProductFixture;
 
 class CartBuilderTest extends TestCase
 {
-    /**
-     * @var ProductFixture
-     */
-    private $productFixture;
+    private ProductFixture $productFixture;
+    private readonly ObjectManagerInterface $objectManager;
 
     protected function setUp(): void
     {
+        $this->objectManager = Bootstrap::getObjectManager();
         $this->productFixture = new ProductFixture(
-            ProductBuilder::aSimpleProduct()->build()
+            ProductBuilder::aSimpleProduct()->build(),
         );
     }
 
@@ -25,29 +29,28 @@ class CartBuilderTest extends TestCase
      * @magentoAppIsolation enabled
      * @magentoAppArea frontend
      */
-    public function testProductCanBeAddedWithCustomBuyRequest()
+    public function testProductCanBeAddedWithCustomBuyRequest(): void
     {
         $qty = 2;
         $customOptionId = 42;
         $customOptionValue = 'foobar';
-        $cart = CartBuilder::forCurrentSession()->withProductRequest(
-            $this->productFixture->getSku(),
-            $qty,
-            ['options' => [$customOptionId => $customOptionValue]]
-        )->build();
-        $quoteItems = $cart->getQuote()->getAllItems();
-        $this->assertCount(1, $quoteItems, "1 quote item should be added");
+        $cartBuilder = CartBuilder::forCurrentSession();
+        $cartBuilder = $cartBuilder->withProductRequest(
+            sku: $this->productFixture->getSku(),
+            qty: $qty,
+            request: ['options' => [$customOptionId => $customOptionValue]],
+        );
+        $cart = $cartBuilder->build();
+        $quoteItems = $cart->getAllItems();
+        $this->assertCount(expectedCount: 1, haystack: $quoteItems, message: "1 quote item should be added");
         /** @var Item $quoteItem */
-        $quoteItem = reset($quoteItems);
-        $serializedBuyRequest = $quoteItem->getOptionByCode('info_buyRequest')->getValue();
-        if (!json_decode($serializedBuyRequest)) {
-            // Magento 2.1 PHP serialization
-            $serializedBuyRequest = json_encode(unserialize($serializedBuyRequest, []));
-        }
+        $quoteItem = reset(array: $quoteItems);
+        $serializedBuyRequest = $quoteItem->getOptionByCode(code: 'info_buyRequest')->getValue();
+        $serializer = $this->objectManager->get(Json::class);
         $this->assertJsonStringEqualsJsonString(
-            json_encode(['qty' => $qty, 'options' => ['42' => 'foobar']]),
+            $serializer->serialize(data: ['qty' => $qty, 'options' => ['42' => 'foobar']]),
             $serializedBuyRequest,
-            "Value of info_buyRequest option should be as configured"
+            "Value of info_buyRequest option should be as configured",
         );
     }
 }
