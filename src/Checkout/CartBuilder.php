@@ -8,8 +8,7 @@ use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Helper\Product as ProductHelper;
 use Magento\Catalog\Model\Product;
-use Magento\Checkout\Model\Session;
-use Magento\Checkout\Model\SessionFactory as CheckoutSessionFactory;
+use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Checkout\Model\Type\Onepage;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Customer\Api\Data\AddressInterface as CustomerAddressInterface;
@@ -33,7 +32,7 @@ use Magento\TestFramework\ObjectManager;
 class CartBuilder
 {
     private CartInterface $cart;
-    private Session $session;
+    private CheckoutSession $session;
 
     private QuoteAddress $quoteAddress;
     /**
@@ -43,10 +42,10 @@ class CartBuilder
 
     final public function __construct(
         private readonly ProductRepositoryInterface $productRepository,
-        readonly CheckoutSessionFactory $checkoutSessionFactory,
+        readonly CheckoutSession $checkoutSession,
         readonly QuoteAddressFactory $quoteAddressFactory,
     ) {
-        $this->session = $checkoutSessionFactory->create();
+        $this->session = $checkoutSession;
         $this->quoteAddress = $quoteAddressFactory->create();
         $this->cart = $this->session->getQuote();
         $this->addToCartRequests = [];
@@ -58,9 +57,11 @@ class CartBuilder
 
         $result = new static(
             productRepository: $objectManager->create(type: ProductRepositoryInterface::class),
-            checkoutSessionFactory: $objectManager->create(type: CheckoutSessionFactory::class),
+            checkoutSession: $objectManager->get(type: CheckoutSession::class),
             quoteAddressFactory: $objectManager->create(QuoteAddressFactory::class),
         );
+        $result->session->clearQuote();
+        $result->session->clearStorage();
         $result->cart->setStoreId(storeId: Store::DISTRO_STORE_ID);
         $result->cart->setIsMultiShipping(value: 0);
         $result->cart->setIsActive(isActive: true);
@@ -94,6 +95,7 @@ class CartBuilder
         $result->cart->setCustomer(customer: $customer);
         $result->cart->setCheckoutMethod(checkoutMethod: Onepage::METHOD_CUSTOMER);
         $result->cart->setCustomerIsGuest(customerIsGuest: false);
+        $result->session->setCustomerData(customer: $customer);
 
         return $result;
     }
