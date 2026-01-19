@@ -42,6 +42,8 @@ class CatalogRuleBuilderTest extends TestCase
      */
     protected function tearDown(): void
     {
+        parent::tearDown();
+
         if (!empty($this->catalogRules)) {
             foreach ($this->catalogRules as $catalogRule) {
                 CatalogRuleFixtureRollback::create()->execute(ruleFixtures: $catalogRule);

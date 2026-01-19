@@ -34,6 +34,8 @@ class OptionBuilderTest extends TestCase
 
     protected function tearDown(): void
     {
+        parent::tearDown();
+
         if (!empty($this->options)) {
             foreach ($this->options as $optionFixture) {
                 $optionFixture->rollBack();

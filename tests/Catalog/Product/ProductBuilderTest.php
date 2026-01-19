@@ -52,6 +52,8 @@ class ProductBuilderTest extends TestCase
 
     protected function tearDown(): void
     {
+        parent::tearDown();
+
         if (!empty($this->products)) {
             foreach ($this->products as $product) {
                 ProductFixtureRollback::create()->execute($product);
@@ -343,6 +345,10 @@ class ProductBuilderTest extends TestCase
         $this->assertEquals(expected: 54.99, actual: $productLink->getPrice());
     }
 
+    /**
+     * @magentoAppIsolation enabled
+     * @magentoDbIsolation disabled
+     */
     public function testConfigurableProduct_withSpecialPrices(): void
     {
         $this->createAttribute(attributeData: [

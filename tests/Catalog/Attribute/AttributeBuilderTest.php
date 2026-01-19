@@ -42,7 +42,10 @@ class AttributeBuilderTest extends TestCase
 
     protected function tearDown(): void
     {
+        parent::tearDown();
+
         $this->deleteAttributes();
+        $this->storeFixturePool->rollback();
     }
 
     public function testProductTextAttribute_DefaultValues(): void
