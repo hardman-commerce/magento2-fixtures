@@ -21,6 +21,8 @@ class CustomerCheckoutTest extends TestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $this->productFixtures = new ProductFixturePool();
         $this->customerFixtures = new CustomerFixturePool();
         $this->customerFixtures->add(
@@ -43,6 +45,8 @@ class CustomerCheckoutTest extends TestCase
      */
     protected function tearDown(): void
     {
+        parent::tearDown();
+
         $this->customerFixtures->rollback();
         $this->productFixtures->rollback();
     }

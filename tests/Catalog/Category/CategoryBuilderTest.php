@@ -48,6 +48,8 @@ class CategoryBuilderTest extends TestCase
 
     protected function tearDown(): void
     {
+        parent::tearDown();
+
         if (!empty($this->categories)) {
             foreach ($this->categories as $product) {
                 CategoryFixtureRollback::create()->execute($product);

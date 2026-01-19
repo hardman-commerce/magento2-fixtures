@@ -56,7 +56,7 @@ class TaxCalculationTest extends TestCase
     /**
      * @magentoDbIsolation disabled
      */
-    #[DataProvider('testTaxCalculatedCorrectly_WhenCreatedViaFixtures_dataProvider')]
+    #[DataProvider('dataProvider_testTaxCalculatedCorrectly_WhenCreatedViaFixtures')]
     public function testTaxCalculatedCorrectly_WhenCreatedViaFixtures(
         bool $productIsTaxable,
         bool $catalogIncludeTax,
@@ -147,7 +147,7 @@ class TaxCalculationTest extends TestCase
     /**
      * @return mixed[][]
      */
-    public static function testTaxCalculatedCorrectly_WhenCreatedViaFixtures_dataProvider(): array
+    public static function dataProvider_testTaxCalculatedCorrectly_WhenCreatedViaFixtures(): array
     {
         // [$productIsTaxable, $catalogIncludeTax, $countryId, $productPrice, $expectedTaxValue]
         return [
